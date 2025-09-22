@@ -20,8 +20,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#1A1A1A',
-    marginBottom: 6,
-  },
+   },
   dateButton: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 12,

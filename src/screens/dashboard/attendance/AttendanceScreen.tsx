@@ -22,6 +22,7 @@ import { useAppDispatch } from '../../../store/hooks';
 import { getLastPunchInThunk } from '../../../store/slices/attendance/thunk';
 import ErrorMessage from '../../../components/error/Error';
 import { formatDateForAPI, parseCustomDate } from '../../../utils/helpers';
+import MaterialIcons from '@react-native-vector-icons/material-icons';
 
 const AttendanceScreen = () => {
   const navigation = useNavigation<any>();
@@ -205,7 +206,18 @@ const AttendanceScreen = () => {
             {showDateFilter && (
               <View style={styles.dateContainer}>
                 <View style={styles.dateRow}>
-                  <Text style={styles.dateLabel}>From Date:</Text>
+                  <View
+                    style={{
+                      alignContent: 'center',
+                      alignItems: 'center',
+                      flexDirection: 'row',
+                      gap: 4,
+                      marginBottom: 6
+                     }}
+                  >
+                    <MaterialIcons size={20} color={'#000'} name="today" />
+                    <Text style={styles.dateLabel}>From Date:</Text>
+                  </View>
                   <TouchableOpacity
                     onPress={() => setShowDatePicker({ type: 'from', show: true })}
                     style={styles.dateButton}
@@ -214,7 +226,18 @@ const AttendanceScreen = () => {
                   </TouchableOpacity>
                 </View>
                 <View style={styles.dateRow}>
-                  <Text style={styles.dateLabel}>To Date:</Text>
+                  <View
+                    style={{
+                      alignContent: 'center',
+                      alignItems: 'center',
+                      flexDirection: 'row',
+                      gap: 4,
+                      marginBottom: 6
+                     }}
+                  >
+                    <MaterialIcons size={20} color={'#000'} name="insert-invitation" />
+                    <Text style={styles.dateLabel}>To Date:</Text>
+                  </View>
                   <TouchableOpacity
                     onPress={() => setShowDatePicker({ type: 'to', show: true })}
                     style={styles.dateButton}
@@ -261,8 +284,7 @@ const AttendanceScreen = () => {
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                     onChange={onChangeDate}
-                   
-                    />
+                  />
                 )}
               </View>
             ) : (

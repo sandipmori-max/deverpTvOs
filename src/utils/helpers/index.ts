@@ -296,43 +296,60 @@ export const formatDate = dateStr => {
   return date.format('MMM DD, YYYY');
 };
 export function formatDateHr(input, isFullDate) {
-  const normalized = input?.replace(" ", "T"); 
+  if (!input) return input;
+
+  const normalized = input?.replace(' ', 'T');
   const date = new Date(normalized);
 
   if (isNaN(date.getTime())) {
-    const [mdy, time, ampm] = input?.split(" ");
-    const [m, d, y] = mdy?.split("/").map(Number);
-    let [hh, mm, ss] = time?.split(":").map(Number);
+    const [mdy, time, ampm] = input?.split(' ');
+    const [m, d, y] = (mdy || '').split('/').map(Number);
+    let [hh, mm, ss] = (time || '').split(':').map(Number);
 
-    if (ampm === "PM" && hh < 12) hh += 12;
-    if (ampm === "AM" && hh === 12) hh = 0;
+    if (ampm === 'PM' && hh < 12) hh += 12;
+    if (ampm === 'AM' && hh === 12) hh = 0;
 
-    return buildFormatted(new Date(y, m - 1, d, hh, mm, ss));
+    const parsed = new Date(y, m - 1, d, hh, mm, ss);
+    if (isNaN(parsed.getTime())) {
+      return input;
+    }
+    return buildFormatted(parsed, isFullDate);
   }
 
-  return buildFormatted(date, isFullDate);
+  return buildFormatted(date, isFullDate) || input;
 }
 
 function buildFormatted(date, isFullDate) {
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const day = String(date.getDate()).padStart(2, "0");
+  if (isNaN(date?.getTime?.())) return null;
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  const day = String(date.getDate()).padStart(2, '0');
   const month = months[date.getMonth()];
   const year = date.getFullYear();
 
   let hours = date.getHours() || 12;
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  if(isFullDate){
-  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
 
-  }else{
-  return `${day}-${month}-${year}`;
-
+  if (isFullDate) {
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+  } else {
+    return `${day}-${month}-${year}`;
   }
-
 }
- 
+
 export const isTokenValid = (tokenValidTill: string) => {
   return new Date(tokenValidTill).getTime() > Date.now();
 };
@@ -348,8 +365,10 @@ export async function requestLocationPermissions() {
 
       if (
         granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
-        granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
-        granted['android.permission.ACCESS_BACKGROUND_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
+        granted['android.permission.ACCESS_COARSE_LOCATION'] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+        granted['android.permission.ACCESS_BACKGROUND_LOCATION'] ===
+          PermissionsAndroid.RESULTS.GRANTED
       ) {
         console.log('✅ Location permissions granted');
         return true;
@@ -365,3 +384,86 @@ export async function requestLocationPermissions() {
     return true;
   }
 }
+
+export const formatTo12Hour = (time: string) => {
+  if (!time) return '--';
+  const [hourStr, minute] = time.split(':');
+  let hour = parseInt(hourStr, 10);
+
+  const suffix = hour >= 12 ? 'PM' : 'AM';
+  hour = hour % 12 || 12;
+
+  return `${hour.toString().padStart(2, '0')}:${minute} ${suffix}`;
+};
+
+export const isLatePunchIn = (punchIn: string) => {
+  if (!punchIn) return false;
+  const [hours, minutes] = punchIn.split(':').map(Number);
+  return hours > 10 || (hours === 10 && minutes > 15);
+};
+
+export const isAfter830 = (punchIn: string) => {
+  if (!punchIn) return false;
+  const [hours, minutes] = punchIn.split(':').map(Number);
+  return hours > 8 || (hours === 8 && minutes > 30);
+};
+
+export const isBefore830 = (punchIn: string) => {
+  if (!punchIn) return false;
+  const [hours, minutes] = punchIn.split(':').map(Number);
+  return hours < 8 || (hours === 8 && minutes < 30);
+};
+
+export const normalizeDate = (dateStr: string) => {
+  const [day, monthStr, year] = dateStr && dateStr.split(' ');
+  const monthMap: Record<string, string> = {
+    Jan: '01',
+    Feb: '02',
+    Mar: '03',
+    Apr: '04',
+    May: '05',
+    Jun: '06',
+    Jul: '07',
+    Aug: '08',
+    Sep: '09',
+    Oct: '10',
+    Nov: '11',
+    Dec: '12',
+  };
+  return `${year}-${monthMap[monthStr]}-${day.padStart(2, '0')}`;
+};
+
+export const getWorkedHours = (punchIn: string, punchOut: string): number => {
+  if (!punchIn || !punchOut) return 0;
+  const [inH, inM] = punchIn.split(':').map(Number);
+  const [outH, outM] = punchOut.split(':').map(Number);
+  const inDate = new Date(0, 0, 0, inH, inM);
+  const outDate = new Date(0, 0, 0, outH, outM);
+  return (outDate.getTime() - inDate.getTime()) / 1000 / 60 / 60;
+};
+
+export const getWorkedHours2 = (punchIn: string, punchOut: string) => {
+  if (!punchIn || !punchOut) return '0 hr 0 min';
+
+  const [inH, inM] = punchIn.split(':').map(Number);
+  const [outH, outM] = punchOut.split(':').map(Number);
+
+  if (isNaN(inH) || isNaN(inM) || isNaN(outH) || isNaN(outM)) {
+    return '0 hr 0 min';
+  }
+
+  const inDate = new Date(0, 0, 0, inH, inM);
+  const outDate = new Date(0, 0, 0, outH, outM);
+
+  let diffMs = outDate.getTime() - inDate.getTime();
+  if (diffMs <= 0) return '0 hr 0 min';
+
+  const totalMinutes = Math.floor(diffMs / 60000);
+
+  const minutesAfterBreak = Math.max(totalMinutes - 60, 0);
+
+  const hours = Math.floor(minutesAfterBreak / 60);
+  const mins = minutesAfterBreak % 60;
+
+  return `${hours}:${mins.toString().padStart(2, '0')} hr`;
+};

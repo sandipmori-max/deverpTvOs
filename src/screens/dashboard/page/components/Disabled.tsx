@@ -5,8 +5,21 @@ import { ERP_COLOR_CODE } from '../../../../utils/constants';
 import { formatDateHr } from '../../../../utils/helpers';
 
 const Disabled = ({ item, value, type }: any) => {
-  console.log("🚀 ~ Disabled ~ item:", item)
-  console.log("🚀 ~ Disabled ~ value:", value)
+  console.log("🚀 ~ Disabled ~ item:", item);
+  console.log("🚀 ~ Disabled ~ value:", value);
+
+  const getDisplayValue = () => {
+    if (type === 'DATETIME') {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        return formatDateHr(date, true);
+      } else {
+        return value || '-';
+      }
+    }
+    return value || '-';
+  };
+
   return (
     <View style={{ marginBottom: 16 }}>
       <View style={{ flexDirection: 'row' }}>
@@ -16,7 +29,7 @@ const Disabled = ({ item, value, type }: any) => {
       </View>
       <View style={styles.disabledBox}>
         <Text style={{ color: '#555' }}>
-           {type === 'DATETIME' ? formatDateHr(value, true) : value || '-'}
+          {getDisplayValue()}
         </Text>
       </View>
     </View>

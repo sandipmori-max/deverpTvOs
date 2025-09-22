@@ -1,5 +1,5 @@
 export const ERP_COLOR_CODE = {
-  ERP_APP_COLOR: '#251d50ff',
+  ERP_APP_COLOR: '#251d50',
   ERP_ACTIVE_BUTTON: '#000000',
   ERP_DE_ACTIVE_BUTTON: '#c2bdbdff',
   ERP_REMOVE_BUTTON: '#ff3b30',

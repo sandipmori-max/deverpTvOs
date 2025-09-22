@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from
 import { Text, View, FlatList, StyleSheet, Dimensions, Keyboard, Platform } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import Animated, { FadeInUp, Layout } from 'react-native-reanimated';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { useAppDispatch } from '../../../store/hooks';
 import { getERPPageThunk } from '../../../store/slices/auth/thunk';
 import { savePageThunk } from '../../../store/slices/page/thunk';
 import FullViewLoader from '../../../components/loader/FullViewLoader';
@@ -96,14 +96,14 @@ const PageScreen = () => {
       headerTitle: () => (
         <Text
           numberOfLines={1}
-          style={{ maxWidth: 180, fontSize: 18, fontWeight: '700', color: '#fff' }}
+          style={{ maxWidth: isFromNew ? 280 : 180, fontSize: 18, fontWeight: '700', color: '#fff' }}
         >
           {isFromNew ? `${pageTitle} ( New ) ` : title + ' ( Edit )' || 'Details'}
         </Text>
       ),
       headerRight: () => (
         <>
-          {!isFromNew && (
+          {(
             <ERPIcon
               name="refresh"
               isLoading={actionLoader}

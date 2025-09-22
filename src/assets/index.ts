@@ -15,8 +15,6 @@ const PROFILE = require(`${ERP_BASE_URL_ICONS}/user.png`);
 const ACTIVE_PROFILE = require(`${ERP_BASE_URL_ICONS}/active_user.png`);
 const BACK = require(`${ERP_BASE_URL_ICONS}/back.png`);
 const ERROR_ICON = require(`${ERP_BASE_URL_ICONS}/error.png`);
-const BOOK_MARK_DONE = require(`${ERP_BASE_URL_ICONS}/bookmark_done.png`);
-const BOOK_MARK = require(`${ERP_BASE_URL_ICONS}/bookmark.png`);
 const MENU = require(`${ERP_BASE_URL_ICONS}/menu.png`);
 
 const ERROR = require(`${ERP_BASE_URL_GIF}/error.gif`);
@@ -40,8 +38,6 @@ export const ERP_ICON = {
   ACTIVE_PROFILE,
   BACK,
   ERROR_ICON,
-  BOOK_MARK_DONE,
-  BOOK_MARK,
   MENU,
 };
 

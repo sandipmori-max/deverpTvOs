@@ -6,15 +6,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: ERP_COLOR_CODE.ERP_BACKGROUND,
   },
-  toggleButton: {
-    position: 'absolute',
-    right: 4,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 5,
-    top: 16,
-  },
 
   iconWrapper: {
     flexDirection: 'row',
@@ -74,14 +65,7 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#444',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 14,
-    borderRadius: 10,
-    fontSize: 16,
-    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
-  },
+
   errorText: {
     color: '#d9534f',
     fontSize: 13,
@@ -100,8 +84,8 @@ export const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   disabledButton: {
-    backgroundColor:  ERP_COLOR_CODE.ERP_APP_COLOR,
-    opacity: 0.4
+    backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+    opacity: 0.4,
   },
   addButtonText: {
     color: ERP_COLOR_CODE.ERP_WHITE,
@@ -121,5 +105,36 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 25,
     borderRadius: 20,
+  },
+  inputWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    paddingHorizontal: 10,
+  },
+
+  input: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 14,
+    borderRadius: 10,
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+  },
+  input1: {
+    fontSize: 16,
+    borderColor: '#161515',
+    paddingVertical: 14,
+    flex: 1,
+    borderRadius: 10,
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+  },
+  toggleButton: {
+    padding: 4,
   },
 });

@@ -26,7 +26,10 @@ const TableView = ({
     };
   };
 
-  const allKeys = filteredData && filteredData?.length > 0 ? Object.keys(filteredData[0]) : [];
+const allKeys =
+  filteredData && filteredData.length > 0
+    ? Object.keys(filteredData[0]).filter(key => key !== 'id')
+    : [];
 
   function splitInto4Columns(keys: string[]): Record<string, string[]> {
     const result: Record<string, string[]> = { clm1: [], clm2: [], clm3: [], clm4: [] };

@@ -110,8 +110,10 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
             <Text style={[styles.accountName, isActive && styles.activeText]}>
               {item?.user?.name.charAt(0).toUpperCase() + item?.user?.name.slice(1)}
             </Text>
-            <Text style={[styles.accountEmail, isActive && styles.activeText]}>
-              {item?.user?.companyName}
+            <Text 
+            numberOfLines={1}
+            style={[styles.accountEmail, isActive && styles.activeText]}>
+              {item?.user?.companyName} 
             </Text>
              
             <View

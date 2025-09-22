@@ -268,8 +268,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#1A1A1A',
-    marginBottom: 6,
-  },
+   },
   dateButton: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 12,
@@ -480,7 +479,7 @@ export const styles = StyleSheet.create({
   },
   addButton: {
     position: 'absolute',
-    bottom: 64,
+    bottom: 44,
     right: 18,
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, 
     borderRadius: 56,

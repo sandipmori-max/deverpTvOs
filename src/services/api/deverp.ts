@@ -36,7 +36,6 @@ class DevERPService {
     const storedToken = await AsyncStorage.getItem('erp_token');
     const storedTokenValidTill = await AsyncStorage.getItem('erp_token_valid_till');
    
-
     if (storedToken && storedTokenValidTill && new Date(storedTokenValidTill) > new Date()) {
       this.token = storedToken;
       this.tokenValidTill = storedTokenValidTill;
@@ -180,8 +179,8 @@ class DevERPService {
         if (activeAccount) {
           const updatedUser = {
             ...activeAccount.user,
-            // token: response.data.token,
-            // tokenValidTill: response.data.validTill ,
+            token: response.data.token,
+            tokenValidTill: response.data.validTill ,
           };
           await db.executeSql(`UPDATE erp_accounts SET user_json = ? WHERE id = ?`, [
             JSON.stringify(updatedUser),
@@ -325,18 +324,14 @@ class DevERPService {
     AsyncStorage.setItem('erp_token', token);
   }
   setDevice(device: string) {
-    console.log('🚀 ~ DevERPService ~ setDevice ~ device:', device);
     AsyncStorage.setItem('device', device);
 
     this.device = device;
   }
   setAppId(appId: string) {
-    console.log('🚀 ~ DevERPService ~ setAppId ~ appId:', appId);
     AsyncStorage.setItem('erp_appid', appId);
     this.appid = appId;
   }
 }
 
 export default new DevERPService();
-// 7e5f9467-ba1b-49ae-9081-b2b24e45667b
-//  sdk_gphone64_x86_64

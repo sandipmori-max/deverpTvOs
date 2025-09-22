@@ -46,12 +46,13 @@ const ReadableView = ({
     const baseUrl = item?.image && item?.image?.replace(/^https:\/\//i, 'http://');
     const authUser = item?.authuser;
 
-    const avatarLetter = name
-      .split('')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map(word => word.charAt(0).toUpperCase())
-      .join('');
+    const avatarLetter =
+      name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(word => word.charAt(0).toUpperCase())
+        .join('') || name.substring(0, 2).toUpperCase();
 
     return (
       <View

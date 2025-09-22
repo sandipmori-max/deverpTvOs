@@ -74,6 +74,13 @@ const HomeScreen = () => {
     }, [isAuthenticated, dispatch]),
   );
 
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     dispatch(getERPDashboardThunk());
+  //   }, 120 * 1000);
+  //   return () => clearInterval(intervalId); 
+  // }, [dispatch]);
+
   const getInitials = (text?: string) => {
     if (!text) return '?';
     const trimmed = text?.trim();

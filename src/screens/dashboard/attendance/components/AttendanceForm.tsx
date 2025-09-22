@@ -218,7 +218,7 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
               </View>
             </View>
 
-            <View style={{ bottom: 22 }}>
+            <View style={{   }}>
               <View style={styles.formGroup}>
                 <Text style={styles.label}>{t('attendance.employeeName')}</Text>
                 <TextInput

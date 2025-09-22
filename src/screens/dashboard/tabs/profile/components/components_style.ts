@@ -4,7 +4,7 @@ import { ERP_COLOR_CODE } from '../../../../../utils/constants';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: ERP_COLOR_CODE.ERP_BACKGROUND,
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
   },
   header: {
     flexDirection: 'row',
@@ -35,15 +35,15 @@ export const styles = StyleSheet.create({
   },
   accountsList: {
     flex: 1,
-    padding: 20,
+    padding: 12,
   },
   accountItem: {
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
-    borderRadius: 4,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: '#ccc',
   },
   activeAccount: {
     borderColor: ERP_COLOR_CODE.ERP_APP_COLOR,

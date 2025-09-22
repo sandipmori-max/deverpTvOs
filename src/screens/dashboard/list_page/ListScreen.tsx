@@ -314,8 +314,8 @@ const ListScreen = () => {
 
   if (parsedError) {
     return (
-      <View style={{ flex: 1 , backgroundColor:'#fff'}}>
-        <ErrorMessage message={parsedError}/>
+      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+        <ErrorMessage message={parsedError} />
       </View>
     );
   }
@@ -344,7 +344,18 @@ const ListScreen = () => {
           {hasDateField && (
             <View style={styles.dateContainer}>
               <View style={styles.dateRow}>
-                <Text style={styles.dateLabel}>From Date:</Text>
+                <View
+                  style={{
+                    alignContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    gap: 4,
+                    marginBottom: 6,
+                  }}
+                >
+                  <MaterialIcons size={20} color={'#000'} name="insert-invitation" />
+                  <Text style={styles.dateLabel}>From Date:</Text>
+                </View>
                 <TouchableOpacity
                   onPress={() => setShowDatePicker({ type: 'from', show: true })}
                   style={styles.dateButton}
@@ -353,7 +364,18 @@ const ListScreen = () => {
                 </TouchableOpacity>
               </View>
               <View style={styles.dateRow}>
-                <Text style={styles.dateLabel}>To Date:</Text>
+                <View
+                  style={{
+                    alignContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    gap: 4,
+                    marginBottom: 6,
+                  }}
+                >
+                  <MaterialIcons size={20} color={'#000'} name="insert-invitation" />
+                  <Text style={styles.dateLabel}>To Date:</Text>
+                </View>
                 <TouchableOpacity
                   onPress={() => setShowDatePicker({ type: 'to', show: true })}
                   style={styles.dateButton}

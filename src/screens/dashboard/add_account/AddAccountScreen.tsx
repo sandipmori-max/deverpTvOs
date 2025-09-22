@@ -20,15 +20,14 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { useTranslation } from 'react-i18next';
 
 const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose }) => {
-
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   const dispatch = useAppDispatch();
 
   const { execute: validateCompanyCode, execute: loginWithERP } = useApi();
-  
+
   const { accounts, user } = useAppSelector(state => state.auth);
-  
+
   const { token: fcmToken } = useFcmToken();
 
   const [deviceId, setDeviceId] = useState<string>('');
@@ -40,7 +39,6 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
     message: '',
     type: 'info' as 'error' | 'success' | 'info',
   });
-
 
   useEffect(() => {
     setLoader(false);
@@ -86,7 +84,7 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
       );
       console.log('🚀 ~ handleAddAccount ~ validation:', validation);
       if (!validation?.isValid) {
-        setLoader(false)
+        setLoader(false);
         return;
       }
       const currentFcmToken = fcmToken || (await getMessaging().getToken());
@@ -179,7 +177,7 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
         <FlatList
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-           keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="handled"
           data={['']}
           renderItem={() => {
             return (
@@ -228,23 +226,18 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
                           )}
                         </View>
 
-                        <View
-                          style={[
-                            styles.inputContainer,
-                            { justifyContent: 'space-between', alignContent: 'center' },
-                          ]}
-                        >
+                        <View style={styles.inputContainer}>
                           <Text style={styles.inputLabel}>{t('auth.password')}</Text>
-                          <TextInput
-                            style={styles.input}
-                            placeholder={t('auth.enterPassword')}
-                            secureTextEntry={showPassword}
-                            placeholderTextColor="#999"
-                            value={values?.password}
-                            onChangeText={handleChange('password')}
-                            onBlur={handleBlur('password')}
-                          ></TextInput>
-                          <View style={styles.iconWrapper}>
+                          <View style={styles.inputWithIcon}>
+                            <TextInput
+                              style={styles.input1}
+                              placeholder={t('auth.enterPassword')}
+                              secureTextEntry={showPassword}
+                              placeholderTextColor="#999"
+                              value={values?.password}
+                              onChangeText={handleChange('password')}
+                              onBlur={handleBlur('password')}
+                            />
                             <TouchableOpacity
                               onPress={() => setShowPassword(s => !s)}
                               style={styles.toggleButton}
@@ -257,7 +250,6 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
                               />
                             </TouchableOpacity>
                           </View>
-
                           {touched?.password && errors?.password && (
                             <Text style={styles.errorText}>{errors?.password}</Text>
                           )}
@@ -266,7 +258,8 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
                         <TouchableOpacity
                           style={[styles.addButton, loader && styles.disabledButton]}
                           onPress={() => {
-                             handleSubmit()}}
+                            handleSubmit();
+                          }}
                           disabled={loader}
                         >
                           {loader ? (
@@ -279,9 +272,7 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
                     )}
                   </Formik>
 
-                  <Text style={styles.note}>
-                    {t('account.msg1')}
-                  </Text>
+                  <Text style={styles.note}>{t('account.msg1')}</Text>
                 </View>
               </>
             );

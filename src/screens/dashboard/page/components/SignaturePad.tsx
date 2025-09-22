@@ -18,38 +18,29 @@ import { useBaseLink } from '../../../../hooks/useBaseLink';
 const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: any) => {
   const signatureRef = useRef<SignatureViewRef>(null);
   const [modalVisible, setModalVisible] = useState(false);
-   const [savedSignature, setSavedSignature] = useState<string | null>(null);
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [savedSignature, setSavedSignature] = useState<string | null>(null);
   const baseLink = useBaseLink();
   const [cacheBuster, setCacheBuster] = useState(Date.now());
 
   const handleSignature = (signature: string) => {
     setSavedSignature(signature);
-    setImageUri(signature);
-
     handleSignatureAttachment(`${item?.field}.jpeg; ${signature}`, item?.field);
-
     setCacheBuster(Date.now());
-
     setModalVisible(false);
-   };
+  };
 
   const handleClear = () => {
     signatureRef.current?.clearSignature();
-     setSavedSignature(null);
-    setImageUri(null);
+    setSavedSignature(null);
   };
 
   const handleSave = () => {
     signatureRef.current?.readSignature();
   };
 
-  const getImageUri = (type: 'small' | 'large') => {
-    if (imageUri) return imageUri;
-    const base = `${baseLink}fileupload/1/${infoData?.tableName}/${infoData?.id}/${
-      type === 'small' ? `d_${item?.text}` : item?.text
-    }`;
-
+  const getImageUri = () => {
+    if (savedSignature) return savedSignature;
+    const base = `${baseLink}fileupload/1/${infoData?.tableName}/${infoData?.id}/${item?.text}`;
     return `${base}?cb=${cacheBuster}`;
   };
 
@@ -57,28 +48,26 @@ const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: a
     <View style={styles.container}>
       <Text style={{ marginVertical: 8, fontWeight: '600' }}>{item?.fieldtitle}</Text>
 
-      <Image
-        source={{ uri: getImageUri('small') }}
-        style={styles.imageThumb}
-        resizeMode="contain"
-      />
-
-      <TouchableOpacity
-        style={savedSignature ? styles.savedSignatureContainer : styles.openButton}
-        onPress={() => setModalVisible(true)}
+      <View
+        style={{
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+          width: '100%',
+          padding: 4,
+          borderWidth: 1,
+          borderRadius: 8,
+          borderColor: '#ccc',
+        }}
       >
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <MaterialIcons name="edit" size={18} color="#000" />
-          <Text style={styles.openButtonText}> {savedSignature ? 'Edit signature' : 'Add signature'} </Text>
+        <View>
         </View>
-      </TouchableOpacity>
+        <View style={{ height: 100, width: 100 }}>
+          <Image source={{ uri: getImageUri() }} style={styles.imageThumb} resizeMode="contain" />
+        </View>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <MaterialIcons name="edit" size={18} color="#000" />
+        </TouchableOpacity>
+      </View>
 
       <Modal
         animationType="slide"
@@ -91,15 +80,7 @@ const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: a
         </TouchableWithoutFeedback>
 
         <View style={styles.bottomSheet}>
-          <View
-            style={{
-              alignContent: 'center',
-              alignItems: 'center',
-              flexDirection: 'row',
-              marginBottom: 10,
-              justifyContent: 'space-between',
-            }}
-          >
+          <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Sign below</Text>
             <View style={styles.buttonOverlay}>
               <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
@@ -124,7 +105,7 @@ const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: a
               ref={signatureRef}
               onOK={handleSignature}
               onEmpty={() => Alert.alert('Please provide a signature')}
-               descriptionText="Sign here"
+              descriptionText="Sign here"
               clearText="Clear"
               confirmText="Save"
               autoClear={false}
@@ -147,17 +128,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 12,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#fff',
   },
   imageThumb: {
-    borderWidth: 1,
+    borderColor: '#ccc',
     height: 100,
     marginBottom: 12,
   },
   openButton: {
     flexDirection: 'row',
     width: '100%',
-    height: 68,
+    height: 38,
     alignItems: 'center',
     paddingHorizontal: 16,
     borderWidth: 0.5,
@@ -176,11 +157,6 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
   },
-  savedSignature: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
-  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -192,10 +168,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     padding: 16,
   },
+  modalHeader: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 12,
   },
   signatureBox: {
     flex: 1,
@@ -215,16 +196,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 8,
   },
-  saveButton: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-  },
+  saveButton: { borderColor: '#ccc', borderWidth: 1 },
   clearButton: { borderColor: '#ccc', borderWidth: 1 },
   closeButton: { borderColor: '#ccc', borderWidth: 1 },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    marginLeft: 6,
-    fontWeight: '600',
-  },
 });

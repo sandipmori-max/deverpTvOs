@@ -248,7 +248,9 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
 
   if (parsedError) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+       <View style={{ 
+        height: Dimensions.get('screen').height * 0.75,
+        alignContent:'center', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ErrorMessage message={JSON.stringify(parsedError)} />
       </View>
     );

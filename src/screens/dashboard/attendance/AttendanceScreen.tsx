@@ -203,7 +203,7 @@ const AttendanceScreen = () => {
           </View>
         ) : (
           <>
-            {showDateFilter && (
+            {isListVisible && showDateFilter && (
               <View style={styles.dateContainer}>
                 <View style={styles.dateRow}>
                   <View

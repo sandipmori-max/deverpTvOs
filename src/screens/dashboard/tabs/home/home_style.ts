@@ -234,4 +234,65 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
+
+  screenTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  grid: {
+    paddingHorizontal: 16,
+      flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  card: {
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#ccc'
+  },
+  cardAccent: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#ccc'
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '400',
+    marginBottom: 8,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#faf1e0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  avatarText: {
+    fontWeight: '700',
+  },
+  itemText: {
+    flex: 1,
+  },
+  itemPrimary: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  itemSecondary: {
+    fontSize: 12,
+  },
 });

@@ -33,6 +33,7 @@ const authSlice = createSlice({
       state.error = null;
     },
     setIsPinLoaded: state => {
+      console.log("🚀 ~ isPinLoaded -------------------------------:", state)
       state.isPinLoaded = true;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {

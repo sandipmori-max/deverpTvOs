@@ -46,18 +46,19 @@ const FILTERS = [
 const styles = StyleSheet.create({
   recordCard: {
     backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 4,
+    padding: 8,
     marginVertical: 6,
     marginHorizontal: 12,
     borderWidth: 0.5,
+    width: '100%'
   },
   recordAvatar: { width: 50, height: 50, borderRadius: 25 },
   recordName: { fontSize: 14 },
   recordDateTime: { fontWeight: '600', fontSize: 14, color: '#000' },
   recordPunchTime: { fontSize: 14, color: '#333' },
   statusBadgeRed: {
-    backgroundColor: '#fa1b1bff',
+    backgroundColor: ERP_COLOR_CODE.ERP_ERROR,
     color: '#fff',
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -145,6 +146,7 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
   }, [fromDate, toDate, fetchListData]);
 
   let data = listData?.length > 0 ? [...listData] : [];
+  console.log('🚀 ~ List ~ data:', data);
   if (activeFilter !== 'all') {
     switch (activeFilter) {
       case 'leave':
@@ -167,6 +169,15 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
         break;
     }
   }
+  const groupedData = data.reduce((acc, item) => {
+    if (!acc[item.date]) acc[item.date] = [];
+    acc[item.date].push(item);
+    return acc;
+  }, {});
+  const timelineData = Object.keys(groupedData).map(date => ({
+    date,
+    records: groupedData[date],
+  }));
 
   const total = listData?.length;
   const leave = listData?.filter(i => i?.status?.toLowerCase() === 'leave').length;
@@ -178,7 +189,7 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
 
   const chartData = [
     { value: present, color: '#4caf50', text: 'Present' },
-    { value: leave, color: '#f44336', text: 'Leave' },
+    { value: leave, color: ERP_COLOR_CODE.ERP_ERROR, text: 'Leave' },
     { value: late, color: '#a6bfc9ff', text: 'Late' },
     { value: lessHours, color: '#ff9800', text: 'Less Hrs' },
   ];
@@ -206,7 +217,7 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
       let color = ERP_COLOR_CODE.ERP_APP_COLOR;
 
       if (item?.status?.toLowerCase() === 'leave') {
-        color = '#f44336';
+        color = ERP_COLOR_CODE.ERP_ERROR;
       } else if (
         item?.status?.toLowerCase() === 'leave_first_half' ||
         item?.status?.toLowerCase() === 'leave_second_half'
@@ -421,153 +432,224 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                   <NoData />
                 </View>
               ) : (
-                <FlatList
-                  data={data}
-                  keyboardShouldPersistTaps="handled"
+                <View style={{marginHorizontal: 12}}>
+                  <FlatList
+                  data={timelineData}
+                  keyExtractor={(item, index) => index.toString()}
                   showsVerticalScrollIndicator={false}
-                  keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-                  renderItem={({ item }) => {
-                    console.log('🚀 ~------------------------------- item:', item);
-                    const isLeaveFull = item?.status?.toLowerCase() === 'leave';
-                    const workedHours =
-                      !item?.intime || !item?.outtime
-                        ? 0
-                        : getWorkedHours(item?.intime, item?.outtime);
-                    const isLessThanRequired = !isLeaveFull && workedHours < 8.5;
-                    const isLate = !isLeaveFull && item?.intime && isLatePunchIn(item?.intime);
+                  renderItem={({ item }) => (
+                    <View style={{ marginBottom: 8 }}>
+                       {/* <Text style={{ 
+                        backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+                        paddingHorizontal: 12,
+                        paddingVertical: 4,
+                        // opacity: 0.5,
+                        color: ERP_COLOR_CODE.ERP_WHITE,
+                        fontSize: 14, fontWeight: 'bold', marginBottom: 8 }}>
+                        {item.date}
+                      </Text> */}
 
-                    return (
-                      <TouchableOpacity onPress={() => openDetails(item)}>
-                        <View
-                          style={[
-                            styles.recordCard,
-                            {
-                              backgroundColor:
-                                item?.status?.toLowerCase() !== 'working' ? '#fff' : '#e0f3edff',
-                              opacity: item?.status?.toLowerCase() === 'working' ? 0.5 : 1,
-                            },
-                          ]}
-                        >
-                          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                              {item?.image && (
-                                <FastImage
-                                  source={{ uri: baseLink + '/' + item?.image }}
-                                  style={styles.recordAvatar}
-                                />
-                              )}
-                              {item?.image2 && (
-                                <FastImage
-                                  source={{ uri: baseLink + '/' + item?.image2 }}
-                                  style={[
-                                    styles.recordAvatar,
-                                    { marginLeft: -32, borderWidth: 2, borderColor: '#fff' },
-                                  ]}
+                      {/* Timeline Records */}
+                      {item.records.map((rec, idx) => {
+                        const isLeaveFull = rec?.status?.toLowerCase() === 'leave';
+                        const workedHours =
+                          !rec?.intime || !rec?.outtime
+                            ? 0
+                            : getWorkedHours(rec?.intime, rec?.outtime);
+                        const isLessThanRequired = !isLeaveFull && workedHours < 8.5;
+                        const isLate = !isLeaveFull && rec?.intime && isLatePunchIn(rec?.intime);
+
+                        return (
+                          <View key={rec.id} style={{ flexDirection: 'row', marginBottom: 0 }}>
+                            
+                            <View style={{ alignItems: 'center', width: 8 }}>
+                              <View
+                                style={{
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: 6,
+                                  backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+                                }}
+                              />
+                              {  (
+                                <View
+                                  style={{
+                                    width: 2,
+                                    flex: 1,
+                                    backgroundColor: '#000'
+                                   }}
                                 />
                               )}
                             </View>
 
-                            <View style={{ flex: 1, marginLeft: 12 }}>
+                            <TouchableOpacity onPress={() => openDetails(rec)} style={{
+                              right: 16,
+                              flex: 1,
+                               marginTop: 12,
+                                }}>
                               <View
-                                style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  marginBottom: 4,
-                                }}
+                                style={[
+                                  styles.recordCard,
+                                  
+                                ]}
                               >
-                                <Text style={styles.recordName}>{item?.employee}</Text>
-                                <Text style={styles.recordDateTime}>{item?.date}</Text>
-                              </View>
-
-                              {!isLeaveFull && (
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                  }}
-                                >
-                                  <View
-                                    style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-                                  >
-                                    <MaterialIcons color="#666" size={14} name="access-alarm" />
-                                    <Text style={styles.recordPunchTime}>
-                                      {formatTo12Hour(item?.intime) || '--'}
-                                    </Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                  {/* Images */}
+                                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    {rec?.image && (
+                                      <FastImage
+                                        source={{ uri: baseLink + '/' + rec?.image }}
+                                        style={styles.recordAvatar}
+                                      />
+                                    )}
+                                    {rec?.image2 && (
+                                      <FastImage
+                                        source={{ uri: baseLink + '/' + rec?.image2 }}
+                                        style={[
+                                          styles.recordAvatar,
+                                          { marginLeft: -32, borderWidth: 2, borderColor: '#fff' },
+                                        ]}
+                                      />
+                                    )}
                                   </View>
-                                  {item?.status?.toLowerCase() === 'working' ? (
-                                    <>
+
+                                  {/* Details */}
+                                  <View style={{ flex: 1, marginLeft: 12 }}>
+                                    <View
+                                      style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        marginBottom: 4,
+                                      }}
+                                    >
+                                      <Text style={styles.recordName}>{rec?.employee}</Text>
+                                      <Text style={styles.recordDateTime}>{rec?.date}</Text>
+                                    </View>
+
+                                    { (
                                       <View
                                         style={{
                                           flexDirection: 'row',
+                                          justifyContent: 'space-between',
                                           alignItems: 'center',
-                                          gap: 4,
                                         }}
                                       >
-                                        <MaterialIcons
-                                          color="#666"
-                                          size={14}
-                                          name="history-toggle-off"
-                                        />
-                                        <Text style={styles.recordPunchTime}>{item?.status}</Text>
+                                        <View
+                                          style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            gap: 4,
+                                          }}
+                                        >
+                                          <MaterialIcons
+                                            color="#666"
+                                            size={14}
+                                            name="access-alarm"
+                                          />
+                                          <Text style={styles.recordPunchTime}>
+                                            {formatTo12Hour(rec?.intime) || '--'}
+                                          </Text>
+                                        </View>
+
+                                        {rec?.status?.toLowerCase() === 'working' ? (
+                                          <View
+                                            style={{
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                              gap: 4,
+                                            }}
+                                          >
+                                            <MaterialIcons
+                                              color="#666"
+                                              size={14}
+                                              name="history-toggle-off"
+                                            />
+                                            <Text style={styles.recordPunchTime}>
+                                              {rec?.status}
+                                            </Text>
+                                          </View>
+                                        ) : (
+                                          <View
+                                            style={{
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                              gap: 4,
+                                            }}
+                                          >
+                                            <MaterialIcons color="#666" size={14} name="timeline" />
+                                            <Text style={styles.recordPunchTime}>
+                                              {getWorkedHours2(rec?.intime, rec?.outtime)}
+                                            </Text>
+                                          </View>
+                                        )}
+
+                                        {rec?.status?.toLowerCase() !== 'working' && (
+                                          <View
+                                            style={{
+                                              flexDirection: 'row',
+                                              alignItems: 'center',
+                                              gap: 4,
+                                            }}
+                                          >
+                                            <MaterialIcons
+                                              color="#666"
+                                              size={14}
+                                              name="access-alarm"
+                                            />
+                                            <Text style={styles.recordPunchTime}>
+                                              {formatTo12Hour(rec?.outtime) || '--'}
+                                            </Text>
+                                          </View>
+                                        )}
                                       </View>
-                                    </>
-                                  ) : (
+                                    )}
+
+                                    {isLeaveFull && (
+                                      <Text style={styles.statusBadgeRed}>Leave</Text>
+                                    )}
+                                    {isLate && <Text style={styles.statusBadgeBlue}>Late</Text>}
+                                    {rec?.status?.toLowerCase() !== 'working' &&
+                                      isLessThanRequired && (
+                                        <View
+                                          style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                          }}
+                                        >
+                                          <Text style={styles.statusBadgeGrey}>Less Hours</Text>
+                                          <Text style={styles.statusBadgeGrey}>
+                                            ({workedHours.toFixed(2)} hrs)
+                                          </Text>
+                                        </View>
+                                      )}
+
                                     <View
-                                      style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                                      style={{
+                                        alignContent: 'center',
+                                        alignItems: 'center',
+                                        flexDirection: 'row',
+                                        gap: 4,
+                                        marginTop: 4,
+                                      }}
                                     >
-                                      <MaterialIcons color="#666" size={14} name="timeline" />
-                                      <Text style={styles.recordPunchTime}>
-                                        {getWorkedHours2(item?.intime, item?.outtime)}
-                                      </Text>
+                                      <MaterialIcons
+                                        size={16}
+                                        color={ERP_COLOR_CODE.ERP_ERROR}
+                                        name="location-on"
+                                      />
+                                      <Text>{rec?.location || 'Dummy location'} </Text>
                                     </View>
-                                  )}
-
-                                  {item?.status?.toLowerCase() !== 'working' && (
-                                    <View
-                                      style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-                                    >
-                                      <MaterialIcons color="#666" size={14} name="access-alarm" />
-                                      <Text style={styles.recordPunchTime}>
-                                        {formatTo12Hour(item?.outtime) || '--'}
-                                      </Text>
-                                    </View>
-                                  )}
+                                  </View>
                                 </View>
-                              )}
-
-                              {isLeaveFull && <Text style={styles.statusBadgeRed}>Leave</Text>}
-                              {isLate && <Text style={styles.statusBadgeBlue}>Late</Text>}
-                              {item?.status?.toLowerCase() !== 'working' && isLessThanRequired && (
-                                <View
-                                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-                                >
-                                  <Text style={styles.statusBadgeGrey}>Less Hours</Text>
-                                  <Text style={styles.statusBadgeGrey}>
-                                    ({workedHours.toFixed(2)} hrs)
-                                  </Text>
-                                </View>
-                              )}
-                            </View>
+                              </View>
+                            </TouchableOpacity>
                           </View>
-
-                          <View
-                            style={{
-                              alignContent: 'center',
-                              alignItems: 'center',
-                              flexDirection: 'row',
-                              gap: 4,
-                              marginTop: 10,
-                            }}
-                          >
-                            <MaterialIcons size={20} color={ERP_COLOR_CODE.ERP_ERROR} name="location-on" />
-                            <Text>{item?.location || 'Dummy location'} </Text>
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  }}
+                        );
+                      })}
+                    </View>
+                  )}
                 />
+                </View>
               )}
             </>
           )}

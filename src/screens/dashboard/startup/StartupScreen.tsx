@@ -12,7 +12,8 @@ const StartupScreen = ({ navigation }: any) => {
     const checkPin = async () => {
       const db = await getDBConnection();
       const enabled = await isPinEnabled(db);
-        dispatch(setIsPinLoaded())
+        console.log("🚀 ~ checkPin ~ enabled:--------+++++++------++++++++++++++++++++++++++", enabled)
+        // dispatch(setIsPinLoaded())
       if (enabled) {
         navigation.replace("PinVerify");
       } else {

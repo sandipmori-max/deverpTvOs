@@ -24,6 +24,7 @@ const Stack = createStackNavigator<any>();
 const StackNavigator = () => {
 
     const { isPinLoaded } = useAppSelector(state => state?.auth);
+    console.log("🚀 ~ StackNavigator ~ isPinLoaded:", isPinLoaded)
   
   const screenOptions = {
     headerShown: true,
@@ -70,7 +71,7 @@ const StackNavigator = () => {
       }}
     >
       {
-        isPinLoaded === false &&  <Stack.Screen name="Startup" component={StartupScreen} />
+        isPinLoaded === true &&  <Stack.Screen name="Startup" component={StartupScreen} />
       }
      
       <Stack.Screen name="Drawer" component={DrawerNavigator} />

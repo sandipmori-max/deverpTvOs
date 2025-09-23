@@ -1,4 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { persistReducer, persistStore } from 'redux-persist';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // for React Native
 import authReducer from './slices/auth/authSlice';
 import themeReducer from './slices/theme/themeSlice';
 import attendanceReducer from './slices/attendance/attendanceSlice';
@@ -7,9 +9,18 @@ import ajaxReducer from './slices/ajax/ajaxSlice';
 import pageReducer from './slices/page/pageSlice';
 import syncLocationReducer from './slices/location/syncLocationSlice';
 
+// Persist config only for auth
+const authPersistConfig = {
+  key: 'auth',
+  storage: AsyncStorage,
+  whitelist: ['token', 'isPinLoaded'], 
+};
+
+const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
+
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
+    auth: persistedAuthReducer, // use persisted version
     theme: themeReducer,
     attendance: attendanceReducer,
     dropdown: dropdownReducer,
@@ -24,6 +35,8 @@ export const store = configureStore({
       },
     }),
 });
+
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

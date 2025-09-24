@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 80,
+    paddingTop: 20,
     alignItems: 'center',
   },
   title: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   pinRow: {
     flexDirection: 'row',
-    marginBottom: 50,
+    marginBottom: 20,
   },
   pinCircle: {
     width: 18,

@@ -1,4 +1,4 @@
-import { SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { Platform, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import WebView from 'react-native-webview';
@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ERPIcon from '../../../components/icon/ERPIcon';
 
 const WebScreen = () => {
+  const isTV = Platform.isTV;
   const { t } = useTranslations();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
@@ -49,22 +50,24 @@ const WebScreen = () => {
     webviewRef?.current?.reload();
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: () => (
+useLayoutEffect(() => {
+  navigation.setOptions({
+    headerShown: !isTV, // hide header if running on TV
+    headerTitle: () => (
+      !isTV && (
         <Text
           numberOfLines={1}
           style={{ maxWidth: 180, fontSize: 18, fontWeight: '700', color: '#fff' }}
         >
           {isFromChart ? 'Dashboard' : item?.title || t('webScreen.details')}
         </Text>
-      ),
-      headerRight: () => (
+      )
+    ),
+    headerRight: () =>
+      !isTV && (
         <>
           {isFromChart || item?.title === 'Attendance Code' ? (
-            <>
-              <ERPIcon name={'refresh'} onPress={reloadWebView} />
-            </>
+            <ERPIcon name={'refresh'} onPress={reloadWebView} />
           ) : (
             <>
               <ERPIcon name={'refresh'} onPress={reloadWebView} />
@@ -73,8 +76,9 @@ const WebScreen = () => {
           )}
         </>
       ),
-    });
-  }, [navigation, item?.title, t, isHidden]);
+  });
+}, [navigation, item?.title, t, isHidden]);
+
 
   const targetUrl = useMemo(() => {
     const itemUrl = item?.url || '';

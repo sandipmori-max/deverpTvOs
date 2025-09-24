@@ -113,66 +113,6 @@ const RootNavigator = () => {
     fetchDeviceName();
   }, [dispatch]);
 
-<<<<<<< Updated upstream
-  // Location & permissions watcher
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    const checkAndStart = async () => {
-      if (!isAuthenticated) return;
-
-      try {
-        // Check if device location is enabled
-        const enabled = await DeviceInfo.isLocationEnabled();
-        if (!enabled) {
-          // setAlertConfig({
-          //   title: 'Location Status',
-          //   message:
-          //     'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-          //   type: 'error',
-          // });
-          // setAlertVisible(true);
-          return;
-        }
-
-        // Check location permissions
-        const hasPermission = await requestLocationPermission();
-        const fullPermission = await requestLocationPermissions();
-
-        if (!hasPermission || !fullPermission) {
-          setAlertConfig({
-            title: 'Location Status',
-            message:
-              'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-            type: 'error',
-          });
-          setAlertVisible(true);
-          return;
-        }
-
-        // Start interval only when all conditions satisfied
-        interval = setInterval(() => {
-          console.log('📌 Running location sync...');
-          checkLocation();
-        }, 1800);
-      } catch (err) {
-        console.warn('⚠️ checkAndStart error:', err);
-      }
-    };
-
-    checkAndStart();
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isAuthenticated, accounts]);
-
-  const checkLocation = async () => {
-    try {
-      if (!isAuthenticated) return;
-
-      const enabled = await DeviceInfo.isLocationEnabled();
-=======
   // for location debug -----------
   // useEffect(() => {
   //   const checkLocation = async () => {
@@ -182,7 +122,6 @@ const RootNavigator = () => {
   //     const enabled = await DeviceInfo.isLocationEnabled();
 
   //     console.log('🚀 ~ checkLocation ~ enabled + + + enabled :', enabled);
->>>>>>> Stashed changes
 
   //     if (locationEnabled === null) {
   //       if (!enabled) {
@@ -212,45 +151,6 @@ const RootNavigator = () => {
   //     setModalClose(enabled);
   //     setLocationEnabled(enabled);
 
-<<<<<<< Updated upstream
-      if (isAuthenticated) {
-        if (enabled) {
-          setHasSyncedDisabledLocation(false);
-
-          const hasPermission = await requestLocationPermission();
-          if (!hasPermission) return;
-
-          if (accounts.length > 0 && Platform.OS === 'android') {
-            const granted = await requestLocationPermissions();
-            console.log("🚀 ~ checkLocation ~ granted:", granted)
-            if (granted && isAuthenticated) {
-              const data = accounts.map(u => ({
-                token: u?.user?.token,
-                link: u?.user?.companyLink,
-              }));
-
-              NativeModules.LocationModule.setUserTokens(data);
-              NativeModules.LocationModule?.startService();
-            } else {
-              setAlertConfig({
-                title: 'Location Status',
-                message:
-                  'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-                type: 'error',
-              });
-              setAlertVisible(true);
-              setModalClose(false);
-            }
-          }
-        }
-      }
-    } catch (err) {
-      console.log('Location fetch error:', err);
-    }
-  };
-
-  if (isLoading) return <FullViewLoader />;
-=======
   //     if (isAuthenticated) {
   //       console.log('🚀 ~ checkLocation ~ enabled:', enabled);
   //       if (enabled) {
@@ -322,7 +222,6 @@ const RootNavigator = () => {
   if (isLoading) {
     return <FullViewLoader />;
   }
->>>>>>> Stashed changes
 
   return (
     <>

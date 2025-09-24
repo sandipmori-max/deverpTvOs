@@ -18,7 +18,8 @@ export interface CustomAlertProps {
   isFromButtonList?: boolean,
   actionLoader: any,
   color?: string;
-  isBottomButtonVisible?: any
+  isBottomButtonVisible?: any,
+  isSettingVisible?: boolean
 }
 
 export type DrawerItemConfig = {

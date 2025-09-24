@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, ActivityIndicator, Linking } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
 import { CustomAlertProps } from '../types';
@@ -23,6 +23,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   actionLoader,
   color = '#000',
   isBottomButtonVisible,
+  isSettingVisible,
 }) => {
   const alertStyles = getAlertStyles(type);
   const gifSource = getGifSource(type);
@@ -145,6 +146,17 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
                   )}
                 </View>
               )}
+            </>
+          )}
+          {isSettingVisible && (
+            <>
+              <TouchableOpacity
+                onPress={() => {
+                  Linking.openSettings();
+                }}
+              >
+                <Text>Open Settings</Text>
+              </TouchableOpacity>
             </>
           )}
         </View>

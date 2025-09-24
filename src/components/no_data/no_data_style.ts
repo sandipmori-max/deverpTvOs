@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get('screen');
 
 export const styles = StyleSheet.create({
   container: {
@@ -10,8 +10,8 @@ export const styles = StyleSheet.create({
     backgroundColor:'#fff'
   },
   image: {
-    width: width * 0.6,
-    height: width * 0.6,
+    width: width * 0.2,
+    height: width * 0.2,
     marginBottom: 20,
     opacity: 0.9,
   },

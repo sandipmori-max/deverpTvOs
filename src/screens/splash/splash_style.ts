@@ -14,8 +14,8 @@ export const styles = StyleSheet.create({
     marginBottom: 30,
   },
   logo: {
-    width: width * 0.3,
-    height: width * 0.3,
+    width: width * 0.15,
+    height: width * 0.15,
     borderRadius: 100,
   },
   title: {

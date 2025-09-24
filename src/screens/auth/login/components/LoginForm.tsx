@@ -81,7 +81,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
       console.log("🚀 ~ handleLoginSubmit ~ companyValidation:", companyValidation)
       if (!companyValidation?.isValid) return;
 
-      const currentFcmToken = fcmToken || (await getMessaging().getToken());
+      // const currentFcmToken = fcmToken || (await getMessaging().getToken());
 
       DevERPService.setDevice(deviceId);
 
@@ -89,7 +89,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         DevERPService.loginToERP({
           user: values?.user,
           pass: values?.password,
-          firebaseid: currentFcmToken || '',
+          firebaseid:  '',
         }),
       );
 

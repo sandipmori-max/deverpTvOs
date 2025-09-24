@@ -1,5 +1,5 @@
 import React, { useCallback, useLayoutEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, Platform } from 'react-native';
 
 import { styles } from './home_style';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
@@ -112,7 +112,7 @@ const HomeScreen = () => {
             marginHorizontal: 4,
             backgroundColor: accentColors[index % accentColors.length],
             borderRadius: 8,
-            width: isHorizontal ? '100%' : '48%',
+            width: isHorizontal ? '100%' : '28%',
           },
         ]}
         activeOpacity={0.7}
@@ -126,7 +126,7 @@ const HomeScreen = () => {
       >
         <View
           style={{
-            backgroundColor: theme === 'dark' ? '#333' : '#fff',
+            backgroundColor:    '#fff',
             borderRadius: 8,
           }}
         >
@@ -146,7 +146,7 @@ const HomeScreen = () => {
                     style={[
                       styles.dashboardItemText,
                       {
-                        color: theme === 'dark' ? '#fff' : '#000',
+                        color: '#000',
                         flexShrink: 1,
                         includeFontPadding: false,
                         textAlignVertical: 'top',
@@ -209,48 +209,10 @@ const HomeScreen = () => {
       </TouchableOpacity>
     );
   };
-
-  const dummyUpcomingEvents = [
-    { id: 'u1', date: '28 sep 2025', title: 'Product Launch', type: 'Up-coming-Event' },
-  ];
-
-  const dummyUpcomingBirthdays = [
-    { id: 'b1', name: 'Amit Sharma', date: '28 sep 2025', type: 'Up-coming-Birthday' },
-  ];
-
-  const dummyUpcomingAnniversaries = [
-    { id: 'w1', name: 'Rohit & Neha', date: '03 sep 2025', type: 'Up-coming-work-anniversary' },
-  ];
-
-  const todayEvents = [{ id: 't2', date: '28 sep 2025', title: 'UX Review', type: 'Event' }];
-
-  const todayBirthdays = [
-    { id: 'tb1', name: 'Karan Patel', date: '28 sep 2025', type: 'Today-birthday' },
-  ];
-
-  const todayAnniversaries = [
-    { id: 'tw1', name: 'Meera & Sameer', date: '28 sep 2025', type: 'Today-anniversary' },
-  ];
-
-  function SmallItem({ left, primary, secondary, type }) {
-    return (
-      <TouchableOpacity style={styles.itemRow} activeOpacity={0.8}>
-        <View style={styles.avatar}>{left}</View>
-        <View style={styles.itemText}>
-          <Text numberOfLines={1} style={styles.itemPrimary}>
-            {primary}
-          </Text>
-          <Text style={styles.itemType}>{type}</Text>
-        </View>
-        <View>
-          <Text style={styles.itemSecondary}>{secondary}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-
+ 
+ 
   return (
-    <View style={theme === 'dark' ? styles.containerDark : styles.container}>
+    <View style={styles.container}>
       <Text
         numberOfLines={1}
         style={{
@@ -363,119 +325,11 @@ const HomeScreen = () => {
                   keyboardShouldPersistTaps="handled"
                   data={dashboard}
                   keyExtractor={item => item?.id}
-                  numColumns={isHorizontal ? 1 : 2}
+                  numColumns={isHorizontal ? 1 : Platform.isTV ? 3 : 2}
                   columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
                   renderItem={renderDashboardItem}
                   showsVerticalScrollIndicator={false}
                 />
-              </View>
-
-              <View style={styles.grid}>
-                <View style={styles.card}>
-                  <Text style={styles.cardTitle}>Events</Text>
-                  <FlatList
-                    data={todayEvents}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={<Text style={styles.avatarText}>T</Text>}
-                        primary={item.title}
-                        secondary={item.date}
-                        type={item?.type}
-                      />
-                    )}
-                  />
-
-                  <FlatList
-                    key={`${isHorizontal}`}
-                    data={dummyUpcomingEvents}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={<Text style={styles.avatarText}>E</Text>}
-                        primary={item.title}
-                        secondary={item.date}
-                        type={item?.type}
-                      />
-                    )}
-                  />
-                </View>
-
-                <View style={styles.card}>
-                  <Text style={styles.cardTitle}>Birthday & Work-anniversary</Text>
-                  <FlatList
-                    data={todayBirthdays}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={
-                          <Text style={styles.avatarText}>
-                            {item.name
-                              .split(' ')
-                              .map(n => n[0])
-                              .slice(0, 2)
-                              .join('')}
-                          </Text>
-                        }
-                        primary={item.name}
-                        secondary={item.date}
-                        type={item?.type}
-                      />
-                    )}
-                  />
-
-                  <FlatList
-                    data={dummyUpcomingBirthdays}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={
-                          <Text style={styles.avatarText}>
-                            {item.name
-                              .split(' ')
-                              .map(n => n[0])
-                              .slice(0, 2)
-                              .join('')}
-                          </Text>
-                        }
-                        primary={item.name}
-                        secondary={item.date}
-                        type={item?.type}
-                      />
-                    )}
-                  />
-                  <FlatList
-                    data={todayAnniversaries}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={<Text style={styles.avatarText}>A</Text>}
-                        primary={item.name}
-                        secondary={item.date}
-                        type={item?.type}
-                      />
-                    )}
-                  />
-
-                  <FlatList
-                    data={dummyUpcomingAnniversaries}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={<Text style={styles.avatarText}>W</Text>}
-                        primary={item.name}
-                        secondary={item.date}
-                        type={item?.type}
-                      />
-                    )}
-                  />
-                </View>
               </View>
 
               <View style={{ height: 10, width: 100 }} />

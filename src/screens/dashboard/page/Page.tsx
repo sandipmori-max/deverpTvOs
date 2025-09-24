@@ -365,12 +365,9 @@ const PageScreen = () => {
       }
 
       return (
-        <Animated.View
-          entering={FadeInUp.delay(index * 70).springify()}
-          layout={Layout.springify()}
-        >
+         <>
           {content}
-        </Animated.View>
+         </>
       );
     },
     [formValues, errors, controls],

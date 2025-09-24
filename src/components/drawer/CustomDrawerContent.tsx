@@ -23,7 +23,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = props => {
   return (
     <DrawerContentScrollView
       {...props}
-      contentContainerStyle={{ flex: 1, backgroundColor: theme === 'dark' ? 'black' : 'white' }}
+      contentContainerStyle={{ flex: 1, backgroundColor:  'white' }}
     >
       <View style={[styles.header]}>
         <FastImage

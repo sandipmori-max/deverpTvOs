@@ -29,7 +29,7 @@ const DrawerNavigator = () => {
         options={{
           headerShown: false,
           headerStyle: {
-            backgroundColor: theme === 'dark' ? '#000' : ERP_COLOR_CODE.ERP_APP_COLOR,
+            backgroundColor:  ERP_COLOR_CODE.ERP_APP_COLOR,
           },
           headerTintColor: '#fff',
           title: t('navigation.home'),

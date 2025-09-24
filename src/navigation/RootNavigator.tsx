@@ -15,7 +15,7 @@ import { requestLocationPermissions } from '../utils/helpers';
 const RootNavigator = () => {
   const dispatch = useAppDispatch();
   const { isLoading, isAuthenticated, accounts } = useAppSelector(state => state.auth);
-
+  console.log('isAuthenticated', isAuthenticated);
   const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null);
   const [alertVisible, setAlertVisible] = useState(false);
 
@@ -28,58 +28,55 @@ const RootNavigator = () => {
 
   const [hasSyncedDisabledLocation, setHasSyncedDisabledLocation] = useState(false);
 
- const requestLocationPermission = async (): Promise<boolean> => {
-  if (Platform.OS === "android") {
-    try {
-       const alreadyGranted = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-
-      if (alreadyGranted) {
-        console.log("✅ Location permission already granted");
-        return true;
-      }
-
-      // Build permission list
-      const permissions = [
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-      ];
-
-      if (Platform.Version >= 34) {
-        permissions.push(
-          PermissionsAndroid.PERMISSIONS.FOREGROUND_SERVICE_LOCATION
+  const requestLocationPermission = async (): Promise<boolean> => {
+    if (Platform.OS === 'android') {
+      try {
+        const alreadyGranted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         );
-      }
 
-      console.log("📌 Requesting location permissions:", permissions);
+        if (alreadyGranted) {
+          console.log('✅ Location permission already granted');
+          return true;
+        }
 
-      // Ask user
-      const results = await PermissionsAndroid.requestMultiple(permissions);
+        // Build permission list
+        const permissions = [
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        ];
 
-      console.log("📌 Location permission results:", results);
+        if (Platform.Version >= 34) {
+          permissions.push(PermissionsAndroid.PERMISSIONS.FOREGROUND_SERVICE_LOCATION);
+        }
 
-      // Verify all permissions granted
-      const allGranted = Object.values(results).every(
-        (r) => r === PermissionsAndroid.RESULTS.GRANTED
-      );
+        console.log('📌 Requesting location permissions:', permissions);
 
-      if (allGranted) {
-        console.log("✅ Location permissions granted");
-        return true;
-      } else {
-        console.log("❌ Location permissions denied");
+        // Ask user
+        const results = await PermissionsAndroid.requestMultiple(permissions);
+
+        console.log('📌 Location permission results:', results);
+
+        // Verify all permissions granted
+        const allGranted = Object.values(results).every(
+          r => r === PermissionsAndroid.RESULTS.GRANTED,
+        );
+
+        if (allGranted) {
+          console.log('✅ Location permissions granted');
+          return true;
+        } else {
+          console.log('❌ Location permissions denied');
+          return false;
+        }
+      } catch (err) {
+        console.warn('⚠️ requestLocationPermission error:', err);
         return false;
       }
-    } catch (err) {
-      console.warn("⚠️ requestLocationPermission error:", err);
-      return false;
     }
-  }
 
-  return true;
-};
-
+    return true;
+  };
 
   const app_id = generateGUID();
 
@@ -107,7 +104,12 @@ const RootNavigator = () => {
   // for location debug -----------
   useEffect(() => {
     const checkLocation = async () => {
+      if (isAuthenticated === false) {
+        return;
+      }
       const enabled = await DeviceInfo.isLocationEnabled();
+
+      console.log('🚀 ~ checkLocation ~ enabled + + + enabled :', enabled);
 
       if (locationEnabled === null) {
         if (!enabled) {
@@ -138,30 +140,53 @@ const RootNavigator = () => {
       setLocationEnabled(enabled);
 
       if (isAuthenticated) {
-        console.log("🚀 ~ checkLocation ~ enabled:", enabled)
+        console.log('🚀 ~ checkLocation ~ enabled:', enabled);
         if (enabled) {
           setHasSyncedDisabledLocation(false);
 
           const hasPermission = await requestLocationPermission();
-          console.log("🚀 ~ checkLocation ~ hasPermission:", hasPermission)
+          console.log('🚀 ~ checkLocation ~ hasPermission:', hasPermission);
+
+          if (hasPermission === false || enabled === false) {
+            setAlertConfig({
+              title: 'Location Status',
+              message:
+                'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
+              type: 'error',
+            });
+            setAlertVisible(true);
+            setModalClose(false);
+            return;
+          }
           if (!hasPermission) return;
 
           try {
             if (accounts.length > 0) {
               if (Platform.OS === 'android') {
                 requestLocationPermissions().then(granted => {
-                  console.log("🚀 ~ checkLocation ~ granted:", granted)
-                  console.log("🚀 ~ checkLocation ~ isAuthenticated:", isAuthenticated)
+                  console.log('🚀 ~ checkLocation ~ granted-------------------:', granted);
+                  console.log('🚀 ~ checkLocation ~ isAuthenticated:', isAuthenticated);
                   if (granted && isAuthenticated) {
+                    const data = accounts.map(u => ({
+                      token: u?.user?.token,
+                      link: u?.user?.companyLink,
+                    }));
+                    console.log(
+                      '🚀 ~ checkLocation companyLink ---------------------~ data:',
+                      data,
+                    );
 
-                      const data = accounts.map(u => ({
-                        token: u?.user?.token,
-                        link: u?.user?.companyLink
-                       }));
-                     console.log("🚀 ~ checkLocation companyLink ---------------------~ data:", data)
- 
                     NativeModules.LocationModule.setUserTokens(data);
                     NativeModules.LocationModule?.startService();
+                  } else {
+                    setAlertConfig({
+                      title: 'Location Status',
+                      message:
+                        'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
+                      type: 'error',
+                    });
+                    setAlertVisible(true);
+                    setModalClose(false)
                   }
                 });
               }
@@ -169,13 +194,14 @@ const RootNavigator = () => {
           } catch (err) {
             console.log('Location fetch error:', err);
           }
-        }else{
-           console.log("🚀 ~ checkLocation ~ enabled: else ------------------------")
+        } else {
+          console.log('🚀 ~ checkLocation ~ enabled: else ------------------------');
         }
       }
     };
-
-    checkLocation();
+    if (isAuthenticated) {
+      checkLocation();
+    }
 
     const interval = setInterval(checkLocation, 1800);
     return () => clearInterval(interval);

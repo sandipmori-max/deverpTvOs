@@ -126,12 +126,12 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
       }
 
       DevERPService.setToken(loginResult?.token);
-
-      await DevERPService.getAuth();
       await AsyncStorage.setItem('erp_token', loginResult?.token || '');
       await AsyncStorage.setItem('auth_token', loginResult?.token || '');
       await AsyncStorage.setItem('erp_token_valid_till', loginResult?.token || '');
       console.log('🚀 ~ handleAddAccount ~ ++++++++++++++:', validation);
+      // await DevERPService.getAuth();
+    
 
       dispatch(
         loginUserThunk({

@@ -157,10 +157,17 @@ const SettingsScreen = () => {
   const handleAction = (item: SettingItem) => {
     switch (item?.type) {
       case 'navigate':
+        if (item?.title === t('settings.aboutApp')) {
+          return;
+        }
         if (item?.action === 'Language') {
           setLanguageModalVisible(true);
         } else if (item?.title === t('settings.biometricAuth')) {
           navigation.navigate('PinSet');
+        } else if (item?.title === t('settings.privacySettings')) {
+          navigation.navigate('Privacy Policy');
+        } else if (item?.title === t('settings.helpSupport')) {
+          // navigation.navigate('');
         } else if (item?.action) {
           setAlertConfig({
             title: t('common.navigate'),
@@ -182,7 +189,6 @@ const SettingsScreen = () => {
             type: 'error',
           });
           setAlertVisible(true);
-         
         } else if (item?.action) {
           setAlertConfig({
             title: t('common.action'),
@@ -190,7 +196,6 @@ const SettingsScreen = () => {
             type: 'info',
           });
           setAlertVisible(true);
-          
         }
         break;
     }
@@ -232,13 +237,12 @@ const SettingsScreen = () => {
             value={item.value}
             onValueChange={() => {
               handleToggle(item.id);
-              //  dispatch(toggleTheme())
             }}
             trackColor={{ false: '#e0e0e0', true: '#4CAF50' }}
             thumbColor={item.value ? '#fff' : '#f4f3f4'}
           />
         ) : (
-          <Text style={styles.arrowIcon}>›</Text>
+          <>{item?.title !== t('settings.aboutApp') && <Text style={styles.arrowIcon}>›</Text>}</>
         )}
       </View>
     </TouchableOpacity>

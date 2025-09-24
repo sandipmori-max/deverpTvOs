@@ -211,31 +211,28 @@ const HomeScreen = () => {
   };
 
   const dummyUpcomingEvents = [
-    { id: 'u1', date: '28 sep 2025', title: 'Product Launch' },
-    { id: 'u2', date: '28 sep 2025', title: 'Team Offsite' },
-    { id: 'u3', date: '29 sep 2025', title: 'Client Demo' },
+    { id: 'u1', date: '28 sep 2025', title: 'Product Launch', type: 'Up-coming-Event' },
   ];
 
   const dummyUpcomingBirthdays = [
-    { id: 'b1', name: 'Amit Sharma', date: '28 sep 2025' },
-    { id: 'b2', name: 'Priya Verma', date: '28 sep 2025' },
+    { id: 'b1', name: 'Amit Sharma', date: '28 sep 2025', type: 'Up-coming-Birthday' },
   ];
 
   const dummyUpcomingAnniversaries = [
-    { id: 'w1', name: 'Rohit & Neha', date: '03 sep 2025' },
-    { id: 'w2', name: 'Sonia & Vikram', date: '28 sep 2025' },
+    { id: 'w1', name: 'Rohit & Neha', date: '03 sep 2025', type: 'Up-coming-work-anniversary' },
   ];
 
-  const todayEvents = [
-    { id: 't1', date: '28 sep 2025', title: 'Standup Meeting' },
-    { id: 't2', date: '28 sep 2025', title: 'UX Review' },
+  const todayEvents = [{ id: 't2', date: '28 sep 2025', title: 'UX Review', type: 'Event' }];
+
+  const todayBirthdays = [
+    { id: 'tb1', name: 'Karan Patel', date: '28 sep 2025', type: 'Today-birthday' },
   ];
 
-  const todayBirthdays = [{ id: 'tb1', name: 'Karan Patel', date: '28 sep 2025' }];
+  const todayAnniversaries = [
+    { id: 'tw1', name: 'Meera & Sameer', date: '28 sep 2025', type: 'Today-anniversary' },
+  ];
 
-  const todayAnniversaries = [{ id: 'tw1', name: 'Meera & Sameer', date: '28 sep 2025' }];
-
-  function SmallItem({ left, primary, secondary }) {
+  function SmallItem({ left, primary, secondary, type }) {
     return (
       <TouchableOpacity style={styles.itemRow} activeOpacity={0.8}>
         <View style={styles.avatar}>{left}</View>
@@ -243,6 +240,9 @@ const HomeScreen = () => {
           <Text numberOfLines={1} style={styles.itemPrimary}>
             {primary}
           </Text>
+          <Text style={styles.itemType}>{type}</Text>
+        </View>
+        <View>
           <Text style={styles.itemSecondary}>{secondary}</Text>
         </View>
       </TouchableOpacity>
@@ -372,64 +372,7 @@ const HomeScreen = () => {
 
               <View style={styles.grid}>
                 <View style={styles.card}>
-                  <Text style={styles.cardTitle}>Upcoming events</Text>
-                  <FlatList
-                   key={`${isHorizontal}`}
-                     data={dummyUpcomingEvents}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={<Text style={styles.avatarText}>E</Text>}
-                        primary={item.title}
-                        secondary={item.date}
-                      />
-                    )}
-                  />
-                </View>
-
-                <View style={styles.card}>
-                  <Text style={styles.cardTitle}>Upcoming birthday</Text>
-                  <FlatList
-                    data={dummyUpcomingBirthdays}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={
-                          <Text style={styles.avatarText}>
-                            {item.name
-                              .split(' ')
-                              .map(n => n[0])
-                              .slice(0, 2)
-                              .join('')}
-                          </Text>
-                        }
-                        primary={item.name}
-                        secondary={item.date}
-                      />
-                    )}
-                  />
-                </View>
-
-                <View style={styles.card}>
-                  <Text style={styles.cardTitle}>Upcoming Work-anniversary</Text>
-                  <FlatList
-                    data={dummyUpcomingAnniversaries}
-                    keyExtractor={i => i.id}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <SmallItem
-                        left={<Text style={styles.avatarText}>W</Text>}
-                        primary={item.name}
-                        secondary={item.date}
-                      />
-                    )}
-                  />
-                </View>
-
-                <View style={styles.cardAccent}>
-                  <Text style={styles.cardTitle}>Today events</Text>
+                  <Text style={styles.cardTitle}>Events</Text>
                   <FlatList
                     data={todayEvents}
                     keyExtractor={i => i.id}
@@ -439,13 +382,29 @@ const HomeScreen = () => {
                         left={<Text style={styles.avatarText}>T</Text>}
                         primary={item.title}
                         secondary={item.date}
+                        type={item?.type}
+                      />
+                    )}
+                  />
+
+                  <FlatList
+                    key={`${isHorizontal}`}
+                    data={dummyUpcomingEvents}
+                    keyExtractor={i => i.id}
+                    scrollEnabled={false}
+                    renderItem={({ item }) => (
+                      <SmallItem
+                        left={<Text style={styles.avatarText}>E</Text>}
+                        primary={item.title}
+                        secondary={item.date}
+                        type={item?.type}
                       />
                     )}
                   />
                 </View>
 
-                <View style={styles.cardAccent}>
-                  <Text style={styles.cardTitle}>Today birthday</Text>
+                <View style={styles.card}>
+                  <Text style={styles.cardTitle}>Birthday & Work-anniversary</Text>
                   <FlatList
                     data={todayBirthdays}
                     keyExtractor={i => i.id}
@@ -463,13 +422,32 @@ const HomeScreen = () => {
                         }
                         primary={item.name}
                         secondary={item.date}
+                        type={item?.type}
                       />
                     )}
                   />
-                </View>
 
-                <View style={styles.cardAccent}>
-                  <Text style={styles.cardTitle}>Today Work-anniversary</Text>
+                  <FlatList
+                    data={dummyUpcomingBirthdays}
+                    keyExtractor={i => i.id}
+                    scrollEnabled={false}
+                    renderItem={({ item }) => (
+                      <SmallItem
+                        left={
+                          <Text style={styles.avatarText}>
+                            {item.name
+                              .split(' ')
+                              .map(n => n[0])
+                              .slice(0, 2)
+                              .join('')}
+                          </Text>
+                        }
+                        primary={item.name}
+                        secondary={item.date}
+                        type={item?.type}
+                      />
+                    )}
+                  />
                   <FlatList
                     data={todayAnniversaries}
                     keyExtractor={i => i.id}
@@ -479,13 +457,28 @@ const HomeScreen = () => {
                         left={<Text style={styles.avatarText}>A</Text>}
                         primary={item.name}
                         secondary={item.date}
+                        type={item?.type}
+                      />
+                    )}
+                  />
+
+                  <FlatList
+                    data={dummyUpcomingAnniversaries}
+                    keyExtractor={i => i.id}
+                    scrollEnabled={false}
+                    renderItem={({ item }) => (
+                      <SmallItem
+                        left={<Text style={styles.avatarText}>W</Text>}
+                        primary={item.name}
+                        secondary={item.date}
+                        type={item?.type}
                       />
                     )}
                   />
                 </View>
               </View>
 
-              <View style={{height: 10, width: 100,}}/>
+              <View style={{ height: 10, width: 100 }} />
             </>
           )}
         />

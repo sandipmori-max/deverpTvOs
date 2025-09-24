@@ -241,18 +241,14 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   grid: {
-    paddingHorizontal: 16,
-      flexWrap: 'wrap',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    paddingHorizontal: 12,
   },
   card: {
     width: '100%',
     backgroundColor: '#ffffff',
     borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#ccc'
   },
   cardAccent: {
     width: '100%',
@@ -261,29 +257,35 @@ export const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#ccc'
+    borderColor: '#ccc',
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '400',
-    marginBottom: 8,
+    fontWeight: '700',
+    marginVertical: 8,
   },
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 10,
     paddingVertical: 8,
+    borderWidth: 1,
+    marginVertical: 4,
+    borderRadius: 8,
+    borderColor: '#ccc',
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#faf1e0ff',
+    backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
   avatarText: {
     fontWeight: '700',
+    color:'#fff'
   },
   itemText: {
     flex: 1,
@@ -293,6 +295,9 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   itemSecondary: {
+    fontSize: 12,
+  },
+  itemType: {
     fontSize: 12,
   },
 });

@@ -73,7 +73,6 @@ const StackNavigator = () => {
       {
         isPinLoaded === true &&  <Stack.Screen name="Startup" component={StartupScreen} />
       }
-     
       <Stack.Screen name="Drawer" component={DrawerNavigator} />
       <Stack.Screen options={screenOptions} name="Settings" component={SettingsScreen} />
        <Stack.Screen

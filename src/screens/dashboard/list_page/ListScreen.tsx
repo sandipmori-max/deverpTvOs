@@ -75,7 +75,14 @@ const ListScreen = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: pageTitle || 'List Data',
+      headerTitle: () => (
+              <Text
+                numberOfLines={1}
+                style={{ maxWidth: 180, fontSize: 18, fontWeight: '700', color: '#fff' }}
+              >
+                {pageTitle || 'List Data'}
+              </Text>
+            ),
       headerRight: () => (
         <>
           <ERPIcon

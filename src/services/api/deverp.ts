@@ -176,6 +176,7 @@ class DevERPService {
           '🚀 ~ DevERPService ~ getAuth ~ activeAccount-*-*-*-*-*-*-*-*-*-*-*-*-*--/////////:',
           activeAccount,
         );
+        this.token = response.data.token || '';
         if (activeAccount) {
           const updatedUser = {
             ...activeAccount.user,

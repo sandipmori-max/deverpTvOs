@@ -67,6 +67,7 @@ const RootNavigator = () => {
           //     { text: 'Open Settings', onPress: () => Linking.openSettings() },
           //   ],
           // );
+          // -------------------
           setAlertConfig({
             title: 'Permission Blocked',
             message:

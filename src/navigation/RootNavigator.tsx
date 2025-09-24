@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, Platform, NativeModules } from 'react-native';
+import { PermissionsAndroid, Platform, NativeModules, Alert, Linking } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { checkAuthStateThunk } from '../store/slices/auth/thunk';
 import DevERPService from '../services/api/deverp';
@@ -15,17 +15,15 @@ import { requestLocationPermissions } from '../utils/helpers';
 const RootNavigator = () => {
   const dispatch = useAppDispatch();
   const { isLoading, isAuthenticated, accounts } = useAppSelector(state => state.auth);
-  console.log('isAuthenticated', isAuthenticated);
   const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null);
   const [alertVisible, setAlertVisible] = useState(false);
-
   const [modalClose, setModalClose] = useState(false);
+  const [isSettingVisible, setIsSettingVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     message: '',
     type: 'info' as 'error' | 'success' | 'info',
   });
-
   const [hasSyncedDisabledLocation, setHasSyncedDisabledLocation] = useState(false);
 
   const requestLocationPermission = async (): Promise<boolean> => {
@@ -34,47 +32,62 @@ const RootNavigator = () => {
         const alreadyGranted = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         );
+        if (alreadyGranted) return true;
 
-        if (alreadyGranted) {
-          console.log('✅ Location permission already granted');
-          return true;
-        }
-
-        // Build permission list
         const permissions = [
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
         ];
-
         if (Platform.Version >= 34) {
           permissions.push(PermissionsAndroid.PERMISSIONS.FOREGROUND_SERVICE_LOCATION);
         }
 
-        console.log('📌 Requesting location permissions:', permissions);
-
-        // Ask user
         const results = await PermissionsAndroid.requestMultiple(permissions);
 
-        console.log('📌 Location permission results:', results);
+        let allGranted = true;
+        let permanentlyDenied = false;
 
-        // Verify all permissions granted
-        const allGranted = Object.values(results).every(
-          r => r === PermissionsAndroid.RESULTS.GRANTED,
-        );
+        for (const [perm, status] of Object.entries(results)) {
+          if (status !== PermissionsAndroid.RESULTS.GRANTED) {
+            allGranted = false;
+            if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+              permanentlyDenied = true;
+            }
+          }
+        }
 
-        if (allGranted) {
-          console.log('✅ Location permissions granted');
-          return true;
-        } else {
-          console.log('❌ Location permissions denied');
+        if (allGranted) return true;
+        if (permanentlyDenied) {
+          setIsSettingVisible(true);
+          // Alert.alert(
+          //   'Permission Blocked',
+          //   'Location permission is permanently denied. Please enable it in Settings.',
+          //   [
+          //     { text: 'Cancel', style: 'cancel' },
+          //     { text: 'Open Settings', onPress: () => Linking.openSettings() },
+          //   ],
+          // );
+          setAlertConfig({
+            title: 'Permission Blocked',
+            message:
+             'Location permission is permanently denied. Please enable it in Settings.',
+            type: 'error',
+          });
+          setAlertVisible(true);
           return false;
         }
+
+        Alert.alert(
+          'Permission Denied',
+          'Location permission is required for this feature.',
+        );
+        setIsSettingVisible(false);
+        return false;
       } catch (err) {
         console.warn('⚠️ requestLocationPermission error:', err);
         return false;
       }
     }
-
     return true;
   };
 
@@ -83,7 +96,6 @@ const RootNavigator = () => {
   useEffect(() => {
     const fetchDeviceName = async () => {
       const name = await DeviceInfo.getDeviceName();
-
       let appid = await AsyncStorage.getItem('appid');
       if (!appid) {
         appid = app_id;
@@ -97,19 +109,67 @@ const RootNavigator = () => {
 
       dispatch(checkAuthStateThunk());
     };
-
     fetchDeviceName();
   }, [dispatch]);
 
-  // for location debug -----------
+  // Location & permissions watcher
   useEffect(() => {
-    const checkLocation = async () => {
-      if (isAuthenticated === false) {
-        return;
-      }
-      const enabled = await DeviceInfo.isLocationEnabled();
+    let interval: NodeJS.Timeout | null = null;
 
-      console.log('🚀 ~ checkLocation ~ enabled + + + enabled :', enabled);
+    const checkAndStart = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        // Check if device location is enabled
+        const enabled = await DeviceInfo.isLocationEnabled();
+        if (!enabled) {
+          // setAlertConfig({
+          //   title: 'Location Status',
+          //   message:
+          //     'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
+          //   type: 'error',
+          // });
+          // setAlertVisible(true);
+          return;
+        }
+
+        // Check location permissions
+        const hasPermission = await requestLocationPermission();
+        const fullPermission = await requestLocationPermissions();
+
+        if (!hasPermission || !fullPermission) {
+          setAlertConfig({
+            title: 'Location Status',
+            message:
+              'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
+            type: 'error',
+          });
+          setAlertVisible(true);
+          return;
+        }
+
+        // Start interval only when all conditions satisfied
+        interval = setInterval(() => {
+          console.log('📌 Running location sync...');
+          checkLocation();
+        }, 1800);
+      } catch (err) {
+        console.warn('⚠️ checkAndStart error:', err);
+      }
+    };
+
+    checkAndStart();
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAuthenticated, accounts]);
+
+  const checkLocation = async () => {
+    try {
+      if (!isAuthenticated) return;
+
+      const enabled = await DeviceInfo.isLocationEnabled();
 
       if (locationEnabled === null) {
         if (!enabled) {
@@ -140,76 +200,42 @@ const RootNavigator = () => {
       setLocationEnabled(enabled);
 
       if (isAuthenticated) {
-        console.log('🚀 ~ checkLocation ~ enabled:', enabled);
         if (enabled) {
           setHasSyncedDisabledLocation(false);
 
           const hasPermission = await requestLocationPermission();
-          console.log('🚀 ~ checkLocation ~ hasPermission:', hasPermission);
-
-          if (hasPermission === false || enabled === false) {
-            setAlertConfig({
-              title: 'Location Status',
-              message:
-                'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-              type: 'error',
-            });
-            setAlertVisible(true);
-            setModalClose(false);
-            return;
-          }
           if (!hasPermission) return;
 
-          try {
-            if (accounts.length > 0) {
-              if (Platform.OS === 'android') {
-                requestLocationPermissions().then(granted => {
-                  console.log('🚀 ~ checkLocation ~ granted-------------------:', granted);
-                  console.log('🚀 ~ checkLocation ~ isAuthenticated:', isAuthenticated);
-                  if (granted && isAuthenticated) {
-                    const data = accounts.map(u => ({
-                      token: u?.user?.token,
-                      link: u?.user?.companyLink,
-                    }));
-                    console.log(
-                      '🚀 ~ checkLocation companyLink ---------------------~ data:',
-                      data,
-                    );
+          if (accounts.length > 0 && Platform.OS === 'android') {
+            const granted = await requestLocationPermissions();
+            console.log("🚀 ~ checkLocation ~ granted:", granted)
+            if (granted && isAuthenticated) {
+              const data = accounts.map(u => ({
+                token: u?.user?.token,
+                link: u?.user?.companyLink,
+              }));
 
-                    NativeModules.LocationModule.setUserTokens(data);
-                    NativeModules.LocationModule?.startService();
-                  } else {
-                    setAlertConfig({
-                      title: 'Location Status',
-                      message:
-                        'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-                      type: 'error',
-                    });
-                    setAlertVisible(true);
-                    setModalClose(false)
-                  }
-                });
-              }
+              NativeModules.LocationModule.setUserTokens(data);
+              NativeModules.LocationModule?.startService();
+            } else {
+              setAlertConfig({
+                title: 'Location Status',
+                message:
+                  'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
+                type: 'error',
+              });
+              setAlertVisible(true);
+              setModalClose(false);
             }
-          } catch (err) {
-            console.log('Location fetch error:', err);
           }
-        } else {
-          console.log('🚀 ~ checkLocation ~ enabled: else ------------------------');
         }
       }
-    };
-    if (isAuthenticated) {
-      checkLocation();
+    } catch (err) {
+      console.log('Location fetch error:', err);
     }
+  };
 
-    const interval = setInterval(checkLocation, 1800);
-    return () => clearInterval(interval);
-  }, [locationEnabled, accounts, dispatch, isAuthenticated, hasSyncedDisabledLocation]);
-
-  if (isLoading) {
-    return <FullViewLoader />;
-  }
+  if (isLoading) return <FullViewLoader />;
 
   return (
     <>
@@ -220,12 +246,9 @@ const RootNavigator = () => {
         message={alertConfig.message}
         type={alertConfig.type}
         onClose={() => {
-          if (modalClose) {
-            setAlertVisible(false);
-          }
-        }}
-        actionLoader={undefined}
-      />
+          if (modalClose) setAlertVisible(false);
+        } }
+        actionLoader={undefined}      />
     </>
   );
 };

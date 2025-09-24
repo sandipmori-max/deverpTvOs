@@ -31,6 +31,7 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
   const [locationLoading, setLocationLoading] = useState(false);
   const [attendanceDone, setAttendanceDone] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     message: '',
@@ -94,7 +95,7 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
       setAlertVisible(true);
       return;
     }
-
+    setBlocked(false);
     setLocationLoading(true);
 
     const getLocationWithRetry = () => {
@@ -167,9 +168,9 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
               setBlockAction(false);
 
               setTimeout(() => {
-                 navigation?.goBack();
+                navigation?.goBack();
                 setAlertVisible(false);
-              }, 1000)
+              }, 1000);
             })
             .catch(err => {
               setAttendanceDone(false);
@@ -218,7 +219,7 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
               </View>
             </View>
 
-            <View style={{   }}>
+            <View style={{}}>
               <View style={styles.formGroup}>
                 <Text style={styles.label}>{t('attendance.employeeName')}</Text>
                 <TextInput
@@ -268,6 +269,7 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
                   }
                   loading={locationLoading}
                   completed={attendanceDone}
+                  blocked={blocked}
                   onSlideSuccess={() => handleStatusToggle(setFieldValue, handleSubmit)}
                 />
               </View>
@@ -286,7 +288,12 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
             navigation?.goBack();
             setAlertVisible(false);
           } else {
+            setBlocked(true);
             setAlertVisible(false);
+
+            setTimeout(() => {
+              setBlocked(false);
+            }, 1000)
           }
         }}
         actionLoader={undefined}

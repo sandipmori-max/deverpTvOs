@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
-import { Platform } from 'react-native';
+import { Alert, Linking, Platform } from 'react-native';
 
 const useFcmToken = () => {
   const [token, setToken] = useState<string | null>(null);
@@ -32,18 +32,61 @@ const useFcmToken = () => {
     return unsubscribe;
   }, []);
 
-  const requestUserPermission = async (): Promise<boolean> => {
-    if (Platform.OS === 'ios') {
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+ const requestUserPermission = async (): Promise<boolean> => {
+  if (Platform.OS === 'ios') {
+    try {
+      const authStatus = await messaging().requestPermission({
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: true,
+      });
 
-      return enabled;
+      switch (authStatus) {
+        case messaging.AuthorizationStatus.AUTHORIZED:
+          console.log('🔓 Push notification permission: AUTHORIZED');
+          return true;
+
+        case messaging.AuthorizationStatus.PROVISIONAL:
+          console.log('⚠️ Push notification permission: PROVISIONAL');
+          return true;
+
+        case messaging.AuthorizationStatus.DENIED:
+          console.log('❌ Push notification permission: DENIED');
+          Alert.alert(
+            'Permission Denied',
+            'You denied notification permission. To enable notifications, please go to Settings.',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Open Settings',
+                onPress: () => Linking.openSettings(),
+              },
+            ]
+          );
+          return false;
+
+        case messaging.AuthorizationStatus.NOT_DETERMINED:
+          console.log('🤔 Push notification permission: NOT_DETERMINED');
+          Alert.alert(
+            'Permission Not Determined',
+            'Please allow notifications to stay updated.'
+          );
+          return false;
+
+        default:
+          console.log('ℹ️ Push notification permission status:', authStatus);
+          return false;
+      }
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      return false;
     }
+  }
 
-    return true;
-  };
+  // ✅ Android always returns true (but Android 13+ still needs runtime request)
+  return true;
+};
 
   return { token, permissionGranted };
 };

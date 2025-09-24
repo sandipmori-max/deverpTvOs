@@ -1,21 +1,56 @@
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
+import { Alert } from 'react-native';
 
 /**
  * Request permission for push notifications (iOS requires explicit).
  */
-export async function requestUserPermission(): Promise<void> {
-  const authStatus = await messaging().requestPermission();
-  const enabled =
-    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-  if (enabled) {
-    console.log('Push notification permission granted');
-    await getFcmToken();
-  } else {
-    console.log('Push notification permission denied');
+export async function requestUserPermission(): Promise<void> {
+  try {
+    const authStatus = await messaging().requestPermission({
+      sound: true,
+      announcement: true,
+      alert: true,
+      badge: true,
+      carPlay: true,
+      criticalAlert: true,
+      provisional: true,
+    });
+
+    switch (authStatus) {
+      case messaging.AuthorizationStatus.AUTHORIZED:
+        console.log('🔓 Push notification permission: AUTHORIZED');
+        await getFcmToken();
+        break;
+
+      case messaging.AuthorizationStatus.PROVISIONAL:
+        console.log('⚠️ Push notification permission: PROVISIONAL (temporarily allowed)');
+        await getFcmToken();
+        break;
+
+      case messaging.AuthorizationStatus.DENIED:
+        console.log('❌ Push notification permission: DENIED');
+        Alert.alert(
+          'Permission Denied',
+          'You have denied notification permission. Please enable it in Settings to receive alerts.'
+        );
+        break;
+
+      case messaging.AuthorizationStatus.NOT_DETERMINED:
+        console.log('🤔 Push notification permission: NOT_DETERMINED');
+        Alert.alert(
+          'Permission Not Determined',
+          'Please decide whether to allow notifications to stay updated.'
+        );
+        break;
+
+      default:
+        console.log('ℹ️ Push notification permission status:', authStatus);
+    }
+  } catch (error) {
+    console.error('Error requesting notification permission:', error);
   }
 }
 

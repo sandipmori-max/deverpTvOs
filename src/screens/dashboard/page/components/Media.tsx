@@ -13,9 +13,10 @@ import {
   ActivityIndicator,
   Animated,
   PanResponder,
+  Linking,
 } from 'react-native';
 import { launchCamera, launchImageLibrary, Asset } from 'react-native-image-picker';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
 import { ERP_ICON } from '../../../../assets';
 
 const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) => {
@@ -27,13 +28,13 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
   const [loadingLarge, setLoadingLarge] = useState(false);
   const [cacheBuster, setCacheBuster] = useState(Date.now());
 
-   const scale = useRef(new Animated.Value(1)).current;
+  const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const lastScale = useRef(1);
   const lastTranslate = useRef({ x: 0, y: 0 });
 
-   const getImageUri = (type: 'small' | 'large') => {
+  const getImageUri = (type: 'small' | 'large') => {
     const base =
       imageUri ||
       `${baseLink}fileupload/1/${infoData?.tableName}/${infoData?.id}/${
@@ -42,28 +43,47 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
     return `${base}?cb=${cacheBuster}`;
   };
 
-  const requestPermission = async (type: 'camera' | 'gallery') => {
-    try {
-      let permission;
-      if (type === 'camera') {
-        permission = Platform.OS === 'ios' ? PERMISSIONS.IOS.CAMERA : PERMISSIONS.ANDROID.CAMERA;
-      } else {
-        permission =
-          Platform.OS === 'ios'
-            ? PERMISSIONS.IOS.PHOTO_LIBRARY
-            : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
-      }
+   const requestPermission = async (type: 'camera' | 'gallery'): Promise<boolean> => {
+  try {
+    const permission =
+      type === 'camera'
+        ? Platform.OS === 'ios'
+          ? PERMISSIONS.IOS.CAMERA
+          : PERMISSIONS.ANDROID.CAMERA
+        : Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.PHOTO_LIBRARY
+        : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
 
-      const result = await check(permission);
+    let result = await check(permission);
+    console.log('🚀 Current status:', result);
+
+    if (result === RESULTS.GRANTED) return true;
+
+    // If DENIED, try requesting
+    if (result === RESULTS.DENIED) {
+      result = await request(permission);
       if (result === RESULTS.GRANTED) return true;
+    }
 
-      const requestResult = await request(permission);
-      return requestResult === RESULTS.GRANTED;
-    } catch (error) {
-      console.log('Permission error:', error);
+    // If still denied or blocked → show open settings
+    if (result === RESULTS.BLOCKED || result === RESULTS.DENIED) {
+      Alert.alert(
+        `${type === 'camera' ? 'Camera' : 'Gallery'} Permission Required`,
+        `Please enable ${type === 'camera' ? 'camera' : 'gallery'} access from Settings to continue.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => openSettings() },
+        ],
+      );
       return false;
     }
-  };
+
+    return result === RESULTS.GRANTED;
+  } catch (error) {
+    console.log('⚠️ Permission error:', error);
+    return false;
+  }
+};
 
   const renderMedia = () => {
     if (item?.ctltype === 'IMAGE') {
@@ -120,16 +140,16 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
     setPickerModalVisible(true);
   };
 
-   const panResponder = useRef(
+  const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderMove: (evt, gesture) => {
         if (gesture.numberActiveTouches === 1) {
-           translateX.setValue(lastTranslate.current.x + gesture.dx);
+          translateX.setValue(lastTranslate.current.x + gesture.dx);
           translateY.setValue(lastTranslate.current.y + gesture.dy);
         } else if (gesture.numberActiveTouches === 2) {
-           const touches = evt.nativeEvent.touches;
+          const touches = evt.nativeEvent.touches;
           const dx = touches[0].pageX - touches[1].pageX;
           const dy = touches[0].pageY - touches[1].pageY;
           const distance = Math.sqrt(dx * dx + dy * dy);
@@ -167,36 +187,34 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
             setModalVisible(true);
           }}
         >
-          {
-            isFromNew ? <>
-            
-            <Image
-              key={item?.field}
-              source={imageUri ? { uri: imageUri } : ERP_ICON.APP_LOGO }
-              style={styles.imageThumb}
-              onLoadStart={() => !imageUri && setLoadingSmall(true)}
-              onLoadEnd={() => setLoadingSmall(false)}
-              resizeMode="cover"
-            />
-            </> : 
-            
+          {isFromNew ? (
             <>
-            <View style={{ width: 100, height: 100 }}>
-            {loadingSmall && (
-              <ActivityIndicator style={StyleSheet.absoluteFill} size="small" color="#000" />
-            )}
-            <Image
-              key={item.field}
-              source={imageUri ? { uri: imageUri } : { uri: getImageUri('small') }}
-              style={styles.imageThumb}
-              onLoadStart={() => !imageUri && setLoadingSmall(true)}
-              onLoadEnd={() => setLoadingSmall(false)}
-              resizeMode="cover"
-            />
-          </View>
+              <Image
+                key={item?.field}
+                source={imageUri ? { uri: imageUri } : ERP_ICON.APP_LOGO}
+                style={styles.imageThumb}
+                onLoadStart={() => !imageUri && setLoadingSmall(true)}
+                onLoadEnd={() => setLoadingSmall(false)}
+                resizeMode="cover"
+              />
             </>
-          }
-          
+          ) : (
+            <>
+              <View style={{ width: 100, height: 100 }}>
+                {loadingSmall && (
+                  <ActivityIndicator style={StyleSheet.absoluteFill} size="small" color="#000" />
+                )}
+                <Image
+                  key={item.field}
+                  source={imageUri ? { uri: imageUri } : { uri: getImageUri('small') }}
+                  style={styles.imageThumb}
+                  onLoadStart={() => !imageUri && setLoadingSmall(true)}
+                  onLoadEnd={() => setLoadingSmall(false)}
+                  resizeMode="cover"
+                />
+              </View>
+            </>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleChooseImage} style={styles.editBtn}>
@@ -254,7 +272,7 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
               />
             </Animated.View>
 
-             <View style={styles.zoomControls}>
+            <View style={styles.zoomControls}>
               <TouchableOpacity style={styles.zoomBtn} onPress={zoomIn}>
                 <MaterialIcons name="zoom-in" size={28} color="#000" />
               </TouchableOpacity>

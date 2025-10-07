@@ -178,8 +178,9 @@ const PinSetupScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-     alignItems: 'center',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    paddingTop: 32,
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
@@ -196,7 +197,7 @@ const styles = StyleSheet.create({
   },
   pinRow: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: 50,
   },
   pinCircle: {
     width: 18,

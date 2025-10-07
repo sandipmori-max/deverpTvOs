@@ -4,6 +4,7 @@ import { styles } from '../list_page_style';
 import { formatHeaderTitle } from '../../../../utils/helpers';
 import NoData from '../../../../components/no_data/NoData';
 import { useNavigation } from '@react-navigation/native';
+import { ERP_COLOR_CODE } from '../../../../utils/constants';
 
 const TableView = ({
   configData,
@@ -13,23 +14,27 @@ const TableView = ({
   pageParamsName,
   pageName,
   handleActionButtonPressed,
+  setIsFilterVisible,
+  setSearchQuery,
 }: any) => {
   const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
 
   const getButtonMeta = (key: string) => {
-    if (!key || !configData?.length) return { label: 'Action', color: '#007BFF' };
-    const configItem = configData?.find(cfg => cfg?.datafield?.toLowerCase() === key?.toLowerCase());
+    if (!key || !configData?.length) return { label: 'Action', color: ERP_COLOR_CODE.ERP_COLOR };
+    const configItem = configData?.find(
+      cfg => cfg?.datafield?.toLowerCase() === key?.toLowerCase(),
+    );
     return {
       label: configItem?.headertext || 'Action',
-      color: configItem?.colorcode || '#007BFF',
+      color: configItem?.colorcode || ERP_COLOR_CODE.ERP_COLOR,
     };
   };
 
-const allKeys =
-  filteredData && filteredData.length > 0
-    ? Object.keys(filteredData[0]).filter(key => key !== 'id')
-    : [];
+  const allKeys =
+    filteredData && filteredData.length > 0
+      ? Object.keys(filteredData[0]).filter(key => key !== 'id')
+      : [];
 
   function splitInto4Columns(keys: string[]): Record<string, string[]> {
     const result: Record<string, string[]> = { clm1: [], clm2: [], clm3: [], clm4: [] };
@@ -94,14 +99,27 @@ const allKeys =
 
   const renderItem = ({ item, index }: { item: any; index: number }) => {
     const isEven = index % 2 === 0;
-    const rowBackgroundColor = isEven ? '#ffffff' : '#f8faf3ff';
+    const rowBackgroundColor = isEven ? ERP_COLOR_CODE.ERP_WHITE : '#f8faf3ff';
+    const authUser = item?.authuser;
 
     const btnKeys = Object.keys(item).filter(key => key.startsWith('btn_'));
 
     return (
       <TouchableOpacity
         onPress={async () => {
-          navigation.navigate('Page', { item, title: pageParamsName, id: item?.id, url: pageName });
+          if (authUser) {
+            return;
+          }
+          if (item?.id !== undefined) {
+            setIsFilterVisible(false);
+            setSearchQuery('');
+            navigation.navigate('Page', {
+              item,
+              title: pageParamsName,
+              id: item?.id,
+              url: pageName,
+            });
+          }
         }}
       >
         {' '}
@@ -124,7 +142,7 @@ const allKeys =
                   return (
                     <Text
                       key={`${key}-${item?.id || Math.random()}`}
-                      style={[styles.tableCell, { minWidth: 96, maxWidth: 100, marginBottom: 0 }]}
+                      style={[styles.tableCell, { minWidth: 96, maxWidth: '25%', marginBottom: 0 }]}
                       numberOfLines={1}
                     >
                       {value || '-'}
@@ -137,7 +155,7 @@ const allKeys =
         <View
           style={{
             borderBottomWidth: 1,
-            borderBottomColor: '#ccc',
+            borderBottomColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
             flexDirection: 'row',
             flexWrap: 'wrap',
             alignItems: 'center',
@@ -167,7 +185,11 @@ const allKeys =
                       handleActionButtonPressed(actionValue, label, color, item?.id);
                     }}
                   >
-                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 13 }}>{label}</Text>
+                    <Text
+                      style={{ color: ERP_COLOR_CODE.ERP_WHITE, fontWeight: '600', fontSize: 13 }}
+                    >
+                      {label}
+                    </Text>
                   </TouchableOpacity>
                 );
               })}
@@ -185,7 +207,7 @@ const allKeys =
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#fff',
+            backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
           }}
         >
           <NoData />
@@ -197,13 +219,13 @@ const allKeys =
     <View
       style={{
         flex: 1,
+        marginTop: 4,
       }}
     >
       <FlatList
         data={['']}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-      
         renderItem={() => {
           return (
             <FlatList
@@ -218,7 +240,7 @@ const allKeys =
         }}
       ></FlatList>
 
-      {filteredData?.length > 0 && totalAmount > 0 ? (
+      {filteredData?.length > 0 ? (
         <View
           style={{
             marginTop: 6,
@@ -226,21 +248,52 @@ const allKeys =
             borderRadius: 8,
             backgroundColor: '#f1f1f1',
             borderWidth: 1,
-            borderColor: '#ddd',
-            marginBottom: 28,
+            borderColor: ERP_COLOR_CODE.ERP_ddd,
+            marginBottom: 12,
           }}
         >
-          <Text style={{ fontSize: 14, fontWeight: '700', color: '#333' }}>Total Amount</Text>
-          <Text
+          {totalAmount !== 0 && (
+            <View
+              style={{
+                justifyContent: 'space-between',
+                flexDirection: 'row',
+              }}
+            >
+              <Text style={{ fontSize: 14, fontWeight: '700', color: ERP_COLOR_CODE.ERP_333 }}>
+                Total Amount
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  color: '#28a745',
+                  marginTop: 2,
+                }}
+              >
+                ₹ {totalAmount?.toFixed(2)}
+              </Text>
+            </View>
+          )}
+
+          <View
             style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-              color: '#28a745',
-              marginTop: 2,
+              justifyContent: 'space-between',
+              flexDirection: 'row',
             }}
           >
-            ₹ {totalAmount?.toFixed(2)}
-          </Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: ERP_COLOR_CODE.ERP_333 }}>
+              Total Rows
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: 'bold',
+                marginTop: 2,
+              }}
+            >
+              {filteredData?.length}
+            </Text>
+          </View>
         </View>
       ) : null}
     </View>

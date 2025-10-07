@@ -226,7 +226,7 @@ const SettingsScreen = () => {
     >
       <View style={styles.settingHeader}>
         <View style={styles.settingIcon}>
-          <MaterialIcons name={item?.icon} color={'#000'} size={22} />
+          <MaterialIcons name={item?.icon} color={ERP_COLOR_CODE.ERP_BLACK} size={22} />
         </View>
         <View style={styles.settingInfo}>
           <Text style={styles.settingTitle}>{item?.title}</Text>
@@ -238,8 +238,8 @@ const SettingsScreen = () => {
             onValueChange={() => {
               handleToggle(item.id);
             }}
-            trackColor={{ false: '#e0e0e0', true: '#4CAF50' }}
-            thumbColor={item.value ? '#fff' : '#f4f3f4'}
+            trackColor={{ false: ERP_COLOR_CODE.ERP_e0e0e0, true: '#4CAF50' }}
+            thumbColor={item.value ? ERP_COLOR_CODE.ERP_WHITE : '#f4f3f4'}
           />
         ) : (
           <>{item?.title !== t('settings.aboutApp') && <Text style={styles.arrowIcon}>›</Text>}</>
@@ -432,7 +432,7 @@ const languageStyles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -447,11 +447,11 @@ const languageStyles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#222',
+    color: ERP_COLOR_CODE.ERP_222,
   },
   closeButton: {
     fontSize: 20,
-    color: '#999',
+    color: ERP_COLOR_CODE.ERP_999,
   },
   languageList: {
     maxHeight: 300,
@@ -462,14 +462,14 @@ const languageStyles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: ERP_COLOR_CODE.ERP_f0f0f0,
   },
   selectedLanguage: {
     backgroundColor: '#f5f5f5',
   },
   languageName: {
     fontSize: 16,
-    color: '#333',
+    color: ERP_COLOR_CODE.ERP_333,
   },
   selectedLanguageText: {
     fontWeight: 'bold',

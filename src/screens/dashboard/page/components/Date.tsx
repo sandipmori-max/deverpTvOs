@@ -6,7 +6,6 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { formatDateHr } from '../../../../utils/helpers';
 
 const DateRow = ({ item, errors, value, showDatePicker }: any) => {
-  console.log("🚀 ~ DateRow ~ value:", value)
   return (
     <View style={{ marginBottom: 16 }}>
       <View style={{ flexDirection: 'row' }}>
@@ -18,10 +17,10 @@ const DateRow = ({ item, errors, value, showDatePicker }: any) => {
         style={[styles.dateBox, errors[item.field] && { borderColor: ERP_COLOR_CODE.ERP_ERROR }]}
         onPress={() => showDatePicker(item?.field, value)}
       >
-        <Text style={{ color: value ? '#000' : '#888' }}>
+        <Text style={{ color: value ? ERP_COLOR_CODE.ERP_BLACK : ERP_COLOR_CODE.ERP_888 }}>
           {value ? formatDateHr(value, false) : 'dd/mmm/yyyy'}
         </Text>
-        <MaterialIcons name="event" size={20} color="#555" />
+        <MaterialIcons name="event" size={20} color={ERP_COLOR_CODE.ERP_555} />
       </TouchableOpacity>
       {errors[item.field] && (
         <Text style={{ color: ERP_COLOR_CODE.ERP_ERROR, marginTop: 4 }}>

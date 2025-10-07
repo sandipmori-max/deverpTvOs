@@ -16,6 +16,7 @@ import ERPIcon from '../../../components/icon/ERPIcon';
 import CustomAlert from '../../../components/alert/CustomAlert';
 import { handlePageActionThunk } from '../../../store/slices/page/thunk';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
+import { ERP_COLOR_CODE } from '../../../utils/constants';
 
 const ListScreen = () => {
   const navigation = useNavigation();
@@ -46,7 +47,7 @@ const ListScreen = () => {
     message: '',
     type: 'info' as 'error' | 'success' | 'info',
     actionValue: '',
-    color: '#000',
+    color: ERP_COLOR_CODE.ERP_BLACK,
     id: 0,
   });
 
@@ -63,6 +64,7 @@ const ListScreen = () => {
   const pageTitle = item?.title || item?.name || 'List Data';
   const pageParamsName = item?.name || 'List Data';
   const pageName = item?.url;
+  console.log("🚀 ~ ListScreen ~ pageName:", pageName)
 
   const totalAmount = filteredData?.reduce((sum, item) => {
     const amount = parseFloat(item?.amount) || 0;
@@ -73,16 +75,24 @@ const ListScreen = () => {
     item => item?.datafield && item?.datafield.toLowerCase() === 'date',
   );
 
+  const hasIdField = configData.some(
+    item => item?.datafield && item?.datafield.toLowerCase() === 'id',
+  );
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-              <Text
-                numberOfLines={1}
-                style={{ maxWidth: 180, fontSize: 18, fontWeight: '700', color: '#fff' }}
-              >
-                {pageTitle || 'List Data'}
-              </Text>
-            ),
+        <Text
+          numberOfLines={1}
+          style={{
+            maxWidth: 180,
+            fontSize: 18,
+            fontWeight: '700',
+            color: ERP_COLOR_CODE.ERP_WHITE,
+          }}
+        >
+          {pageTitle || 'List Data'}
+        </Text>
+      ),
       headerRight: () => (
         <>
           <ERPIcon
@@ -228,6 +238,9 @@ const ListScreen = () => {
 
   const fetchListData = useCallback(
     async (fromDateStr: string, toDateStr: string) => {
+      // if (isFilterVisible) {
+      //   return;
+      // }
       try {
         setError(null);
         setLoadingListId(item?.id || 0);
@@ -241,7 +254,6 @@ const ListScreen = () => {
           }),
         ).unwrap();
         const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-        console.log('🚀 ~ parsed--------:', parsed);
         let dataArray = [];
         let configArray = [];
 
@@ -298,6 +310,8 @@ const ListScreen = () => {
   );
 
   const handleItemPressed = (item, page, pageTitle = '') => {
+    setIsFilterVisible(false);
+    setSearchQuery('');
     navigation.navigate('Page', {
       item,
       title: page,
@@ -321,7 +335,7 @@ const ListScreen = () => {
 
   if (parsedError) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View style={{ flex: 1, backgroundColor: ERP_COLOR_CODE.ERP_WHITE }}>
         <ErrorMessage message={parsedError} />
       </View>
     );
@@ -338,7 +352,7 @@ const ListScreen = () => {
                 placeholder={`Search ${pageTitle.toLowerCase()} in list...`}
                 value={searchQuery}
                 onChangeText={handleSearchChange}
-                placeholderTextColor="#6C757D"
+                placeholderTextColor={ERP_COLOR_CODE.ERP_6C757D}
               />
               {searchQuery.length > 0 && (
                 <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
@@ -350,44 +364,40 @@ const ListScreen = () => {
 
           {hasDateField && (
             <View style={styles.dateContainer}>
+              {/* Start Date */}
               <View style={styles.dateRow}>
-                <View
-                  style={{
-                    alignContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    gap: 4,
-                    marginBottom: 6,
-                  }}
-                >
-                  <MaterialIcons size={20} color={'#000'} name="insert-invitation" />
-                  <Text style={styles.dateLabel}>From Date:</Text>
-                </View>
                 <TouchableOpacity
                   onPress={() => setShowDatePicker({ type: 'from', show: true })}
                   style={styles.dateButton}
                 >
-                  <Text style={styles.dateButtonText}>{fromDate || 'Select Date'}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <MaterialIcons
+                      name="calendar-today"
+                      size={18}
+                      color="#000"
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text style={styles.dateButtonText}>{fromDate || 'Select From Date'}</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
+              <View style={{height: 1, width: 8,}}> </View>
+
+              {/* End Date */}
               <View style={styles.dateRow}>
-                <View
-                  style={{
-                    alignContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    gap: 4,
-                    marginBottom: 6,
-                  }}
-                >
-                  <MaterialIcons size={20} color={'#000'} name="insert-invitation" />
-                  <Text style={styles.dateLabel}>To Date:</Text>
-                </View>
                 <TouchableOpacity
                   onPress={() => setShowDatePicker({ type: 'to', show: true })}
                   style={styles.dateButton}
                 >
-                  <Text style={styles.dateButtonText}>{toDate || 'Select Date'}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <MaterialIcons
+                      name="calendar-today"
+                      size={18}
+                      color="#000"
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text style={styles.dateButtonText}>{toDate || 'Select To Date'}</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
             </View>
@@ -435,6 +445,8 @@ const ListScreen = () => {
                     pageParamsName={pageParamsName}
                     handleItemPressed={handleItemPressed}
                     pageName={pageName}
+                    setIsFilterVisible={setIsFilterVisible}
+                    setSearchQuery={setSearchQuery}
                     handleActionButtonPressed={handleActionButtonPressed}
                   />
                 </>
@@ -448,6 +460,8 @@ const ListScreen = () => {
                     pageParamsName={pageParamsName}
                     handleItemPressed={handleItemPressed}
                     pageName={pageName}
+                    setIsFilterVisible={setIsFilterVisible}
+                    setSearchQuery={setSearchQuery}
                     handleActionButtonPressed={handleActionButtonPressed}
                   />
                 </>
@@ -456,14 +470,19 @@ const ListScreen = () => {
           )}
         </>
       )}
-      {!loadingListId && configData && (
+      {  !loadingListId && configData && (
         <TouchableOpacity
-          style={styles.addButton}
+          style={[
+            styles.addButton,
+            {
+              bottom: filteredData.length === 0 ? 40 : totalAmount === 0 ? 64 : 78,
+            },
+          ]}
           onPress={() => {
             handleItemPressed({}, pageParamsName, pageTitle);
           }}
         >
-          <MaterialIcons size={32} name="add" color={'#fff'} />
+          <MaterialIcons size={32} name="add" color={ERP_COLOR_CODE.ERP_WHITE} />
         </TouchableOpacity>
       )}
 
@@ -479,10 +498,8 @@ const ListScreen = () => {
         doneText={alertConfig.title}
         color={alertConfig.color}
         onDone={async remark => {
-          console.log('🚀 ~ async ~ remark:', alertConfig?.actionValue);
           try {
             const type = `page${alertConfig.title}`;
-            console.log(type);
             const res = await dispatch(
               handlePageActionThunk({
                 action: type,
@@ -492,7 +509,6 @@ const ListScreen = () => {
               }),
             ).unwrap();
 
-            console.log('✅ Success:', res);
             setAlertVisible(false);
             onRefresh();
           } catch (err) {

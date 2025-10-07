@@ -1,5 +1,5 @@
 // DevERP
-
+// adb reverse tcp:8081 tcp:8081
 // Multiple build creation with different Name + icon + package name
 
 // --- android build ----

@@ -28,6 +28,9 @@ import HtmlRow from './components/HtmlRow';
 import { useBaseLink } from '../../../hooks/useBaseLink';
 import DateTimeRow from './components/DateTimeRow';
 import LocationRow from './components/LocationRow';
+import FilePickerRow from './components/FilePicker';
+import CustomMultiPicker from './components/CustomMultiPicker';
+import { ERP_COLOR_CODE } from '../../../utils/constants';
 
 type PageRouteParams = { PageScreen: { item: any } };
 
@@ -39,12 +42,13 @@ const PageScreen = () => {
 
   const [loadingPageId, setLoadingPageId] = useState<string | null>(null);
   const [controls, setControls] = useState<any[]>([]);
+  console.log("🚀 ~ PageScreen ~ controls:", controls)
   const [errorsList, setErrorsList] = useState<string[]>([]);
   const [showErrorModal, setShowErrorModal] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<any>({});
-  console.log("🚀 ~ PageScreen ~ formValues:------------", formValues)
+  
   const [datePickerVisible, setDatePickerVisible] = useState(false);
 
   const [dateTimePickerVisible, setDateTimePickerVisible] = useState(false);
@@ -71,6 +75,7 @@ const PageScreen = () => {
 
   const route = useRoute<RouteProp<PageRouteParams, 'PageScreen'>>();
   const { item, title, id, isFromNew, url, pageTitle }: any = route?.params;
+  console.log("🚀 ~ PageScreen ~ id:", id)
   const authUser = item?.authuser;
 
   const validateForm = useCallback(() => {
@@ -94,16 +99,33 @@ const PageScreen = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
-        <Text
-          numberOfLines={1}
-          style={{ maxWidth: isFromNew ? 280 : 180, fontSize: 18, fontWeight: '700', color: '#fff' }}
-        >
-          {isFromNew ? `${pageTitle} ( New ) ` : title + ' ( Edit )' || 'Details'}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', maxWidth: 210 }}>
+          <Text
+            numberOfLines={1}
+            style={{
+              flexShrink: 1,
+              fontSize: 18,
+              fontWeight: '700',
+              color: ERP_COLOR_CODE.ERP_WHITE,
+            }}
+          >
+            {title || pageTitle || 'Details'}
+          </Text>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: '700',
+              color: ERP_COLOR_CODE.ERP_WHITE,
+              marginLeft: 4,
+            }}
+          >
+            {isFromNew ? '( New )' : '( Edit )'}
+          </Text>
+        </View>
       ),
       headerRight: () => (
         <>
-          {(
+          {
             <ERPIcon
               name="refresh"
               isLoading={actionLoader}
@@ -114,7 +136,7 @@ const PageScreen = () => {
                 setErrorsList([]);
               }}
             />
-          )}
+          }
 
           {!authUser && controls.length > 0 && (
             <ERPIcon
@@ -186,6 +208,7 @@ const PageScreen = () => {
       const parsed = await dispatch(
         getERPPageThunk({ page: url, id: isFromNew ? 0 : id }),
       ).unwrap();
+      console.log("🚀 ~ parsed:", parsed)
 
       if (!isFromNew) {
         setInfoData({
@@ -196,6 +219,7 @@ const PageScreen = () => {
       }
 
       const pageControls = Array.isArray(parsed?.pagectl) ? parsed?.pagectl : [];
+      console.log("🚀 ~ pageControls:", pageControls)
 
       const normalizedControls = pageControls?.map(c => ({
         ...c,
@@ -262,7 +286,6 @@ const PageScreen = () => {
 
   const renderItem = useCallback(
     ({ item, index }: { item: any; index: number }) => {
-      console.log('itemitemitemitem', item);
       const setValue = (val: any) => {
         if (typeof val === 'object' && val !== null) {
           setFormValues(prev => ({ ...prev, ...val }));
@@ -287,12 +310,23 @@ const PageScreen = () => {
             onChange={val => setValue({ [item?.field]: val })}
           />
         );
-      }
-     
-      else if(item?.defaultvalue === "#location"){
-        content = <LocationRow item={item} setValue ={setValue }/>
-      }
-       else if (item?.ctltype === 'HTML') {
+      } else if (item?.field === 'chemistname') {
+        content = (
+          <CustomMultiPicker
+            label={item?.fieldtitle}
+            selectedValue={value}
+            dtext={item?.dtext || item?.text || ''}
+            onValueChange={setValue}
+            options={item?.options || []}
+            item={item}
+            errors={errors}
+          />
+        );
+      } else if (item?.ctltype === 'FILE') {
+        content = <FilePickerRow item={item} handleAttachment={handleAttachment} />;
+      } else if (item?.defaultvalue === '#location') {
+        content = <LocationRow item={item} setValue={setValue} />;
+      } else if (item?.defaultvalue === '#html') {
         content = <HtmlRow item={item} />;
       } else if (item?.ctltype === 'IMAGE' && item?.field === 'signature') {
         content = (
@@ -365,9 +399,12 @@ const PageScreen = () => {
       }
 
       return (
-         <>
+        <Animated.View
+          entering={FadeInUp.delay(index * 70).springify()}
+          layout={Layout.springify()}
+        >
           {content}
-         </>
+        </Animated.View>
       );
     },
     [formValues, errors, controls],
@@ -410,12 +447,19 @@ const PageScreen = () => {
   }, []);
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1, padding: 16, backgroundColor: ERP_COLOR_CODE.ERP_WHITE }}>
       {loadingPageId ? (
         <FullViewLoader />
       ) : !!error ? (
-       <View style={{flex: 1, justifyContent:'center', alignContent:'center', backgroundColor:'#fff'}}>
-         <ErrorMessage message={error} />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignContent: 'center',
+            backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+          }}
+        >
+          <ErrorMessage message={error} />
         </View>
       ) : controls?.length > 0 ? (
         <>

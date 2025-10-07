@@ -13,6 +13,8 @@ import { formatDateHr, formatTimeTo12Hour, isTokenValid } from '../../../../../u
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import FastImage from 'react-native-fast-image';
 import { useBaseLink } from '../../../../../hooks/useBaseLink';
+import { ERP_COLOR_CODE } from '../../../../../utils/constants';
+import { setEmptyMenu, setMenu } from '../../../../../store/slices/auth/authSlice';
 
 interface AccountSwitcherProps {
   visible: boolean;
@@ -61,7 +63,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
     const isActive = item?.id.toString() === activeAccountId?.toString();
     const lastLogin = formatDateHr(item?.lastLoginAt, false);
     const lastLoginHr = formatTimeTo12Hour(item?.lastLoginAt);
-   
+
     let normalizedBase = (item?.user?.companyLink || '').replace(/\/+$/, '');
     normalizedBase = normalizedBase.replace(/\/devws\/?/, '/');
     normalizedBase = normalizedBase.replace(/^https:\/\//i, 'http://');
@@ -70,6 +72,10 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
       <TouchableOpacity
         style={[styles.accountItem, isActive && styles.activeAccount]}
         onPress={async () => {
+          dispatch(setEmptyMenu([]))
+          DevERPService.setAppId(item?.user?.app_id || '');
+          await AsyncStorage.setItem('appid', item?.user?.app_id);
+
           if (isTokenValid(item?.user?.tokenValidTill)) {
             DevERPService.setToken(item?.user?.token || '');
             await AsyncStorage.setItem('erp_token', item?.user?.token || '');
@@ -89,7 +95,6 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
             if (!validation?.isValid) {
               return;
             }
-            // await DevERPService.getAuth();
             handleSwitchAccount(item?.id);
           }
         }}
@@ -101,7 +106,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
                 item?.user?.id
               }/profileimage.jpeg?ts=${new Date().getTime()}`,
               priority: FastImage.priority.normal,
-              cache: FastImage.cacheControl.reload,
+              cache: FastImage.cacheControl.web,
             }}
             style={styles.avatar}
           />
@@ -110,12 +115,10 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
             <Text style={[styles.accountName, isActive && styles.activeText]}>
               {item?.user?.name.charAt(0).toUpperCase() + item?.user?.name.slice(1)}
             </Text>
-            <Text 
-            numberOfLines={1}
-            style={[styles.accountEmail, isActive && styles.activeText]}>
-              {item?.user?.companyName} 
+            <Text numberOfLines={1} style={[styles.accountEmail, isActive && styles.activeText]}>
+              {item?.user?.companyName}
             </Text>
-             
+
             <View
               style={{
                 width: isActive ? '100%' : '80%',
@@ -133,7 +136,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
                   alignItems: 'center',
                 }}
               >
-                <MaterialIcons name={'date-range'} color={'#000'} size={18} />
+                <MaterialIcons name={'date-range'} color={ERP_COLOR_CODE.ERP_BLACK} size={18} />
                 <Text style={styles.lastLogin}> {lastLogin}</Text>
               </View>
 
@@ -145,7 +148,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
                   alignItems: 'center',
                 }}
               >
-                <MaterialIcons name={'access-alarm'} color={'#000'} size={18} />
+                <MaterialIcons name={'access-alarm'} color={ERP_COLOR_CODE.ERP_BLACK} size={18} />
                 <Text style={styles.lastLogin}>{lastLoginHr}</Text>
               </View>
             </View>
@@ -197,13 +200,14 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
         title={alertConfig.title}
         message={alertConfig.message}
         type={alertConfig.type}
+        isBottomButtonVisible={true}
         onClose={() => setAlertVisible(false)}
         onCancel={() => setAlertVisible(false)}
         onDone={() => {
           handleRemovedAccount(selectedAccount);
         }}
         doneText="Remove"
-        color="red"
+        color={ERP_COLOR_CODE.ERP_ERROR}
         actionLoader={undefined}
       />
     </Modal>

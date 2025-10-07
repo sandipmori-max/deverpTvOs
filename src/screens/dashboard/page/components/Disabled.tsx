@@ -5,8 +5,6 @@ import { ERP_COLOR_CODE } from '../../../../utils/constants';
 import { formatDateHr } from '../../../../utils/helpers';
 
 const Disabled = ({ item, value, type }: any) => {
-  console.log("🚀 ~ Disabled ~ item:", item);
-  console.log("🚀 ~ Disabled ~ value:", value);
 
   const getDisplayValue = () => {
     if (type === 'DATETIME') {
@@ -28,7 +26,7 @@ const Disabled = ({ item, value, type }: any) => {
         {item?.mandatory === '1' && <Text style={{ color: ERP_COLOR_CODE.ERP_ERROR }}>*</Text>}
       </View>
       <View style={styles.disabledBox}>
-        <Text style={{ color: '#555' }}>
+        <Text style={{ color: ERP_COLOR_CODE.ERP_555 }}>
           {getDisplayValue()}
         </Text>
       </View>

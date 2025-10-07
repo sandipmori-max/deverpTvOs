@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 8,
     paddingTop: 0,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
   },
    profileImage: {
     width: 40,
@@ -14,13 +14,13 @@ export const styles = StyleSheet.create({
     borderRadius: 50,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderRadius: 10,
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
     elevation: 3, 
-    shadowColor: '#000',
+    shadowColor: ERP_COLOR_CODE.ERP_BLACK,
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
   name: {
     fontWeight: '700',
     fontSize: 18,
-    color: '#222',
+    color: ERP_COLOR_CODE.ERP_222,
     flexShrink: 1,
   },
   statusBadge: {
@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
   },
   statusText: {
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
     fontWeight: '600',
     fontSize: 12,
   },
@@ -57,17 +57,17 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#888',
+    color: ERP_COLOR_CODE.ERP_888,
   },
   value: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#444',
+    color: ERP_COLOR_CODE.ERP_444,
   },
   detailsSection: {
     marginTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: ERP_COLOR_CODE.ERP_eee,
     paddingTop: 12,
   },
   detailRow: {
@@ -77,27 +77,27 @@ export const styles = StyleSheet.create({
   },
   detailKey: {
     fontWeight: '600',
-    color: '#555',
+    color: ERP_COLOR_CODE.ERP_555,
     flex: 1,
   },
   detailValue: {
     flex: 2,
     textAlign: 'right',
-    color: '#333',
+    color: ERP_COLOR_CODE.ERP_333,
   },
   expandText: {
     marginTop: 8,
     textAlign: 'center',
-    color: '#007bff',
+    color: ERP_COLOR_CODE.ERP_COLOR,
     fontWeight: '600',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 16,
     marginVertical: 10,
-    shadowColor: '#000',
+    shadowColor: ERP_COLOR_CODE.ERP_BLACK,
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
   cardName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
     flexShrink: 1,
   },
 
@@ -132,7 +132,7 @@ export const styles = StyleSheet.create({
   },
 
   statusText: {
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -146,12 +146,12 @@ export const styles = StyleSheet.create({
 
   metaItem: {
     fontSize: 13,
-    color: '#555',
+    color: ERP_COLOR_CODE.ERP_555,
   },
 
   divider: {
     height: 1,
-    backgroundColor: '#eee',
+    backgroundColor: ERP_COLOR_CODE.ERP_eee,
     marginVertical: 10,
   },
 
@@ -163,13 +163,13 @@ export const styles = StyleSheet.create({
 
   infoKey: {
     fontSize: 13,
-    color: '#777',
+    color: ERP_COLOR_CODE.ERP_777,
     fontWeight: '500',
   },
 
   infoValue: {
     fontSize: 13,
-    color: '#222',
+    color: ERP_COLOR_CODE.ERP_222,
     fontWeight: '400',
     maxWidth: '60%',
     textAlign: 'right',
@@ -189,7 +189,7 @@ export const styles = StyleSheet.create({
   },
 
   actionBtnText: {
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
     fontSize: 13,
     fontWeight: '600',
   },
@@ -200,48 +200,49 @@ export const styles = StyleSheet.create({
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
   },
   tableHeaderRow: {
-    backgroundColor: '#eee',
+    backgroundColor: ERP_COLOR_CODE.ERP_eee,
   },
   tableHeaderCell: {
     fontWeight: 'bold',
     padding: 2,
-    borderRightColor: '#ccc',
+    borderRightColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
   },
   tableCell: {
     padding: 2,
-    borderRightColor: '#ccc',
+    borderRightColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
   },
   emptyText: {
     marginTop: 20,
     textAlign: 'center',
-    color: '#888',
+    color: ERP_COLOR_CODE.ERP_888,
   },
 
   searchContainer: {
-    marginVertical: 16,
+    marginTop: 8,
+    marginBottom: 16,
   },
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#ccc'
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE
   },
   searchIcon: {
     fontSize: 16,
     marginRight: 8,
-    color: '#6C757D',
+    color: ERP_COLOR_CODE.ERP_6C757D,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#1A1A1A',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
     paddingVertical: 4,
   },
   clearButton: {
@@ -250,37 +251,34 @@ export const styles = StyleSheet.create({
   },
   clearButtonText: {
     fontSize: 16,
-    color: '#6C757D',
+    color: ERP_COLOR_CODE.ERP_6C757D,
     fontWeight: '600',
   },
   dateContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 4,
-    
   },
   dateRow: {
     flex: 1,
-    marginRight: 8,
-    
   },
   dateLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
    },
   dateButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     alignItems: 'center',
   },
   dateButtonText: {
     fontSize: 14,
-    color: '#1A1A1A',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
     fontWeight: '500',
   },
   datePickerModal: {
@@ -295,7 +293,7 @@ export const styles = StyleSheet.create({
     zIndex: 1000,
   },
   datePickerContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderRadius: 16,
     padding: 20,
     width: '90%',
@@ -304,7 +302,7 @@ export const styles = StyleSheet.create({
   datePickerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -318,7 +316,7 @@ export const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: ERP_COLOR_CODE.ERP_F8F9FA,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 2,
@@ -326,27 +324,27 @@ export const styles = StyleSheet.create({
   datePickerDayText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
   },
   cancelButton: {
-    backgroundColor: '#6C757D',
+    backgroundColor: ERP_COLOR_CODE.ERP_6C757D,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: '#FFFFFF',
+    color: ERP_COLOR_CODE.ERP_WHITE,
     fontSize: 16,
     fontWeight: '600',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#6C757D',
+    color: ERP_COLOR_CODE.ERP_6C757D,
     marginTop: 2,
     marginBottom: 12,
   },
@@ -359,19 +357,19 @@ export const styles = StyleSheet.create({
   },
   loadingText: {
     marginLeft: 8,
-    color: '#6C757D',
+    color: ERP_COLOR_CODE.ERP_6C757D,
   },
   errorText: {
-    color: '#D9534F',
+    color: ERP_COLOR_CODE.ERP_ERROR,
     marginBottom: 8,
   },
 
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: ERP_COLOR_CODE.ERP_BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -391,7 +389,7 @@ export const styles = StyleSheet.create({
     marginRight: 10,
   },
   leadIconText: {
-    color: '#FFFFFF',
+    color: ERP_COLOR_CODE.ERP_WHITE,
     fontWeight: '700',
     fontSize: 12,
   },
@@ -404,18 +402,18 @@ export const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
     flex: 1,
     marginRight: 8,
   },
   cardSubtitle: {
     fontSize: 12,
-    color: '#6C757D',
+    color: ERP_COLOR_CODE.ERP_6C757D,
   },
   tooltipText: {
     marginTop: 4,
     fontSize: 12,
-    color: '#6C757D',
+    color: ERP_COLOR_CODE.ERP_6C757D,
   },
   chipsRow: {
     flexDirection: 'row',
@@ -474,12 +472,11 @@ export const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 11,
-    color: '#6C757D',
+    color: ERP_COLOR_CODE.ERP_6C757D,
     marginBottom: 2,
   },
   addButton: {
     position: 'absolute',
-    bottom: 44,
     right: 18,
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, 
     borderRadius: 56,
@@ -492,7 +489,7 @@ export const styles = StyleSheet.create({
     justifyContent:'center'
   },
   addButtonText: {
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
     fontSize: 18,
     fontWeight: 'bold',
   },

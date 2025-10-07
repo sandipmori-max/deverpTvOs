@@ -2,10 +2,10 @@ import { StyleSheet } from 'react-native';
 import { ERP_COLOR_CODE } from '../../../utils/constants';
 
 export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  container: { flex: 1, backgroundColor: ERP_COLOR_CODE.ERP_F8F9FA },
 
   profileCard: {
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderRadius: 8,
     },
 
@@ -16,24 +16,24 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#444',
+    color: ERP_COLOR_CODE.ERP_444,
     marginBottom: 6,
   },
 
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: ERP_COLOR_CODE.ERP_ddd,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#222',
+    color: ERP_COLOR_CODE.ERP_222,
   },
 
   inputReadonly: {
     backgroundColor: '#f1f3f6',
-    color: '#555',
+    color: ERP_COLOR_CODE.ERP_555,
   },
 
   statusBtn: {
@@ -45,14 +45,14 @@ export const styles = StyleSheet.create({
 
   statusText: {
     textAlign: 'center',
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
     fontWeight: '600',
     fontSize: 16,
   },
 
   optionBtn: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: ERP_COLOR_CODE.ERP_ddd,
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 10,
@@ -66,12 +66,12 @@ export const styles = StyleSheet.create({
 
   optionText: {
     fontSize: 14,
-    color: '#333',
+    color: ERP_COLOR_CODE.ERP_333,
     textAlign: 'center',
   },
 
   optionTextSelected: {
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
   },
 
   errorText: {
@@ -90,7 +90,7 @@ export const styles = StyleSheet.create({
   attachFileName: {
     fontSize: 13,
     marginTop: 6,
-    color: '#444',
+    color: ERP_COLOR_CODE.ERP_444,
   },
 
   submitBtn: {
@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
   },
 
   submitText: {
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
     fontSize: 16,
     fontWeight: '600',
   },

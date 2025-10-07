@@ -140,8 +140,8 @@ const PinVerifyScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: 20,
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    paddingTop: 80,
     alignItems: 'center',
   },
   title: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   pinRow: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 50,
   },
   pinCircle: {
     width: 18,

@@ -42,12 +42,12 @@ const LeaveDetailsBottomSheet = ({ visible, leave, onClose }: Props) => {
           <Text style={{ fontSize: 16, fontWeight: '600' }}>
             {leave.leaveType} Leave
           </Text>
-          <Text style={{ marginTop: 6, fontSize: 14, color: '#666' }}>
+          <Text style={{ marginTop: 6, fontSize: 14, color: ERP_COLOR_CODE.ERP_666 }}>
             Days: {leave.days}
           </Text>
 
           <View style={{ flexDirection: 'row', marginTop: 6, alignItems: 'center' }}>
-            <MaterialIcons name="date-range" size={18} color="#444" />
+            <MaterialIcons name="date-range" size={18} color={ERP_COLOR_CODE.ERP_444} />
             <Text style={{ marginLeft: 6 }}>
               {leave.from} → {leave.to}
             </Text>
@@ -69,7 +69,7 @@ const LeaveDetailsBottomSheet = ({ visible, leave, onClose }: Props) => {
           </View>
 
           {leave.remarks ? (
-            <Text style={{ marginTop: 10, fontSize: 14, color: '#000' }}>
+            <Text style={{ marginTop: 10, fontSize: 14, color: ERP_COLOR_CODE.ERP_BLACK }}>
               Remarks: {leave.remarks}
             </Text>
           ) : null}

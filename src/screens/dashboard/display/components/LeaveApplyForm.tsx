@@ -231,7 +231,7 @@ const LeaveApplyForm = () => {
                   {touched.leaveType && errors.leaveType && (
                     <Text style={styles.errorText}>{errors.leaveType as string}</Text>
                   )}
-                  <Text style={{ marginTop: 5, fontSize: 12, color: '#555' }}>
+                  <Text style={{ marginTop: 5, fontSize: 12, color: ERP_COLOR_CODE.ERP_555 }}>
                     Balance: {leaveBalances[values.leaveType as keyof typeof leaveBalances]} days
                   </Text>
                 </View>
@@ -263,7 +263,7 @@ const LeaveApplyForm = () => {
                     >
                       <MaterialIcons
                         name={'data-saver-on'}
-                        color={touched.days && errors.days ? '#fff' : '#747070ff'}
+                        color={touched.days && errors.days ? ERP_COLOR_CODE.ERP_WHITE : '#747070ff'}
                         size={24}
                       />
                     </TouchableOpacity>
@@ -320,7 +320,7 @@ const LeaveApplyForm = () => {
                       </View>
                     ))
                   ) : (
-                    <Text style={{ color: '#999' }}>No days added yet</Text>
+                    <Text style={{ color: ERP_COLOR_CODE.ERP_999 }}>No days added yet</Text>
                   )}
 
                   {touched.days && errors.days && (
@@ -328,7 +328,7 @@ const LeaveApplyForm = () => {
                   )}
                 </View>
 
-                <View style={{ marginVertical: 12, backgroundColor: '#fff', borderRadius: 8 }}>
+                <View style={{ marginVertical: 12, backgroundColor: ERP_COLOR_CODE.ERP_WHITE, borderRadius: 8 }}>
                   <Text style={{ fontWeight: '600' }}>Preview (with Sandwich Rule):</Text>
                   <Text style={{ marginTop: 4 }}>Total Days Counted: {previewTotal}</Text>
                   {autoCounted.length > 0 && (

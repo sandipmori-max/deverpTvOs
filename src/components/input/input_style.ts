@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 6,
-    color: '#333',
+    color: ERP_COLOR_CODE.ERP_333,
   },
   inputWrapper: {
     position: 'relative',
@@ -17,12 +17,12 @@ export const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    color: '#000',
+    color: ERP_COLOR_CODE.ERP_BLACK,
   },
   toggleButton: {
     position: 'absolute',
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 12,
-    color: '#666',
+    color: ERP_COLOR_CODE.ERP_666,
     marginTop: 4,
   },
   errorText: {

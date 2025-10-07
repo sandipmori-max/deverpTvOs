@@ -156,13 +156,13 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
     <TouchableOpacity
       onPress={() => onSelect?.(item)}
       style={{
-        backgroundColor: '#fff',
+        backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
         marginVertical: 6,
         marginHorizontal: 16,
         padding: 16,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
         borderLeftWidth: 6,
         borderLeftColor: getStatusColor(item.status),
       }}
@@ -221,18 +221,18 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <MaterialIcons name={'date-range'} color={'#000'} size={14} />
-              <Text style={{ fontSize: 13, color: '#666' }}>{item.from}</Text>
+              <MaterialIcons name={'date-range'} color={ERP_COLOR_CODE.ERP_BLACK} size={14} />
+              <Text style={{ fontSize: 13, color: ERP_COLOR_CODE.ERP_666 }}>{item.from}</Text>
             </View>
-            <Text style={{ fontSize: 13, color: '#000' }}>→</Text>
+            <Text style={{ fontSize: 13, color: ERP_COLOR_CODE.ERP_BLACK }}>→</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <MaterialIcons name={'date-range'} color={'#000'} size={14} />
-              <Text style={{ fontSize: 13, color: '#666' }}>{item.to}</Text>
+              <MaterialIcons name={'date-range'} color={ERP_COLOR_CODE.ERP_BLACK} size={14} />
+              <Text style={{ fontSize: 13, color: ERP_COLOR_CODE.ERP_666 }}>{item.to}</Text>
             </View>
           </View>
 
           {item.remarks ? (
-            <Text style={{ fontSize: 12, color: '#000', marginTop: 4 }}>{item.remarks}</Text>
+            <Text style={{ fontSize: 12, color: ERP_COLOR_CODE.ERP_BLACK, marginTop: 4 }}>{item.remarks}</Text>
           ) : null}
         </View>
       </View>
@@ -240,7 +240,7 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
+    <View style={{ flex: 1, backgroundColor: ERP_COLOR_CODE.ERP_F8F9FA }}>
       <FlatList
         data={['']}
         keyboardShouldPersistTaps="handled"
@@ -252,12 +252,12 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
                 style={{
                   backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
                   borderTopWidth: 1,
-                  borderTopColor: '#fff',
+                  borderTopColor: ERP_COLOR_CODE.ERP_WHITE,
                 }}
               >
                 <View
                   style={{
-                    backgroundColor: '#F8F9FA',
+                    backgroundColor: ERP_COLOR_CODE.ERP_F8F9FA,
                     margin: 1,
                     padding: 16,
                     alignItems: 'center',
@@ -283,7 +283,7 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
                             <Text style={{ fontSize: 18, fontWeight: '700', textAlign: 'center' }}>
                               {total}
                             </Text>
-                            <Text style={{ fontSize: 12, color: '#666', textAlign: 'center' }}>
+                            <Text style={{ fontSize: 12, color: ERP_COLOR_CODE.ERP_666, textAlign: 'center' }}>
                               Total
                             </Text>
                           </View>
@@ -323,14 +323,14 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
                       margin: 16,
                       flexDirection: 'row',
                       alignItems: 'center',
-                      backgroundColor: '#fff',
+                      backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
                       borderRadius: 12,
                       paddingHorizontal: 10,
                       borderWidth: 1,
-                      borderColor: '#ccc',
+                      borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
                     }}
                   >
-                    <MaterialIcons name="search" size={22} color="#777" />
+                    <MaterialIcons name="search" size={22} color={ERP_COLOR_CODE.ERP_777} />
                     <TextInput
                       placeholder="Search leave by type or remarks..."
                       style={{ flex: 1, marginLeft: 6 }}
@@ -355,7 +355,7 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
                       >
                         <Text
                           style={{
-                            color: filter === tab ? '#fff' : '#444',
+                            color: filter === tab ? ERP_COLOR_CODE.ERP_WHITE : ERP_COLOR_CODE.ERP_444,
                             fontWeight: '600',
                             fontSize: 13,
                           }}
@@ -381,7 +381,7 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
                       color: ERP_COLOR_CODE.ERP_APP_COLOR,
                       paddingVertical: 6,
                       paddingHorizontal: 16,
-                      borderBottomColor: '#ddd',
+                      borderBottomColor: ERP_COLOR_CODE.ERP_ddd,
                     }}
                   >
                     {title}

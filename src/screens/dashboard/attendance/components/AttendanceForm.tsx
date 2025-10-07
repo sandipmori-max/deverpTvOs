@@ -1,5 +1,5 @@
-import { View, Text, Image, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, Image, TextInput, AppState, Platform, Linking } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import Geolocation from '@react-native-community/geolocation';
@@ -17,20 +17,23 @@ import { useNavigation } from '@react-navigation/native';
 import SlideButton from './SlideButton';
 import FastImage from 'react-native-fast-image';
 import { useBaseLink } from '../../../../hooks/useBaseLink';
+import ProfileImage from '../../../../components/profile/ProfileImage';
 
 const AttendanceForm = ({ setBlockAction, resData }: any) => {
   const { t } = useTranslations();
   const navigation = useNavigation();
-
   const dispatch = useAppDispatch();
-
   const { user } = useAppSelector(state => state?.auth);
+  const baseLink = useBaseLink();
 
   const [statusImage, setStatusImage] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [attendanceDone, setAttendanceDone] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
+  const [isSettingVisible, setIsSettingVisible] = useState(false);
+  const [modalClose, setModalClose] = useState(false);
+
   const [blocked, setBlocked] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -38,7 +41,29 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
     type: 'info' as 'error' | 'success' | 'info',
   });
 
-  const baseLink = useBaseLink();
+  // -------------------- Pending Camera Action --------------------
+  const pendingCameraAction = useRef<{
+    setFieldValue: (field: keyof AttendanceFormValues, value: any) => void;
+    handleSubmit: () => void;
+  } | null>(null);
+
+  // -------------------- AppState Listener --------------------
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', async nextAppState => {
+      if (nextAppState === 'active' && pendingCameraAction.current) {
+        const hasPermission = await requestCameraAndLocationPermission();
+        if (hasPermission) {
+          setIsSettingVisible(false);
+          setAlertVisible(false);
+          const { setFieldValue, handleSubmit } = pendingCameraAction.current;
+          pendingCameraAction.current = null;
+          openCamera(setFieldValue, handleSubmit);
+        }
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   const openCamera = (
     setFieldValue: (field: keyof AttendanceFormValues, value: any) => void,
@@ -87,14 +112,22 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
 
     const hasPermission = await requestCameraAndLocationPermission();
     if (!hasPermission) {
+      // Save pending action so we can resume after user grants permission
+      pendingCameraAction.current = { setFieldValue, handleSubmit };
+
       setAlertConfig({
         title: t('errors.permissionRequired'),
         message: t('errors.cameraLocationPermission'),
         type: 'error',
       });
+      setModalClose(true);
       setAlertVisible(true);
+      setIsSettingVisible(true);
+
+      setBlockAction(false);
       return;
     }
+
     setBlocked(false);
     setLocationLoading(true);
 
@@ -140,7 +173,6 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
         }}
         validationSchema={Yup.object({
           name: Yup.string().required(t('attendance.nameRequired')),
-
           longitude: Yup.string().optional(),
           remark: Yup.string().optional(),
           dateTime: Yup.string().optional(),
@@ -190,16 +222,7 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
             <View style={styles.profileRow}>
               <View style={styles.imageCol}>
                 {`${baseLink}/FileUpload/1/UserMaster/${user?.id}/profileimage.jpeg` ? (
-                  <FastImage
-                    source={{
-                      uri: `${baseLink}/FileUpload/1/UserMaster/${
-                        user?.id
-                      }/profileimage.jpeg?ts=${new Date().getTime()}`,
-                      priority: FastImage.priority.normal,
-                      cache: FastImage.cacheControl.web,
-                    }}
-                    style={styles.profileAvatar}
-                  />
+                 <ProfileImage userId={user?.id} baseLink={baseLink} />
                 ) : (
                   <View
                     style={[
@@ -211,7 +234,7 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
                       },
                     ]}
                   >
-                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 26 }}>
+                    <Text style={{ color: ERP_COLOR_CODE.ERP_WHITE, fontWeight: 'bold', fontSize: 26 }}>
                       {user?.name ? user?.name.substring(0, 2).toUpperCase() : ''}
                     </Text>
                   </View>
@@ -243,19 +266,15 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
                   numberOfLines={3}
                 />
               </View>
+
               {statusImage && (
-                <>
-                  <View>
-                    {statusImage ? (
-                      <Image source={{ uri: statusImage }} style={styles.selfyAvatar} />
-                    ) : (
-                      <View style={[styles.selfyAvatar, styles.placeholderAvatar]} />
-                    )}
-                    <Text style={styles.imageLabel}>{t('attendance.capturedPhoto')}</Text>
-                  </View>
-                </>
+                <View>
+                  <Image source={{ uri: statusImage }} style={styles.selfyAvatar} />
+                  <Text style={styles.imageLabel}>{t('attendance.capturedPhoto')}</Text>
+                </View>
               )}
-              <View style={styles.slideWrapper}>
+
+              <View>
                 <SlideButton
                   label={
                     resData?.success === 1 || resData?.success === '1'
@@ -284,19 +303,22 @@ const AttendanceForm = ({ setBlockAction, resData }: any) => {
         message={alertConfig?.message}
         type={alertConfig?.type}
         onClose={() => {
-          if (attendanceDone) {
-            navigation?.goBack();
-            setAlertVisible(false);
-          } else {
-            setBlocked(true);
-            setAlertVisible(false);
+          if (!modalClose) {
+            if (attendanceDone) {
+              navigation?.goBack();
+              setAlertVisible(false);
+            } else {
+              setBlocked(true);
+              setAlertVisible(false);
 
-            setTimeout(() => {
-              setBlocked(false);
-            }, 1000)
+              setTimeout(() => {
+                setBlocked(false);
+              }, 1000);
+            }
           }
         }}
         actionLoader={undefined}
+        isSettingVisible={isSettingVisible}
       />
     </View>
   );

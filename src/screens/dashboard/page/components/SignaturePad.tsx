@@ -56,7 +56,7 @@ const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: a
           padding: 4,
           borderWidth: 1,
           borderRadius: 8,
-          borderColor: '#ccc',
+          borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
         }}
       >
         <View>
@@ -128,10 +128,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 12,
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
   },
   imageThumb: {
-    borderColor: '#ccc',
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     height: 100,
     marginBottom: 12,
   },
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     borderRadius: 8,
   },
   overlay: {
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   bottomSheet: {
     height: Dimensions.get('window').height / 2.5,
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 8,
   },
-  saveButton: { borderColor: '#ccc', borderWidth: 1 },
-  clearButton: { borderColor: '#ccc', borderWidth: 1 },
-  closeButton: { borderColor: '#ccc', borderWidth: 1 },
+  saveButton: { borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE, borderWidth: 1 },
+  clearButton: { borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE, borderWidth: 1 },
+  closeButton: { borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE, borderWidth: 1 },
 });

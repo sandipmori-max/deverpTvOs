@@ -1,10 +1,5 @@
-import {
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Dimensions, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import NoData from '../../../../components/no_data/NoData';
@@ -20,6 +15,7 @@ import {
 } from '../../../../utils/sqlite';
 import ErrorMessage from '../../../../components/error/Error';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
+import { ERP_COLOR_CODE } from '../../../../utils/constants';
 
 const accentColors = ['#dbe0f5ff', '#c8f3edff', '#faf1e0ff', '#f0e1e1ff', '#f2e3f8ff', '#e0f3edff'];
 
@@ -27,17 +23,22 @@ const EntryTab = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state?.auth);
-
   const { isAuthenticated, activeToken, error } = useAppSelector(state => state.auth);
   const { menu, isMenuLoading } = useAppSelector(state => state.auth);
+  console.log('🚀 ~ EntryTab ~ isMenuLoading:', menu);
+
   const allList = menu?.filter(item => item?.isReport === 'E') ?? [];
   const [isRefresh, setIsRefresh] = useState<boolean>(false);
-
   const [isHorizontal, setIsHorizontal] = useState(false);
   const [bookmarks, setBookmarks] = useState<{ [key: string]: boolean }>({});
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [filteredList, setFilteredList] = useState(allList);
 
-  const list = showBookmarksOnly ? allList?.filter(item => bookmarks[item.id]) : allList;
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const list = showBookmarksOnly ? filteredList.filter(item => bookmarks[item.id]) : filteredList;
 
   const toggleBookmark = async (id: string) => {
     const updated = !bookmarks[id];
@@ -47,34 +48,88 @@ const EntryTab = () => {
     await insertOrUpdateBookmark(db, id, user?.id, updated);
   };
 
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+
+    searchTimeout.current = setTimeout(() => {
+      const filtered = allList.filter(
+        item =>
+          item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.title.toLowerCase().includes(searchText.toLowerCase()),
+      );
+      setFilteredList(filtered);
+    }, 300);
+
+    return () => {
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    };
+  }, [searchText, allList]);
+
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () =>
+        showSearch ? (
+          <View
+            style={{
+              width: Dimensions.get('screen').width - 70,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <TextInput
+              value={searchText}
+              onChangeText={setSearchText}
+              placeholder="Search..."
+              style={{
+                flex: 1,
+                backgroundColor: '#f0f0f0',
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                height: 36,
+              }}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                setShowSearch(false);
+                setSearchText('');
+              }}
+            >
+              <MaterialIcons
+                name="clear"
+                size={24}
+                color={ERP_COLOR_CODE.ERP_WHITE}
+                style={{ marginLeft: 8 }}
+              />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text style={{ color: ERP_COLOR_CODE.ERP_WHITE, fontSize: 18, fontWeight: '600' }}>
+            Entry
+          </Text>
+        ),
       headerRight: () => (
         <>
-          <ERPIcon
-            name="refresh"
-            onPress={() => {
-              setIsRefresh(!isRefresh);
-            }}
-          />
-          <ERPIcon
-            name={!isHorizontal ? 'list' : 'apps'}
-            onPress={() => setIsHorizontal(prev => !prev)}
-          />
-
-          <ERPIcon
-            name={showBookmarksOnly ? 'bookmark' : 'dashboard'}
-            onPress={() => setShowBookmarksOnly(prev => !prev)}
-          />
+          {!showSearch && (
+            <>
+              <ERPIcon name="search" onPress={() => setShowSearch(true)} />{' '}
+              <ERPIcon name="refresh" onPress={() => setIsRefresh(!isRefresh)} />
+              <ERPIcon
+                name={!isHorizontal ? 'list' : 'apps'}
+                onPress={() => setIsHorizontal(prev => !prev)}
+              />
+              <ERPIcon
+                name={!showBookmarksOnly ? 'bookmark' : 'dashboard'}
+                onPress={() => setShowBookmarksOnly(prev => !prev)}
+              />
+            </>
+          )}
         </>
       ),
       headerLeft: () => (
-        <>
-          <ERPIcon extSize={24} isMenu={true} name="menu" onPress={() => navigation.openDrawer()} />
-        </>
+        <ERPIcon extSize={24} isMenu={true} name="menu" onPress={() => navigation.openDrawer()} />
       ),
     });
-  }, [navigation, showBookmarksOnly, isHorizontal, isRefresh]);
+  }, [navigation, showBookmarksOnly, isHorizontal, isRefresh, showSearch, searchText]);
 
   useEffect(() => {
     (async () => {
@@ -87,6 +142,8 @@ const EntryTab = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('🚀 ~ isAuthenticated:', 'isAuthenticated');
+
       dispatch(getERPMenuThunk());
     }
   }, [isAuthenticated, dispatch, activeToken, isRefresh]);
@@ -113,11 +170,11 @@ const EntryTab = () => {
           <MaterialIcons
             size={24}
             name={bookmarks[item?.id] ? 'bookmark' : 'bookmark-outline'}
-            color={'#000'}
+            color={ERP_COLOR_CODE.ERP_BLACK}
           />
         </TouchableOpacity>
 
-        <View style={[styles.iconContainer, { backgroundColor: '#fff' }]}>
+        <View style={[styles.iconContainer, { backgroundColor: ERP_COLOR_CODE.ERP_WHITE }]}>
           <Text style={styles.iconText}>
             {item?.icon && item?.icon !== ''
               ? item.icon
@@ -155,57 +212,58 @@ const EntryTab = () => {
     );
   };
 
-  if (isMenuLoading) {
-    return (
-      <View style={styles.centered}>
-        <FullViewLoader />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#fff',
-        }}
-      >
-        <ErrorMessage message={error} />{' '}
-      </View>
-    );
-  }
-  if (list.length === 0) {
-    return (
-      <>
+  const renderView = () => {
+    if (!isMenuLoading && list.length === 0) {
+      return (
         <View
           style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#fff',
+            backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
           }}
         >
           <NoData />
         </View>
-      </>
-    );
-  }
+      );
+    } else if (error) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+          }}
+        >
+          <ErrorMessage message={error} />
+        </View>
+      );
+    } else if (isMenuLoading) {
+      return (
+        <View style={styles.centered}>
+          <FullViewLoader />
+        </View>
+      );
+    } else if (list.length > 0) {
+      return (
+        <FlatList
+          key={`${isHorizontal}-${showBookmarksOnly}-${searchText}`}
+          data={list}
+          keyboardShouldPersistTaps="handled"
+          keyExtractor={item => item?.id}
+          numColumns={isHorizontal ? 1 : 2}
+          contentContainerStyle={styles.listContent}
+          columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+        />
+      );
+    }
+  };
   return (
-    <View style={{ flex: 1, width: '100%', backgroundColor: '#fff' }}>
-      <FlatList
-        key={`${isHorizontal}-${showBookmarksOnly}`}
-        data={list}
-        keyboardShouldPersistTaps="handled"
-        keyExtractor={item => item?.id}
-        numColumns={isHorizontal ? 1 : 2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-      />
+    <View style={{ flex: 1, width: '100%', backgroundColor: ERP_COLOR_CODE.ERP_WHITE }}>
+      {renderView()}
     </View>
   );
 };

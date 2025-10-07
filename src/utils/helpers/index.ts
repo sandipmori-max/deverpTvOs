@@ -1,9 +1,12 @@
 import { ERP_GIF, ERP_ICON } from '../../assets';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import moment from 'moment';
-import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
+import RNFS from 'react-native-fs';
+import FastImage from 'react-native-fast-image';
+import WebView from 'react-native-webview';
 
-export const getBottomTabIcon = (iconName: string, focused: boolean, theme: any) => {
+export const getBottomTabIcon = (iconName: string, focused: boolean) => {
   switch (iconName) {
     case 'home':
       return focused ? ERP_ICON.ACTIVE_HOME : ERP_ICON.HOME;
@@ -54,8 +57,7 @@ export const getGifSource = (type: 'error' | 'success' | 'info') => {
 
 export const requestCameraAndLocationPermission = async (): Promise<boolean> => {
   try {
-    const cameraPerm =
-      Platform.OS === 'ios' ? PERMISSIONS.IOS.CAMERA : PERMISSIONS.ANDROID.CAMERA;
+    const cameraPerm = Platform.OS === 'ios' ? PERMISSIONS.IOS.CAMERA : PERMISSIONS.ANDROID.CAMERA;
 
     const locationPerm =
       Platform.OS === 'ios'
@@ -74,17 +76,19 @@ export const requestCameraAndLocationPermission = async (): Promise<boolean> => 
       const res = await request(cameraPerm);
       cameraGranted = res === RESULTS.GRANTED;
       if (!cameraGranted) {
-        Alert.alert('Camera Permission Denied', 'Camera access is required for this feature.');
+        return false;
+        // Alert.alert('Camera Permission Denied', 'Camera access is required for this feature.');
       }
     } else if (cameraStatus === RESULTS.BLOCKED) {
-      Alert.alert(
-        'Camera Permission Blocked',
-        'Camera access has been permanently denied. Please enable it in Settings.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Open Settings', onPress: () => Linking.openSettings() },
-        ],
-      );
+      return false;
+      // Alert.alert(
+      //   'Camera Permission Blocked',
+      //   'Camera access has been permanently denied. Please enable it in Settings.',
+      //   [
+      //     { text: 'Cancel', style: 'cancel' },
+      //     { text: 'Open Settings', onPress: () => Linking.openSettings() },
+      //   ],
+      // );
     }
 
     // ✅ Handle location permission
@@ -94,18 +98,20 @@ export const requestCameraAndLocationPermission = async (): Promise<boolean> => 
     } else if (locationStatus === RESULTS.DENIED) {
       const res = await request(locationPerm);
       locationGranted = res === RESULTS.GRANTED;
-      if (!locationGranted) {
-        Alert.alert('Location Permission Denied', 'Location access is required for this feature.');
-      }
+      // if (!locationGranted) {
+      //   Alert.alert('Location Permission Denied', 'Location access is required for this feature.');
+      // }
+      return false;
     } else if (locationStatus === RESULTS.BLOCKED) {
-      Alert.alert(
-        'Location Permission Blocked',
-        'Location access has been permanently denied. Please enable it in Settings.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Open Settings', onPress: () => Linking.openSettings() },
-        ],
-      );
+      // Alert.alert(
+      //   'Location Permission Blocked',
+      //   'Location access has been permanently denied. Please enable it in Settings.',
+      //   [
+      //     { text: 'Cancel', style: 'cancel' },
+      //     { text: 'Open Settings', onPress: () => Linking.openSettings() },
+      //   ],
+      // );
+      return false;
     }
 
     return cameraGranted && locationGranted;
@@ -393,7 +399,6 @@ export const isTokenValid = (tokenValidTill: string) => {
   return new Date(tokenValidTill).getTime() > Date.now();
 };
 
-
 export async function requestLocationPermissions(): Promise<boolean> {
   if (Platform.OS === 'android') {
     try {
@@ -403,7 +408,6 @@ export async function requestLocationPermissions(): Promise<boolean> {
         PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION, // needed for background & terminated
       ]);
 
-      console.log('📌 Location permission results:', granted);
 
       const fine = granted['android.permission.ACCESS_FINE_LOCATION'];
       const coarse = granted['android.permission.ACCESS_COARSE_LOCATION'];
@@ -415,7 +419,6 @@ export async function requestLocationPermissions(): Promise<boolean> {
         background === PermissionsAndroid.RESULTS.GRANTED;
 
       if (allGranted) {
-        console.log('✅ Location permissions granted');
         return true;
       }
 
@@ -427,23 +430,23 @@ export async function requestLocationPermissions(): Promise<boolean> {
 
       if (blocked) {
         console.log('🚫 Location permission permanently denied');
-        Alert.alert(
-          'Location Permission Blocked',
-          'You have permanently denied location access. Please enable it from Settings.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => Linking.openSettings() },
-          ],
-        );
+        // Alert.alert(
+        //   'Location Permission Blocked',
+        //   'You have permanently denied location access. Please enable it from Settings.',
+        //   [
+        //     { text: 'Cancel', style: 'cancel' },
+        //     { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        //   ],
+        // );
         return false;
       }
 
       // Otherwise → denied
       console.log('❌ Location permissions denied');
-      Alert.alert(
-        'Location Permission Denied',
-        'Location access is required for this feature.',
-      );
+      // Alert.alert(
+      //   'Location Permission Denied',
+      //   'Location access is required for this feature.',
+      // );
       return false;
     } catch (err) {
       console.warn('⚠️ requestLocationPermissions error:', err);
@@ -535,3 +538,25 @@ export const getWorkedHours2 = (punchIn: string, punchOut: string) => {
   return `${hours}:${mins.toString().padStart(2, '0')} hr`;
 };
 
+export const clearAllTempFiles = async () => {
+  try {
+    const tempDir = RNFS.TemporaryDirectoryPath;
+    const files = await RNFS.readDir(tempDir);
+
+    for (const file of files) {
+      try {
+        await RNFS.unlink(file.path);
+      } catch (err) {
+        console.log('Error deleting file:', file.path, err);
+      }
+    }
+    FastImage.clearMemoryCache();
+    FastImage.clearDiskCache();
+    if (Platform.OS === 'android') {
+      WebView.clearCache(true);
+    }
+    console.log('All temp files cleared!');
+  } catch (err) {
+    console.log('Error reading temp directory:', err);
+  }
+};

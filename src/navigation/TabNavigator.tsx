@@ -48,8 +48,6 @@ const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarLabel: t('navigation.home'),
-          title: t('navigation.home'),
           headerStyle: {
             backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
           },
@@ -67,8 +65,6 @@ const TabNavigator = () => {
         name="Entry"
         component={EntryTab}
         options={{
-          tabBarLabel: t('navigation.entry'),
-          title: t('navigation.entry'),
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '500',
@@ -84,8 +80,6 @@ const TabNavigator = () => {
         name="Report"
         component={ReportTab}
         options={{
-          tabBarLabel: t('navigation.report'),
-          title: t('navigation.report'),
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '500',
@@ -99,9 +93,7 @@ const TabNavigator = () => {
       <Tab.Screen
         name="Auth"
         component={AuthTab}
-        options={{
-          tabBarLabel: t('navigation.auth'),
-          title: t('navigation.auth'),
+        options={{ 
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '500',
@@ -115,9 +107,7 @@ const TabNavigator = () => {
       <Tab.Screen
         name="Profile"
         component={ProfileTab}
-        options={{
-          tabBarLabel: t('navigation.profile'),
-          title: t('navigation.profile'),
+        options={{ 
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '500',

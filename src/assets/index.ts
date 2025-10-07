@@ -23,6 +23,7 @@ const SEARCH_LOADER = require(`${ERP_BASE_URL_GIF}/search.gif`);
 const NO_INTERNET = require(`${ERP_BASE_URL_GIF}/not_internet.png`);
 const NO_DATA = require(`${ERP_BASE_URL_GIF}/no_data.png`);
 const SUCCESS = require(`${ERP_BASE_URL_GIF}/success.gif`);
+ 
 
 export const ERP_ICON = {
   APP_LOGO,
@@ -49,3 +50,4 @@ export const ERP_GIF = {
   NO_INTERNET,
   SUCCESS,
 };
+ 

@@ -4,7 +4,7 @@ import { ERP_COLOR_CODE } from '../../../utils/constants';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: ERP_COLOR_CODE.ERP_BACKGROUND,
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
   },
 
   iconWrapper: {
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
   back: {
     width: 24,
     height: 24,
-    tintColor: '#fff',
+    tintColor: ERP_COLOR_CODE.ERP_WHITE,
   },
   header: {
     flexDirection: 'row',
@@ -25,9 +25,9 @@ export const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: ERP_COLOR_CODE.ERP_e0e0e0,
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: ERP_COLOR_CODE.ERP_BLACK,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
   },
   closeButton: {
     paddingVertical: 6,
@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 30,
-    color: '#555',
+    color: ERP_COLOR_CODE.ERP_555,
   },
   inputContainer: {
     marginBottom: 8,
@@ -63,11 +63,11 @@ export const styles = StyleSheet.create({
     marginBottom: 6,
     fontSize: 14,
     fontWeight: '500',
-    color: '#444',
+    color: ERP_COLOR_CODE.ERP_444,
   },
 
   errorText: {
-    color: '#d9534f',
+    color: ERP_COLOR_CODE.ERP_ERROR,
     fontSize: 13,
     marginTop: 4,
   },
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: ERP_COLOR_CODE.ERP_BLACK,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
@@ -94,7 +94,7 @@ export const styles = StyleSheet.create({
   },
   note: {
     fontSize: 14,
-    color: '#777',
+    color: ERP_COLOR_CODE.ERP_777,
     textAlign: 'center',
     lineHeight: 20,
     marginTop: 20,
@@ -110,7 +110,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     borderRadius: 10,
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     paddingHorizontal: 10,
@@ -121,14 +121,14 @@ export const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     padding: 14,
     borderRadius: 10,
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
   },
   input1: {
     fontSize: 16,
-    borderColor: '#161515',
+    borderColor: ERP_COLOR_CODE.ERP_161515,
     paddingVertical: 14,
     flex: 1,
     borderRadius: 10,

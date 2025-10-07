@@ -17,12 +17,12 @@ export const styles = StyleSheet.create({
   back:{
     width: 24,
     height: 24,
-    tintColor: '#fff',
+    tintColor: ERP_COLOR_CODE.ERP_WHITE,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: ERP_COLOR_CODE.ERP_WHITE,
   },
   closeButton: {
     paddingHorizontal: 12,
@@ -43,11 +43,11 @@ export const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
   },
   activeAccount: {
     borderColor: ERP_COLOR_CODE.ERP_APP_COLOR,
-    backgroundColor: '#fff'
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE
   },
   accountContent: {
     flexDirection: 'row',
@@ -65,19 +65,19 @@ export const styles = StyleSheet.create({
   accountName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: ERP_COLOR_CODE.ERP_333,
   },
   accountEmail: {
     fontSize: 14,
-    color: '#666',
+    color: ERP_COLOR_CODE.ERP_666,
     marginBottom: 4,
   },
   lastLogin: {
     fontSize: 12,
-    color: '#999',
+    color: ERP_COLOR_CODE.ERP_999,
   },
   activeText: {
-    color: ERP_COLOR_CODE.ERP_ACTIVE_BUTTON,
+    color: ERP_COLOR_CODE.ERP_BLACK,
   },
   activeIndicator: {
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,

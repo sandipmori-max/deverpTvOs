@@ -40,7 +40,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   };
 
   const handleDonePress = () => {
-    if (isFromButtonList && remarks && remarks?.trim() === '') {
+    if (isFromButtonList && remarks?.trim() === '') {
       setError('Remarks are required.');
       return;
     }

@@ -89,7 +89,7 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
         setLoader(false);
         return;
       }
- 
+
       const loginResult = await loginWithERP(() =>
         DevERPService.loginToERP({
           user: values?.user,
@@ -241,7 +241,7 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
                             >
                               <MaterialIcons
                                 name={!showPassword ? 'visibility-off' : 'visibility'}
-                                color={ERP_COLOR_CODE.ERP_BLACK}
+                                color={ERP_COLOR_CODE.ERP_666}
                                 size={20}
                               />
                             </TouchableOpacity>

@@ -110,8 +110,8 @@ apiClient.interceptors.response.use(
         let parsedData: any;
 
         try {
-          const sanitized = raw?.replace(/[\u0000-\u001F]+/g, '');
-          const clean = sanitized?.replace(/^\uFEFF/, '');
+          const sanitized = raw.replace(/[\u0000-\u001F]+/g, '');
+          const clean = sanitized.replace(/^\uFEFF/, '');
           parsedData = JSON.parse(clean);
         } catch (error){
           console.log("🚀 ~ error:", error)

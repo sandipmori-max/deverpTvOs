@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
 
 const ProfileTab = () => {
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const { user, accounts } = useAppSelector(state => state?.auth);
   const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
@@ -34,7 +34,7 @@ const ProfileTab = () => {
       headerRight: () => (
         <>
           <ERPIcon
-            name="add"
+            name="person-add-alt"
             onPress={() => {
               handleAddAccount();
             }}
@@ -91,9 +91,7 @@ const ProfileTab = () => {
               <View style={styles.profileInfo}>
                 <Text style={styles.profileName}>{firstLetterUpperCase(user?.name)}</Text>
                 <Text style={styles.profileEmail}>{user?.companyName}</Text>
-                <Text style={styles.accountType}>
-                  {(user?.rolename)}
-                </Text>
+                <Text style={styles.accountType}>{user?.rolename}</Text>
               </View>
               <TouchableOpacity
                 style={styles.switchButton}
@@ -101,14 +99,14 @@ const ProfileTab = () => {
                   navigation.navigate('Page', {
                     id: user?.id,
                     item: {},
-                  title: t('profile.myProfile'),
+                    title: t('profile.myProfile'),
                     isFromNew: false,
                     url: 'UserProfile',
                   });
                 }}
                 activeOpacity={0.8}
               >
-                <MaterialIcons name={'edit'} color={ERP_COLOR_CODE.ERP_BLACK} size={20} />
+                <MaterialIcons name={'edit'} color={ERP_COLOR_CODE.ERP_888} size={20} />
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -125,7 +123,8 @@ const ProfileTab = () => {
               <View style={styles.settingInfo}>
                 <Text style={styles.settingTitle}>{t('profile.manageAccounts')}</Text>
                 <Text style={styles.settingSubtitle}>
-                  {accounts?.length} {t('profile.account')}{accounts?.length !== 1 ? 's' : ''} {t('profile.available')}
+                  {accounts?.length} {t('profile.account')}
+                  {accounts?.length !== 1 ? 's' : ''} {t('profile.available')}
                 </Text>
               </View>
               <Text style={styles.arrowIcon}>›</Text>

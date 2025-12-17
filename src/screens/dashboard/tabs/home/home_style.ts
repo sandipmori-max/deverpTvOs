@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
 
   dashboardSection: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingTop: 0,
   },
 
@@ -77,7 +77,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   dashboardItemContent: {
-    padding: 16,
+    padding: 6,
   },
   dashboardItemHeader: {
     marginBottom: 2,

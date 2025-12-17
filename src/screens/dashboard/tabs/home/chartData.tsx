@@ -22,7 +22,7 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
             flexDirection: 'row',
             justifyContent: 'center',
             alignContent: 'center',
-            height: Dimensions.get('screen').height * 0.32,
+            height: Dimensions.get('screen').height * 0.30,
           }}
         >
           {/* Pie Chart */}
@@ -68,14 +68,16 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
               height: Dimensions.get('screen').height * 0.22,
               marginLeft: 8,
               width: '44%',
-              overflow:'hidden',
+              overflow: 'hidden',
             }}
           >
             {/* First List */}
             {firstList.length > 0 && (
-              <View style={{
+              <View
+                style={{
                   width: '90%',
-              }}>
+                }}
+              >
                 <FlatList
                   data={firstList}
                   showsHorizontalScrollIndicator={false}
@@ -89,10 +91,27 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
                           borderRadius: 8,
                           backgroundColor: item.color,
                           marginRight: 6,
+                          flexDirection: 'row',
+                          gap: 4,
                         }}
                       />
-                      <Text style={{ fontSize: 14, color: '#444' }}>
-                        {item.text} -- {item.value}
+                      <Text
+                        numberOfLines={1}
+                        style={{
+                          fontWeight: '500',
+                         }}
+                      >
+                        {item.text}
+                      </Text>
+                      <Text
+                        style={{
+                          marginLeft: 8,
+                          fontSize: 14,
+                          color: item.color,
+                          fontWeight: '800',
+                        }}
+                      >
+                        :- {item.value}
                       </Text>
                     </View>
                   )}
@@ -128,10 +147,17 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
                         borderRadius: 8,
                         backgroundColor: item.color,
                         marginRight: 6,
+                        flexDirection: 'row',
+                        gap: 4,
                       }}
                     />
-                    <Text style={{ fontSize: 14, color: '#444' }}>
-                      {item.text} -- {item.value}
+                    <Text numberOfLines={1}  >
+                      {item.text}
+                    </Text>
+                    <Text
+                      style={{ marginLeft: 8, fontSize: 14, color: item.color, fontWeight: '800' }}
+                    >
+                      :- {item.value}
                     </Text>
                   </View>
                 )}

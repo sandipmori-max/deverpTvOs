@@ -5,18 +5,13 @@ import { ERP_COLOR_CODE } from '../utils/constants';
 import EntryTab from '../screens/dashboard/tabs/entry/EntryTab';
 import ReportTab from '../screens/dashboard/tabs/report/ReportTab';
 import HomeScreen from '../screens/dashboard/tabs/home/HomeTab';
-import AuthTab from '../screens/dashboard/tabs/auth/AuthTab';
-import useTranslations from '../hooks/useTranslations';
-import { useAppSelector } from '../store/hooks';
+import AuthTab from '../screens/dashboard/tabs/auth/AuthTab'; 
 import ProfileTab from '../screens/dashboard/tabs/profile/ProfileTab';
 import TabIcon from '../components/tab_icon/TabIcon';
 
 const Tab = createBottomTabNavigator();
 
-const TabNavigator = () => {
-  const theme = useAppSelector(state => state.theme);
-
-  const { t } = useTranslations();
+const TabNavigator = () => { 
   return (
     <Tab.Navigator
       screenOptions={{
@@ -27,10 +22,12 @@ const TabNavigator = () => {
           backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
           borderTopWidth: 1,
           borderTopColor: '#E5E5EA',
-          height: 80,
+          height: 56,
           paddingBottom: 5,
           paddingTop: 5,
         },
+                tabBarShowLabel: false,
+
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '500',

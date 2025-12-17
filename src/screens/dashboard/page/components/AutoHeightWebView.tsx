@@ -7,12 +7,14 @@ const AutoHeightWebView = ({
   html,
   isFromPage,
   isHorizontal,
-  isFromMenu
+  isFromMenu,
+  textColor,
 }: {
   html: string;
   isFromPage?: boolean;
   isHorizontal: any;
-  isFromMenu: any
+  isFromMenu: any;
+  textColor: any;
 }) => {
   const [webViewHeight, setWebViewHeight] = useState(0);
   const { width } = useWindowDimensions();
@@ -38,7 +40,7 @@ const AutoHeightWebView = ({
       body > *:last-child { margin-bottom: 0 !important; }
       table {
         height: 100% !important;
-        width: ${isFromPage ? '92%' : '82%'} !important;
+        width: 92% !important;
         border-collapse: collapse !important;
         table-layout: fixed !important;
         word-break: break-word !important;
@@ -125,13 +127,23 @@ const AutoHeightWebView = ({
                 fontWeight: 'bold',
                 flexDirection: 'row',
                 overflow: 'hidden',
-                maxWidth: isFromMenu ? '100%' : isHorizontal ? '100%' : 100,
+                color: isFromMenu ? textColor : '#000',
+                maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : '80%',
+              },
+              strong: {
+                fontSize: 16,
+                fontWeight: 'bold',
+                flexDirection: 'row',
+                overflow: 'hidden',
+                color: isFromMenu ? textColor : '#000',
+                maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : '80%',
               },
               p: {
                 fontWeight: 'bold',
                 flexDirection: 'row',
                 overflow: 'hidden',
-                maxWidth: isFromMenu ? '100%' : isHorizontal ? '100%' : 100,
+                color: isFromMenu ? textColor : '#000',
+                maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : '80%',
               },
               i: { fontStyle: 'italic' },
 

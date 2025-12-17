@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, useWindowDimensions } from 'react-native';
+import { View, Text } from 'react-native';
 import { styles } from '../page_style';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
-import AutoHeightWebView from './AutoHeightWebView'; // the component above
+import AutoHeightWebView from './AutoHeightWebView';
 
 const HtmlRow = ({ item , isFromPage}: any) => {
  
@@ -15,7 +15,7 @@ const HtmlRow = ({ item , isFromPage}: any) => {
           {item?.mandatory === '1' && <Text style={{ color: ERP_COLOR_CODE.ERP_ERROR }}>*</Text>}
         </View>
       </View>
-      <AutoHeightWebView html={item?.text} isFromPage={isFromPage} isHorizontal={false} isFromMenu={false} />
+      <AutoHeightWebView html={item?.text} isFromPage={isFromPage} isHorizontal={false} isFromMenu={false} textColor={'#000'} />
     </View>
   );
 };

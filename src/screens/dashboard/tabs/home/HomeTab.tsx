@@ -68,6 +68,13 @@ const HomeScreen = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () => (
+        <>
+          <Text style={{ color: ERP_COLOR_CODE.ERP_WHITE, fontSize: 18, fontWeight: '600' }}>
+            {user?.companyName || ''}
+          </Text>
+        </>
+      ),
       headerRight: () => (
         <>
           <ERPIcon
@@ -133,7 +140,7 @@ const HomeScreen = () => {
       text: item?.title,
     }));
 
-  const renderDashboardItem = ({ item, index, isFromHtml , isFromMenu}: any) => {
+  const renderDashboardItem = ({ item, index, isFromHtml, isFromMenu }: any) => {
     return (
       <TouchableOpacity
         key={item?.id || index}
@@ -190,7 +197,7 @@ const HomeScreen = () => {
                     numberOfLines={2}
                     ellipsizeMode="tail"
                   >
-                    {!isHorizontal ? item?.title.replace(' ', '\n') : item?.title}
+                    {item?.title}
                   </Text>
                 </View>
               </View>
@@ -207,7 +214,14 @@ const HomeScreen = () => {
               )}
               {item.data ? (
                 <View style={styles.dataContainer}>
-                   <Footer isFromMenu={isFromMenu} isHorizontal={isHorizontal} footer={item?.data} index={index} accentColors={accentColors} /> 
+                  <Footer
+                   textColor={accentColors[index % accentColors.length]}
+                    isFromMenu={isFromMenu}
+                    isHorizontal={isHorizontal}
+                    footer={item?.data}
+                    index={index}
+                    accentColors={accentColors}
+                  />
                 </View>
               ) : (
                 <View style={styles.dataContainer}>
@@ -218,8 +232,15 @@ const HomeScreen = () => {
               )}
             </View>
             {item?.footer ? (
-              <View style={{marginTop: 4}}>
-                <Footer isFromMenu={isFromMenu} isHorizontal={isHorizontal} footer={item?.footer} index={index} accentColors={accentColors} />
+              <View style={{ marginTop: 4 }}>
+                <Footer
+                 textColor={accentColors[index % accentColors.length]}
+                  isFromMenu={isFromMenu}
+                  isHorizontal={isHorizontal}
+                  footer={item?.footer}
+                  index={index}
+                  accentColors={accentColors}
+                />
               </View>
             ) : (
               <Text
@@ -289,42 +310,6 @@ const HomeScreen = () => {
 
   return (
     <View style={theme === 'dark' ? styles.containerDark : styles.container}>
-      <View
-        style={{
-          marginTop: 1,
-          backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
-          padding: 12,
-          width: width,
-          borderBottomRightRadius: 24,
-          borderBottomLeftRadius: 24,
-        }}
-      >
-        <Animated.View
-          style={{
-            justifyContent: 'center',
-            alignContent: 'center',
-            alignItems: 'center',
-            gap: 8,
-            flexDirection: 'row',
-            // transform: [{ translateX }],
-          }}
-        >
-          <MaterialIcons name="business" size={24} color={ERP_COLOR_CODE.ERP_WHITE} />
-          <Text
-            style={{
-              color: ERP_COLOR_CODE.ERP_WHITE,
-              backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
-              borderBottomRightRadius: 24,
-              borderBottomLeftRadius: 24,
-              fontWeight: '600',
-              fontSize: 16,
-            }}
-          >
-            {user?.companyName || ''}
-          </Text>
-        </Animated.View>
-      </View>
-
       {isDashboardLoading ? (
         <FullViewLoader />
       ) : error ? (
@@ -352,6 +337,7 @@ const HomeScreen = () => {
             scrollEventThrottle={16}
             renderItem={() => (
               <>
+               <View style={{ marginTop: 12 }} />
                 {/* Pie chart section */}
                 {pieChartData.length > 0 && (
                   <PieChartSection pieChartData={pieChartData} navigation={navigation} t={t} />
@@ -367,7 +353,8 @@ const HomeScreen = () => {
                     numColumns={isHorizontal ? 1 : 2}
                     columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
                     renderItem={
-                      ({ item, index }) => renderDashboardItem({ item, index, isFromHtml: false ,  isFromMenu:false}) // 👈 custom prop passed here
+                      ({ item, index }) =>
+                        renderDashboardItem({ item, index, isFromHtml: false, isFromMenu: false }) // 👈 custom prop passed here
                     }
                     showsVerticalScrollIndicator={false}
                   />
@@ -380,182 +367,13 @@ const HomeScreen = () => {
                     data={htmlItems}
                     keyExtractor={item => item?.id}
                     renderItem={
-                      ({ item, index }) => renderDashboardItem({ item, index, isFromHtml: true , isFromMenu:true}) // 👈 custom prop passed here
+                      ({ item, index }) =>
+                        renderDashboardItem({ item, index, isFromHtml: true, isFromMenu: true }) // 👈 custom prop passed here
                     }
                     showsVerticalScrollIndicator={false}
                   />
                 </View>
-                <View style={styles.grid}>
-                  <View style={styles.card}>
-                    <View style={{ flexDirection: 'row', marginVertical: 8, gap: 6 }}>
-                      <MaterialIcons
-                        size={18}
-                        color={ERP_COLOR_CODE.ERP_APP_COLOR}
-                        name="emoji-events"
-                      />
-                      <Text style={styles.cardTitle}>Events</Text>
-                    </View>
-                    <FlatList
-                      data={todayEvents}
-                      keyExtractor={i => i.id}
-                      scrollEnabled={false}
-                      renderItem={({ item }) => (
-                        <SmallItem
-                          left={<Text style={styles.avatarText}>T</Text>}
-                          primary={item.title}
-                          secondary={item.date}
-                          type={item?.type}
-                        />
-                      )}
-                    />
-
-                    <FlatList
-                      key={`${isHorizontal}`}
-                      data={dummyUpcomingEvents}
-                      keyExtractor={i => i.id}
-                      scrollEnabled={false}
-                      renderItem={({ item }) => (
-                        <SmallItem
-                          left={<Text style={styles.avatarText}>E</Text>}
-                          primary={item.title}
-                          secondary={item.date}
-                          type={item?.type}
-                        />
-                      )}
-                    />
-                  </View>
-
-                  <View style={styles.card}>
-                    <View style={{ flexDirection: 'row', marginVertical: 8, gap: 6 }}>
-                      <MaterialIcons
-                        size={18}
-                        color={ERP_COLOR_CODE.ERP_APP_COLOR}
-                        name="celebration"
-                      />
-                      <Text style={styles.cardTitle}>Birthday & Work-anniversary</Text>
-                    </View>
-                    <FlatList
-                      data={todayBirthdays}
-                      keyExtractor={i => i.id}
-                      scrollEnabled={false}
-                      renderItem={({ item }) => (
-                        <SmallItem
-                          left={
-                            <Text style={styles.avatarText}>
-                              {item.name
-                                .split(' ')
-                                .map(n => n[0])
-                                .slice(0, 2)
-                                .join('')}
-                            </Text>
-                          }
-                          primary={item.name}
-                          secondary={item.date}
-                          type={item?.type}
-                        />
-                      )}
-                    />
-
-                    <FlatList
-                      data={dummyUpcomingBirthdays}
-                      keyExtractor={i => i.id}
-                      scrollEnabled={false}
-                      renderItem={({ item }) => (
-                        <SmallItem
-                          left={
-                            <Text style={styles.avatarText}>
-                              {item.name
-                                .split(' ')
-                                .map(n => n[0])
-                                .slice(0, 2)
-                                .join('')}
-                            </Text>
-                          }
-                          primary={item.name}
-                          secondary={item.date}
-                          type={item?.type}
-                        />
-                      )}
-                    />
-                    <FlatList
-                      data={todayAnniversaries}
-                      keyExtractor={i => i.id}
-                      scrollEnabled={false}
-                      renderItem={({ item }) => (
-                        <SmallItem
-                          left={<Text style={styles.avatarText}>A</Text>}
-                          primary={item.name}
-                          secondary={item.date}
-                          type={item?.type}
-                        />
-                      )}
-                    />
-
-                    <FlatList
-                      data={dummyUpcomingAnniversaries}
-                      keyExtractor={i => i.id}
-                      scrollEnabled={false}
-                      renderItem={({ item }) => (
-                        <SmallItem
-                          left={<Text style={styles.avatarText}>W</Text>}
-                          primary={item.name}
-                          secondary={item.date}
-                          type={item?.type}
-                        />
-                      )}
-                    />
-                  </View>
-                </View>
-                <View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginHorizontal: 12,
-                      marginVertical: 8,
-                    }}
-                  >
-                    <View style={{ flexDirection: 'row', gap: 6 }}>
-                      <MaterialIcons
-                        size={18}
-                        color={ERP_COLOR_CODE.ERP_APP_COLOR}
-                        name="pending-actions"
-                      />
-                      <Text style={{ fontSize: 16, fontWeight: '700' }}>My Pending Tasks</Text>
-                    </View>
-
-                    <TouchableOpacity
-                      onPress={() => {
-                        navigation.navigate('Tasks', { isFromViewAll: true });
-                      }}
-                    >
-                      <Text style={{ color: ERP_COLOR_CODE.ERP_BORDER_LINE, fontSize: 12 }}>
-                        View all
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <TaskListScreen
-                    tasks={dummyTasks}
-                    onSelectTask={task => {
-                      setSelectedTask(task);
-                      setModalVisible(true);
-                    }}
-                    showPicker={undefined}
-                    showFilter={undefined}
-                  />
-                </View>
-
-                {selectedTask && (
-                  <TaskDetailsBottomSheet
-                    visible={modalVisible}
-                    task={selectedTask}
-                    role="junior"
-                    onClose={() => setModalVisible(false)}
-                    onUpdate={updatedTask => {
-                      setModalVisible(false);
-                    }}
-                  />
-                )}
+               
                 <View style={{ height: 10, width: 100 }} />
               </>
             )}

@@ -299,15 +299,18 @@ const PageScreen = () => {
         const rawVal = formValues[item?.field] ?? item?.text;
         const boolVal = String(rawVal).toLowerCase() === 'true';
         content = (
-          <BoolInput
+         <View  >
+           <BoolInput
             label={item?.fieldtitle}
             value={boolVal}
             onChange={val => setValue({ [item?.field]: val })}
           />
+         </View>
         );
       } else if (item?.field === 'chemistname') {
         content = (
-          <CustomMultiPicker
+          <View  >
+               <CustomMultiPicker
             label={item?.fieldtitle}
             selectedValue={value}
             dtext={item?.dtext || item?.text || ''}
@@ -316,38 +319,64 @@ const PageScreen = () => {
             item={item}
             errors={errors}
           />
+          </View>
+       
         );
       }
       else if (isFromNew && item?.ctltype === 'FILE') {
-        content = <FilePickerRow item={item} handleAttachment={handleAttachment} />;
+        content =
+        
+        <View  >
+  <FilePickerRow item={item} handleAttachment={handleAttachment} />
+        </View>
+      
       }
        else if (item?.defaultvalue === '#location') {
-        content = <LocationRow item={item} setValue={setValue} />;
+        content =
+        <View  >
+ <LocationRow item={item} setValue={setValue} />
+        </View>
+       
       } else if (item?.defaultvalue === '#html') {
-        content =<View> <HtmlRow item={item} isFromPage = {true} /></View>;
+        content =<View>
+          <View  >
+             <HtmlRow item={item} isFromPage = {true} /></View>
+          </View>
+          
       } else if (item?.ctltype === 'IMAGE' && item?.field === 'signature') {
         content = (
-          <SignaturePad
+          <View  >
+            <SignaturePad
             infoData={infoData}
             item={item}
             handleSignatureAttachment={handleSignatureAttachment}
           />
+          </View>
+          
         );
       } else if (item?.ctltype === "FILE" || item?.ctltype === 'IMAGE' || item?.ctltype === 'PHOTO') {
         content = (
-          <Media
+          <View  >
+             <Media
             baseLink={baseLink}
             infoData={infoData}
             item={item}
             isFromNew={isFromNew}
             handleAttachment={handleAttachment}
           />
+          </View>
+         
         );
       } else if (item?.disabled === '1' && item?.ajax !== 1) {
-        content = <Disabled item={item} value={value} type={item?.ctltype} />;
+        content = 
+        <View  >
+  <Disabled item={item} value={value} type={item?.ctltype} />
+        </View>
+      
       } else if (item?.ddl && item?.ddl !== '' && item?.ajax === 0) {
         content = (
-          <CustomPicker
+          <View  >
+              <CustomPicker
             label={item?.fieldtitle}
             selectedValue={value}
             dtext={item?.dtext || item?.text || ''}
@@ -356,10 +385,13 @@ const PageScreen = () => {
             item={item}
             errors={errors}
           />
+          </View>
+        
         );
       } else if (item?.ddl && item?.ddl !== '' && item?.ajax === 1) {
         content = (
-          <AjaxPicker
+          <View  >
+              <AjaxPicker
             label={item?.fieldtitle}
             selectedValue={value}
             dtext={item?.dtext || item?.text || ''}
@@ -369,40 +401,54 @@ const PageScreen = () => {
             errors={errors}
             formValues={formValues}
           />
+          </View>
+        
         );
       } else if (item?.ctltype === 'DATE') {
         content = (
-          <DateRow item={item} errors={errors} value={value} showDatePicker={showDatePicker} />
+          <View  >
+             <DateRow item={item} errors={errors} value={value} showDatePicker={showDatePicker} />
+          </View>
+         
         );
       } else if (item?.ctltype === 'DATETIME') {
         content = (
-          <DateTimeRow
+          <View  >
+              <DateTimeRow
             item={item}
             errors={errors}
             value={value}
             showDateTimePicker={showDateTimePicker}
           />
+          </View>
+        
         );
       } else {
         content = (
-          <Input
+          <View  >
+              <Input
             onFocus={() => flatListRef.current?.scrollToIndex({ index, animated: true })}
             item={item}
             errors={errors}
             value={value}
             setValue={setValue}
           />
+          </View>
+        
         );
       }
 
-      return (
+     return (
+      <View style={{ width: '33%', paddingHorizontal: 6 }}>
         <Animated.View
           entering={FadeInUp.delay(index * 70).springify()}
           layout={Layout.springify()}
         >
           {content}
         </Animated.View>
-      );
+      </View>
+    );
+
     },
     [formValues, errors, controls],
   );
@@ -470,6 +516,7 @@ const PageScreen = () => {
               showsVerticalScrollIndicator={false}
               data={controls}
               ref={flatListRef}
+              numColumns={3} 
               keyExtractor={(it, idx) => it?.dtlid || idx?.toString()}
               renderItem={renderItem}
               contentContainerStyle={{ paddingBottom: keyboardHeight }}

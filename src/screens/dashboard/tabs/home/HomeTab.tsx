@@ -82,7 +82,7 @@ const HomeScreen = () => {
             onPress={() => {
               setActionLoader(true);
               setIsRefresh(!isRefresh);
-              dispatch(getERPDashboardThunk());
+              dispatch(getERPDashboardThunk(true));
               setTimeout(() => {
                 setActionLoader(false);
               }, 100);
@@ -113,12 +113,33 @@ const HomeScreen = () => {
       setLoadingPageId(true);
 
       if (isAuthenticated) {
-        dispatch(getERPDashboardThunk());
+        dispatch(getERPDashboardThunk(true));
+
       }
 
       return () => {};
     }, [isAuthenticated, dispatch]),
   );
+
+  useEffect(() => {
+  if (!isAuthenticated) return;
+
+  const fetchDashboard = () => {
+    dispatch(getERPDashboardThunk(false));
+    setTimeout(() => {
+      setActionLoader(false);
+    }, 100);
+  };
+ 
+  fetchDashboard();
+ 
+  const intervalId = setInterval(fetchDashboard, 3 * 60 * 1000);
+
+  return () => {
+    clearInterval(intervalId); 
+  };
+}, [isAuthenticated, dispatch]);
+
 
   const getInitials = (text?: string) => {
     if (!text) return '?';
@@ -174,13 +195,16 @@ const HomeScreen = () => {
           <View style={styles.dashboardItemContent}>
             <View style={styles.dashboardItemHeader}>
               <View style={styles.dashboardItemTopRow}>
-                <View
+                 <View
                   style={[
                     styles.iconContainer,
                     { backgroundColor: accentColors[index % accentColors.length] },
                   ]}
                 >
-                  <Text style={styles.iconText}>{getInitials(item?.name)}</Text>
+                  <MaterialIcons name={item?.image || 'widgets'} color={
+                    'white'
+                  } size={22} />
+                  {/* <Text style={styles.iconText}>{getInitials(item?.name)}</Text> */}
                 </View>
                 <View style={styles.headerTextWrap}>
                   <Text
@@ -350,11 +374,11 @@ const HomeScreen = () => {
                     keyboardShouldPersistTaps="handled"
                     data={[...textItems, ...emptyItems]}
                     keyExtractor={item => item?.id}
-                    numColumns={isHorizontal ? 1 : 2}
+                    numColumns={isHorizontal ? 1 : 3}
                     columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
                     renderItem={
                       ({ item, index }) =>
-                        renderDashboardItem({ item, index, isFromHtml: false, isFromMenu: false }) // 👈 custom prop passed here
+                        renderDashboardItem({ item, index, isFromHtml: false, isFromMenu: false })
                     }
                     showsVerticalScrollIndicator={false}
                   />

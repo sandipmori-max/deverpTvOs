@@ -19,6 +19,7 @@ import DeviceInfo from 'react-native-device-info';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { useTranslation } from 'react-i18next';
 import { ERP_COLOR_CODE } from '../../../utils/constants';
+import SoftwareInfo from '../../../components/softwareInfo/SoftwareInfo';
 
 const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose }) => {
   const { t } = useTranslation();
@@ -163,136 +164,163 @@ const AddAccountScreen: React.FC<AddAccountScreenProps> = ({ visible, onClose })
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <View style={styles.container}>
+      <>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
             <Image source={ERP_ICON.BACK} style={styles.back} />
           </TouchableOpacity>
           <Text style={styles.title}>{t('account.addAccount')}</Text>
         </View>
-        <FlatList
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          data={['']}
-          renderItem={() => {
-            return (
-              <>
-                <View style={styles.formContainer}>
-                  <Image source={ERP_ICON.APP_LOGO} style={styles.logo} resizeMode="contain" />
+        <View
+          style={{
+            backgroundColor: 'white',
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}
+        >
+          <View style={{ width: '50%' }}>
+            <View style={styles.container}>
+              <FlatList
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                data={['']}
+                renderItem={() => {
+                  return (
+                    <>
+                      <View style={styles.formContainer}>
+                        <Image
+                          source={ERP_ICON.APP_LOGO}
+                          style={styles.logo}
+                          resizeMode="contain"
+                        />
 
-                  <Text style={styles.subtitle}>{t('account.msg')}</Text>
+                        <Text style={styles.subtitle}>{t('account.msg')}</Text>
 
-                  <Formik
-                    initialValues={{ company_code: '', user: '', password: '' }}
-                    validationSchema={erp_add_account_validation_schema}
-                    onSubmit={handleAddAccount}
-                  >
-                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                      <>
-                        <View style={styles.inputContainer}>
-                          <Text style={styles.inputLabel}>{t('account.companyCode')}</Text>
-                          <TextInput
-                            style={styles.input}
-                            placeholder={t('auth.enterCompanyCode')}
-                            placeholderTextColor={ERP_COLOR_CODE.ERP_999}
-                            autoCapitalize="none"
-                            onChangeText={handleChange('company_code')}
-                            onBlur={handleBlur('company_code')}
-                            value={values?.company_code}
-                          />
-                          {touched?.company_code && errors?.company_code && (
-                            <Text style={styles.errorText}>{errors?.company_code}</Text>
-                          )}
-                        </View>
-
-                        <View style={styles.inputContainer}>
-                          <Text style={styles.inputLabel}>{t('auth.user')}</Text>
-                          <TextInput
-                            style={styles.input}
-                            placeholder={t('auth.enterUser')}
-                            placeholderTextColor={ERP_COLOR_CODE.ERP_999}
-                            autoCapitalize="none"
-                            onChangeText={handleChange('user')}
-                            onBlur={handleBlur('user')}
-                            value={values?.user}
-                          />
-                          {touched?.user && errors?.user && (
-                            <Text style={styles.errorText}>{errors?.user}</Text>
-                          )}
-                        </View>
-
-                        <View style={styles.inputContainer}>
-                          <Text style={styles.inputLabel}>{t('auth.password')}</Text>
-                          <View style={styles.inputWithIcon}>
-                            <TextInput
-                              style={styles.input1}
-                              placeholder={t('auth.enterPassword')}
-                              secureTextEntry={!showPassword}
-                              placeholderTextColor={ERP_COLOR_CODE.ERP_999}
-                              value={values?.password}
-                              onChangeText={handleChange('password')}
-                              onBlur={handleBlur('password')}
-                            />
-                            <TouchableOpacity
-                              onPress={() => setShowPassword(s => !s)}
-                              style={styles.toggleButton}
-                              accessibilityLabel={!showPassword ? 'Hide password' : 'Show password'}
-                            >
-                              <MaterialIcons
-                                name={!showPassword ? 'visibility-off' : 'visibility'}
-                                color={ERP_COLOR_CODE.ERP_666}
-                                size={20}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                          {touched?.password && errors?.password && (
-                            <Text style={styles.errorText}>{errors?.password}</Text>
-                          )}
-                        </View>
-
-                        <TouchableOpacity
-                          style={[styles.addButton, loader && styles.disabledButton]}
-                          onPress={() => {
-                            handleSubmit();
-                          }}
-                          disabled={loader}
+                        <Formik
+                          initialValues={{ company_code: '', user: '', password: '' }}
+                          validationSchema={erp_add_account_validation_schema}
+                          onSubmit={handleAddAccount}
                         >
-                          {loader ? (
-                            <Text style={styles.addButtonText}>{t('account.adding')}</Text>
-                          ) : (
-                            <Text style={styles.addButtonText}>{t('account.add')}</Text>
+                          {({
+                            handleChange,
+                            handleBlur,
+                            handleSubmit,
+                            values,
+                            errors,
+                            touched,
+                          }) => (
+                            <>
+                              <View style={styles.inputContainer}>
+                                <Text style={styles.inputLabel}>{t('account.companyCode')}</Text>
+                                <TextInput
+                                  style={styles.input}
+                                  placeholder={t('auth.enterCompanyCode')}
+                                  placeholderTextColor={ERP_COLOR_CODE.ERP_999}
+                                  autoCapitalize="none"
+                                  onChangeText={handleChange('company_code')}
+                                  onBlur={handleBlur('company_code')}
+                                  value={values?.company_code}
+                                />
+                                {touched?.company_code && errors?.company_code && (
+                                  <Text style={styles.errorText}>{errors?.company_code}</Text>
+                                )}
+                              </View>
+
+                              <View style={styles.inputContainer}>
+                                <Text style={styles.inputLabel}>{t('auth.user')}</Text>
+                                <TextInput
+                                  style={styles.input}
+                                  placeholder={t('auth.enterUser')}
+                                  placeholderTextColor={ERP_COLOR_CODE.ERP_999}
+                                  autoCapitalize="none"
+                                  onChangeText={handleChange('user')}
+                                  onBlur={handleBlur('user')}
+                                  value={values?.user}
+                                />
+                                {touched?.user && errors?.user && (
+                                  <Text style={styles.errorText}>{errors?.user}</Text>
+                                )}
+                              </View>
+
+                              <View style={styles.inputContainer}>
+                                <Text style={styles.inputLabel}>{t('auth.password')}</Text>
+                                <View style={styles.inputWithIcon}>
+                                  <TextInput
+                                    style={styles.input1}
+                                    placeholder={t('auth.enterPassword')}
+                                    secureTextEntry={!showPassword}
+                                    placeholderTextColor={ERP_COLOR_CODE.ERP_999}
+                                    value={values?.password}
+                                    onChangeText={handleChange('password')}
+                                    onBlur={handleBlur('password')}
+                                  />
+                                  <TouchableOpacity
+                                    onPress={() => setShowPassword(s => !s)}
+                                    style={styles.toggleButton}
+                                    accessibilityLabel={
+                                      !showPassword ? 'Hide password' : 'Show password'
+                                    }
+                                  >
+                                    <MaterialIcons
+                                      name={!showPassword ? 'visibility-off' : 'visibility'}
+                                      color={ERP_COLOR_CODE.ERP_666}
+                                      size={20}
+                                    />
+                                  </TouchableOpacity>
+                                </View>
+                                {touched?.password && errors?.password && (
+                                  <Text style={styles.errorText}>{errors?.password}</Text>
+                                )}
+                              </View>
+
+                              <TouchableOpacity
+                                style={[styles.addButton, loader && styles.disabledButton]}
+                                onPress={() => {
+                                  handleSubmit();
+                                }}
+                                disabled={loader}
+                              >
+                                {loader ? (
+                                  <Text style={styles.addButtonText}>{t('account.adding')}</Text>
+                                ) : (
+                                  <Text style={styles.addButtonText}>{t('account.add')}</Text>
+                                )}
+                              </TouchableOpacity>
+                            </>
                           )}
-                        </TouchableOpacity>
-                      </>
-                    )}
-                  </Formik>
+                        </Formik>
 
-                  <Text style={styles.note}>{t('account.msg1')}</Text>
-                </View>
-              </>
-            );
-          }}
-        />
+                        <Text style={styles.note}>{t('account.msg1')}</Text>
+                      </View>
+                    </>
+                  );
+                }}
+              />
 
-        <CustomAlert
-          visible={alertVisible}
-          title={alertConfig.title}
-          message={alertConfig.message}
-          type={alertConfig.type}
-          onClose={async () => {
-            setLoader(false);
-            setAlertVisible(false);
-            setAlertVisible(false);
-            DevERPService.setAppId(user?.app_id);
-            DevERPService.setToken(user?.token);
-            await AsyncStorage.setItem('erp_token', user?.token || '');
-            await AsyncStorage.setItem('auth_token', user?.token || '');
-            await AsyncStorage.setItem('erp_token_valid_till', user?.tokenValidTill || '');
-          }}
-          actionLoader={undefined}
-        />
-      </View>
+              <CustomAlert
+                visible={alertVisible}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                type={alertConfig.type}
+                onClose={async () => {
+                  setLoader(false);
+                  setAlertVisible(false);
+                  setAlertVisible(false);
+                  DevERPService.setAppId(user?.app_id);
+                  DevERPService.setToken(user?.token);
+                  await AsyncStorage.setItem('erp_token', user?.token || '');
+                  await AsyncStorage.setItem('auth_token', user?.token || '');
+                  await AsyncStorage.setItem('erp_token_valid_till', user?.tokenValidTill || '');
+                }}
+                actionLoader={undefined}
+              />
+            </View>
+          </View>
+          <SoftwareInfo />
+        </View>
+      </>
     </Modal>
   );
 };

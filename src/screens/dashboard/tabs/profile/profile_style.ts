@@ -29,9 +29,16 @@ export const styles = StyleSheet.create({
     color: ERP_COLOR_CODE.ERP_222,
   },
   switchButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    borderRadius: 16,
+    bottom: 42,
+    left: 16,
+    height: 24,
+    width: 24,
+    alignItems:'center',
+    alignContent:'center',
+    backgroundColor:'black',
+    alignSelf:'center',
+    justifyContent:'center'
   },
   switchButtonText: {
     color: ERP_COLOR_CODE.ERP_BLACK,
@@ -48,8 +55,7 @@ export const styles = StyleSheet.create({
     borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE
     
   },
-  profileHeader: {
-    flexDirection: 'row',
+  profileHeader: { 
     alignItems: 'center',
   },
   profileAvatar: {

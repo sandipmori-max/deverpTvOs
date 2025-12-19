@@ -252,7 +252,7 @@ const EntryTab = () => {
           data={list}
           keyboardShouldPersistTaps="handled"
           keyExtractor={item => item?.id}
-          numColumns={isHorizontal ? 1 : 2}
+          numColumns={isHorizontal ? 1 : 4}
           contentContainerStyle={styles.listContent}
           columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
           renderItem={renderItem}

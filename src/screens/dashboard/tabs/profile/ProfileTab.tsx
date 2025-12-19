@@ -61,8 +61,13 @@ const ProfileTab = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Profile Card */}
-        {user && (
+        <View style={{
+          width:'100%',
+          flexDirection:'row',
+          justifyContent:'space-between'
+        }}>
+          <View style={{width: '50%',}}>
+ {user && (
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('Page', {
@@ -87,13 +92,9 @@ const ProfileTab = () => {
                   }}
                   style={{ height: 56, width: 56, borderRadius: 46 }}
                 />
+                
               </View>
-              <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>{firstLetterUpperCase(user?.name)}</Text>
-                <Text style={styles.profileEmail}>{user?.companyName}</Text>
-                <Text style={styles.accountType}>{user?.rolename}</Text>
-              </View>
-              <TouchableOpacity
+               <TouchableOpacity
                 style={styles.switchButton}
                 onPress={() => {
                   navigation.navigate('Page', {
@@ -106,14 +107,22 @@ const ProfileTab = () => {
                 }}
                 activeOpacity={0.8}
               >
-                <MaterialIcons name={'edit'} color={ERP_COLOR_CODE.ERP_888} size={20} />
+                <MaterialIcons name={'edit'} color={'white'} size={16} />
               </TouchableOpacity>
+              
+              <View style={styles.profileInfo}>
+                <Text style={styles.profileName}>{firstLetterUpperCase(user?.name)}</Text>
+                <Text style={styles.profileEmail}>{user?.companyName}</Text>
+                <Text style={styles.accountType}>{user?.rolename}</Text>
+              </View>
+             
             </View>
           </TouchableOpacity>
         )}
+          </View>
+          <View style={{width:'50%', marginTop: 16}}>
 
-        {/* Account Section */}
-        <View style={styles.sectionContainer}>
+             <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>{t('profile.accountManagement')}</Text>
           <TouchableOpacity style={styles.settingCard} onPress={() => setShowAccountSwitcher(true)}>
             <View style={styles.settingHeader}>
@@ -132,7 +141,7 @@ const ProfileTab = () => {
           </TouchableOpacity>
 
           {activeAccount && (
-            <View style={styles.settingCard}>
+            <View style={[styles.settingCard]}>
               <View style={styles.settingHeader}>
                 <View style={styles.settingIcon}>
                   <MaterialIcons name={'access-time'} color={ERP_COLOR_CODE.ERP_BLACK} size={22} />
@@ -147,6 +156,14 @@ const ProfileTab = () => {
             </View>
           )}
         </View>
+        </View>
+
+        </View>
+        {/* Profile Card */}
+       
+
+        {/* Account Section */}
+       
 
         <View style={styles.bottomSpacing} />
       </ScrollView>

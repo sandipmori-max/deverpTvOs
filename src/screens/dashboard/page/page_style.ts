@@ -71,6 +71,8 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.4)',
+    alignContent:'center',
+    alignItems:'center'
   },
   bottomSheet: {
     backgroundColor: 'white',
@@ -79,6 +81,7 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     maxHeight: '50%',
     marginVertical: 4,
+    width:'50%'
   },
   title: {
     fontSize: 16,

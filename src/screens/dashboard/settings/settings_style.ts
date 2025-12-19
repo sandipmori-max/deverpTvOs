@@ -84,8 +84,9 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionContainer: {
+    width:'48.5%',
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
-    marginHorizontal: 16,
+    marginHorizontal: 6,
     marginVertical: 8,
     borderRadius: 12,
     overflow: 'hidden',

@@ -253,7 +253,7 @@ const ReportTab = () => {
         keyboardShouldPersistTaps="handled"
         data={list}
         keyExtractor={item => item?.id}
-        numColumns={isHorizontal ? 1 : 2}
+        numColumns={isHorizontal ? 1 : 4}
         contentContainerStyle={styles.listContent}
         columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
         renderItem={renderItem}

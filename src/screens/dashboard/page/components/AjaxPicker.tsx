@@ -120,11 +120,14 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
             flex: 1,
             justifyContent: 'flex-end',
             backgroundColor: 'rgba(0,0,0,0.4)',
+            alignContent:'center',
+            alignItems:'center'
           }}
         >
           <View
             style={{
               height: '75%',
+              width:'50%',
               backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
               borderTopLeftRadius: 16,
               borderTopRightRadius: 16,

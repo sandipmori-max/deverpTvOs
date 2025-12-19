@@ -19,6 +19,7 @@ import { styles } from './login_style';
 import LoginHeader from './components/LoginHeader';
 import LoginForm from './components/LoginForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SoftwareInfo from '../../../components/softwareInfo/SoftwareInfo';
 
 const LoginScreen = ({ navigation, route }: any) => {
   const { t } = useTranslations();
@@ -91,6 +92,10 @@ const LoginScreen = ({ navigation, route }: any) => {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        <View style={{
+          backgroundColor:'white',
+          flexDirection:'row', justifyContent:'space-between'}}>
+          <View style={{width: "50%",marginTop: 22}}>
         <FlatList
           data={['']}
           showsVerticalScrollIndicator={false}
@@ -132,6 +137,10 @@ const LoginScreen = ({ navigation, route }: any) => {
             </>
           )}
         />
+        </View>
+                      <SoftwareInfo />
+
+        </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );

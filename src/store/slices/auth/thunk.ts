@@ -300,19 +300,23 @@ export const getERPMenuThunk = createAsyncThunk(
   },
 );
 
-export const getERPDashboardThunk = createAsyncThunk(
+export const getERPDashboardThunk = createAsyncThunk<
+  any,                 // return type
+  boolean,             // argument type (boolean)
+  { rejectValue: string }
+>(
   'auth/getERPDashboard',
-  async (_, { rejectWithValue }) => {
+  async (isAutoRefresh, { rejectWithValue }) => {
     try {
+      console.log('isAutoRefresh:', isAutoRefresh);
       const dashboard = await DevERPService.getDashboard();
-      console.log("🚀 ~ ++++++++++++++++++++dashboard:", dashboard)
       return dashboard;
     } catch (error: any) {
-      console.log('🚀 ~ error:', error);
       return rejectWithValue(error?.message || 'Failed to get ERP dashboard');
     }
-  },
+  }
 );
+
 
 export const getERPPageThunk = createAsyncThunk<
   any,

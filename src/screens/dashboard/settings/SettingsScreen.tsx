@@ -280,7 +280,12 @@ const SettingsScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.sectionContainer}>
+        <View style={{
+          flexDirection:'row',
+           width: "100%",
+        }}>
+
+          <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>{t('settings.notifications')}</Text>
           <FlatList
             keyboardShouldPersistTaps="handled"
@@ -302,7 +307,14 @@ const SettingsScreen = () => {
           />
         </View>
 
-        <View style={styles.sectionContainer}>
+        </View>
+
+ <View style={{
+          flexDirection:'row',
+           width: "100%",
+        }}>
+
+          <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>{t('settings.security')}</Text>
           <FlatList
             keyboardShouldPersistTaps="handled"
@@ -322,9 +334,14 @@ const SettingsScreen = () => {
             keyExtractor={item => item.id}
             scrollEnabled={false}
           />
+        </View> 
         </View>
-
-        <View style={styles.sectionContainer}>
+       
+        <View style={{
+          flexDirection:'row',
+           width: "100%",
+        }}>
+ <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>{t('settings.account')}</Text>
           <FlatList
             keyboardShouldPersistTaps="handled"
@@ -334,6 +351,10 @@ const SettingsScreen = () => {
             scrollEnabled={false}
           />
         </View>
+
+        </View>
+
+       
 
         <View style={styles.bottomSpacing} />
       </ScrollView>

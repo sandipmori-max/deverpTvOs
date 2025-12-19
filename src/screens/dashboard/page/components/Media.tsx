@@ -423,13 +423,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
-    left: Dimensions.get('screen').width / 1.88,
+    left: Dimensions.get('screen').width / 5.4,
     borderWidth: 1,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.5)',
+    alignContent:'center',
+    alignItems:'center'
   },
   modalContent: {
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
@@ -438,7 +440,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     maxHeight: '60%',
-    width: '100%',
+    width: '50%',
   },
   modalHeader: {
     flexDirection: 'row',

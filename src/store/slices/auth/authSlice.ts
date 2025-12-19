@@ -241,8 +241,12 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      .addCase(getERPDashboardThunk.pending, state => {
-        state.isDashboardLoading = true;
+      .addCase(getERPDashboardThunk.pending,  (state, action) => {
+
+        const isAutoRefresh: boolean = action.meta.arg;  
+        if (isAutoRefresh) {
+          state.isDashboardLoading = true;
+        }
       })
       .addCase(getERPDashboardThunk.fulfilled, (state, action) => {
         try {

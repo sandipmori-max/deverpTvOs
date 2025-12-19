@@ -47,13 +47,13 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   formContainer: {
-    padding: 20,
+    padding: 12,
     justifyContent: 'center',
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 8,
     color: ERP_COLOR_CODE.ERP_555,
   },
   inputContainer: {
@@ -72,13 +72,13 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   addButton: {
-     flexDirection:'row',
+    flexDirection:'row',
     justifyContent:'center',
     alignContent:'center',
     gap: 8,
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
-    paddingVertical: 15,
-    borderRadius: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
     elevation: 2,
@@ -93,7 +93,7 @@ export const styles = StyleSheet.create({
   },
   addButtonText: {
     color: ERP_COLOR_CODE.ERP_WHITE,
-    fontSize: 16,
+    // fontSize: 16,
     fontWeight: 'bold',
   },
   note: {
@@ -104,10 +104,10 @@ export const styles = StyleSheet.create({
     marginTop: 20,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     alignSelf: 'center',
-    marginBottom: 25,
+    marginBottom: 15,
     borderRadius: 20,
   },
   inputWithIcon: {
@@ -122,8 +122,8 @@ export const styles = StyleSheet.create({
 
   input: {
     flex: 1,
-    paddingVertical: 14,
-    fontSize: 16,
+    paddingVertical: 8,
+    // fontSize: 16,
     borderWidth: 1,
     borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     padding: 14,
@@ -131,9 +131,9 @@ export const styles = StyleSheet.create({
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
   },
   input1: {
-    fontSize: 16,
+    // fontSize: 16,
     borderColor: ERP_COLOR_CODE.ERP_161515,
-    paddingVertical: 14,
+    paddingVertical: 8,
     flex: 1,
     borderRadius: 10,
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,

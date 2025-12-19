@@ -5,15 +5,15 @@ import NetInfo from "@react-native-community/netinfo";
 const ENV = {
   development: {
     BASE_URL: "http://support.deverp.net",
-    TIMEOUT: 30000,
+    TIMEOUT: 1800000,
   },
   staging: {
     BASE_URL: "http://support.deverp.net",
-    TIMEOUT: 30000,
+    TIMEOUT: 1800000,
   },
   production: {
     BASE_URL: "http://support.deverp.net",
-    TIMEOUT: 30000,
+    TIMEOUT: 1800000,
   },
 };
 

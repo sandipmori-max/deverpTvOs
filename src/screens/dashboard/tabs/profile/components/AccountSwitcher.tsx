@@ -190,7 +190,7 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
           data={accounts}
           renderItem={renderAccount}
           numColumns={2}
-          keyExtractor={item => item?.id}
+                    keyExtractor={(item, index) => index.toString()}
           style={styles.accountsList}
           showsVerticalScrollIndicator={false}
         />

@@ -131,7 +131,7 @@ const CreateTaskScreen = ({ onCreate }) => {
             <FlatList
               data={dummyUsers}
               keyboardShouldPersistTaps="handled"
-              keyExtractor={item => item.id}
+                    keyExtractor={(item, index) => index.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity style={styles.option} onPress={() => toggleUser(item.id)}>
                   <Text style={{ flex: 1 }}>{item.name}</Text>

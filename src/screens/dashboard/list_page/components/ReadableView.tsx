@@ -291,7 +291,7 @@ const ReadableView = ({
         keyboardShouldPersistTaps="handled"
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
-        keyExtractor={(item, idx) => String(item?.id || idx)}
+                    keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => <View style={{width: '48%', marginHorizontal: 4}}>
           <RenderCard item={item} index={index} />
         </View>}

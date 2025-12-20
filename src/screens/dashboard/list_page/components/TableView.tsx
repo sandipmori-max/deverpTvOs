@@ -232,7 +232,7 @@ const TableView = ({
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
               data={filteredData}
-              keyExtractor={(item, idx) => String(item?.id || idx)}
+                    keyExtractor={(item, index) => index.toString()}
               renderItem={renderItem}
               contentContainerStyle={styles.listContent}
             />

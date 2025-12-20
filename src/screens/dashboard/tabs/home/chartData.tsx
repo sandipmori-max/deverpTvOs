@@ -115,7 +115,7 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
                       </Text>
                     </View>
                   )}
-                  keyExtractor={(item, index) => `first-${index}`}
+                    keyExtractor={(item, index) => index.toString()}
                 />
               </View>
             )}
@@ -161,7 +161,7 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
                     </Text>
                   </View>
                 )}
-                keyExtractor={(item, index) => `second-${index}`}
+                    keyExtractor={(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
               />
             </View>

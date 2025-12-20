@@ -521,7 +521,7 @@ const PageScreen = () => {
               data={controls}
               ref={flatListRef}
               numColumns={3} 
-              keyExtractor={(it, idx) => it?.dtlid || idx?.toString()}
+                    keyExtractor={(item, index) => index.toString()}
               renderItem={renderItem}
               contentContainerStyle={{ paddingBottom: keyboardHeight }}
               keyboardShouldPersistTaps="handled"

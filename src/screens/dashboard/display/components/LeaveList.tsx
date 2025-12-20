@@ -370,7 +370,7 @@ const LeaveListPage = ({ showFilter, onSelect }: any) => {
 
               <SectionList
                 sections={sections}
-                keyExtractor={item => item.id}
+                    keyExtractor={(item, index) => index.toString()}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={false}
                 renderSectionHeader={({ section: { title } }) => (

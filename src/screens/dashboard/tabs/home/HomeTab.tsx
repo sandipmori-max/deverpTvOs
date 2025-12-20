@@ -65,16 +65,16 @@ const HomeScreen = () => {
       }),
     ).start();
   }, []);
-const TOTAL_TIME = 3 * 60; // 3 min in seconds
+  const TOTAL_TIME = 3 * 60; // 3 min in seconds
 
-const [remainingTime, setRemainingTime] = useState(TOTAL_TIME);
+  const [remainingTime, setRemainingTime] = useState(TOTAL_TIME);
 
   useLayoutEffect(() => {
     navigation.setOptions({
-          headerStyle: {
-      height: 45,
-      backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, // 👈 header bg color
-    },
+      headerStyle: {
+        height: 45,
+        backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, // 👈 header bg color
+      },
 
       headerTitle: () => (
         <>
@@ -85,10 +85,9 @@ const [remainingTime, setRemainingTime] = useState(TOTAL_TIME);
       ),
       headerRight: () => (
         <>
-        <Text style={{ color: '#fff', fontSize: 12 }}>
-  Next refresh in {formatTime(remainingTime)}
-</Text>
-
+          <Text style={{ color: '#fff', fontSize: 12 }}>
+            Next refresh in {formatTime(remainingTime)}
+          </Text>
 
           <ERPIcon
             name="refresh"
@@ -108,7 +107,6 @@ const [remainingTime, setRemainingTime] = useState(TOTAL_TIME);
           />
         </>
       ),
-      
     });
   }, [navigation, isRefresh, actionLoader, isHorizontal, remainingTime]);
 
@@ -118,48 +116,43 @@ const [remainingTime, setRemainingTime] = useState(TOTAL_TIME);
 
       if (isAuthenticated) {
         dispatch(getERPDashboardThunk(true));
-
       }
 
       return () => {};
     }, [isAuthenticated, dispatch]),
   );
 
- useEffect(() => {
-  if (!isAuthenticated) return;
+  useEffect(() => {
+    if (!isAuthenticated) return;
 
-  const fetchDashboard = () => {
-    dispatch(getERPDashboardThunk(true));
-    setRemainingTime(TOTAL_TIME); // reset timer on fetch
-    setTimeout(() => setActionLoader(false), 100);
+    const fetchDashboard = () => {
+      dispatch(getERPDashboardThunk(true));
+      setRemainingTime(TOTAL_TIME); // reset timer on fetch
+      setTimeout(() => setActionLoader(false), 100);
+    };
+
+    // initial call
+    fetchDashboard();
+
+    // API call every 3 min
+    const apiInterval = setInterval(fetchDashboard, 3 * 60 * 1000);
+
+    // countdown every second
+    const countdownInterval = setInterval(() => {
+      setRemainingTime(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => {
+      clearInterval(apiInterval);
+      clearInterval(countdownInterval);
+    };
+  }, [isAuthenticated, dispatch]);
+
+  const formatTime = time => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-
-  // initial call
-  fetchDashboard();
-
-  // API call every 3 min
-  const apiInterval = setInterval(fetchDashboard, 3 * 60 * 1000);
-
-  // countdown every second
-  const countdownInterval = setInterval(() => {
-    setRemainingTime(prev => (prev > 0 ? prev - 1 : 0));
-  }, 1000);
-
-  return () => {
-    clearInterval(apiInterval);
-    clearInterval(countdownInterval);
-  };
-}, [isAuthenticated, dispatch]);
-
-
-const formatTime = time => {
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-};
-
-
-
 
   const getInitials = (text?: string) => {
     if (!text) return '?';
@@ -215,15 +208,13 @@ const formatTime = time => {
           <View style={styles.dashboardItemContent}>
             <View style={styles.dashboardItemHeader}>
               <View style={styles.dashboardItemTopRow}>
-                 <View
+                <View
                   style={[
                     styles.iconContainer,
                     { backgroundColor: accentColors[index % accentColors.length] },
                   ]}
                 >
-                  <MaterialIcons name={item?.image || 'widgets'} color={
-                    'white'
-                  } size={22} />
+                  <MaterialIcons name={item?.image || 'widgets'} color={'white'} size={22} />
                   {/* <Text style={styles.iconText}>{getInitials(item?.name)}</Text> */}
                 </View>
                 <View style={styles.headerTextWrap}>
@@ -259,7 +250,7 @@ const formatTime = time => {
               {item.data ? (
                 <View style={styles.dataContainer}>
                   <Footer
-                   textColor={accentColors[index % accentColors.length]}
+                    textColor={accentColors[index % accentColors.length]}
                     isFromMenu={isFromMenu}
                     isHorizontal={isHorizontal}
                     footer={item?.data}
@@ -278,7 +269,7 @@ const formatTime = time => {
             {item?.footer ? (
               <View style={{ marginTop: 4 }}>
                 <Footer
-                 textColor={accentColors[index % accentColors.length]}
+                  textColor={accentColors[index % accentColors.length]}
                   isFromMenu={isFromMenu}
                   isHorizontal={isHorizontal}
                   footer={item?.footer}
@@ -374,14 +365,14 @@ const formatTime = time => {
           <Animated.FlatList
             showsVerticalScrollIndicator={false}
             data={['']}
-            keyExtractor={(_, i) => i.toString()}
+                    keyExtractor={(item, index) => index.toString()}
             onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
               useNativeDriver: true,
             })}
             scrollEventThrottle={16}
             renderItem={() => (
               <>
-               <View style={{ marginTop: 12 }} />
+                <View style={{ marginTop: 12 }} />
                 {/* Pie chart section */}
                 {pieChartData.length > 0 && (
                   <PieChartSection pieChartData={pieChartData} navigation={navigation} t={t} />
@@ -393,12 +384,11 @@ const formatTime = time => {
                     key={`${isHorizontal}`}
                     keyboardShouldPersistTaps="handled"
                     data={[...textItems, ...emptyItems]}
-                    keyExtractor={item => item?.id}
+                    keyExtractor={(item, index) => index.toString()}
                     numColumns={isHorizontal ? 1 : 4}
                     columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
-                    renderItem={
-                      ({ item, index }) =>
-                        renderDashboardItem({ item, index, isFromHtml: false, isFromMenu: false })
+                    renderItem={({ item, index }) =>
+                      renderDashboardItem({ item, index, isFromHtml: false, isFromMenu: false })
                     }
                     showsVerticalScrollIndicator={false}
                   />
@@ -409,7 +399,7 @@ const formatTime = time => {
                     key={`${isHorizontal}`}
                     keyboardShouldPersistTaps="handled"
                     data={htmlItems}
-                    keyExtractor={item => item?.id} 
+                    keyExtractor={(item, index) => index.toString()}
                     renderItem={
                       ({ item, index }) =>
                         renderDashboardItem({ item, index, isFromHtml: true, isFromMenu: true }) // 👈 custom prop passed here
@@ -417,7 +407,7 @@ const formatTime = time => {
                     showsVerticalScrollIndicator={false}
                   />
                 </View>
-               
+
                 <View style={{ height: 10, width: 100 }} />
               </>
             )}

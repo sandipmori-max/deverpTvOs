@@ -148,7 +148,7 @@ const TaskListScreen = ({ tasks, onSelectTask, showPicker, showFilter }) => {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
                 data={filteredTasks}
-                keyExtractor={item => item.id}
+                    keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                   <TaskCard task={item} onPress={() => onSelectTask(item)} />
                 )}

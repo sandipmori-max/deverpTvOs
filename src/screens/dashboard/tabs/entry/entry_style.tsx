@@ -24,11 +24,11 @@ export const styles = StyleSheet.create({
   card: {
     flex: 1,
     borderRadius: 10,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    marginBottom: 8,
     alignItems: 'center',
-    marginHorizontal: 8,
+    marginHorizontal: 4,
   },
   iconContainer: {
     width: 56,

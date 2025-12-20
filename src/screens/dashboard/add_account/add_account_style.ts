@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 2,
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
     borderBottomWidth: 1,
     borderBottomColor: ERP_COLOR_CODE.ERP_e0e0e0,

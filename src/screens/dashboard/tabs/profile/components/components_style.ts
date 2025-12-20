@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 2,
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
     borderBottomWidth: 1,
     borderBottomColor: ERP_COLOR_CODE.ERP_BORDER,
@@ -58,6 +58,7 @@ export const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginRight: 15,
+    backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR
   },
   accountInfo: {
     flex: 1,
@@ -112,7 +113,7 @@ export const styles = StyleSheet.create({
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
     borderRadius: 12,
     alignItems: 'center',
-  },
+   },
   addAccountText: {
     color: ERP_COLOR_CODE.ERP_WHITE,
     fontSize: 16,

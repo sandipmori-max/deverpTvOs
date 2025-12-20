@@ -22,6 +22,7 @@ const ProfileTab = () => {
   const [showAddAccount, setShowAddAccount] = useState(false);
   const baseLink = useBaseLink();
 
+  console.log("user-------------------------", user)
   const handleAddAccount = () => {
     setShowAccountSwitcher(false);
     setShowAddAccount(true);
@@ -31,6 +32,10 @@ const ProfileTab = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+          headerStyle: {
+            height: 45,
+            backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, // 👈 header bg color
+          },
       headerRight: () => (
         <>
           <ERPIcon
@@ -46,12 +51,7 @@ const ProfileTab = () => {
             }}
           />
         </>
-      ),
-      headerLeft: () => (
-        <>
-          <ERPIcon extSize={24} isMenu={true} name="menu" onPress={() => navigation.openDrawer()} />
-        </>
-      ),
+      ), 
     });
   }, [navigation]);
   return (
@@ -66,60 +66,47 @@ const ProfileTab = () => {
           flexDirection:'row',
           justifyContent:'space-between'
         }}>
-          <View style={{width: '50%',}}>
- {user && (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('Page', {
-                id: user?.id,
-                item: {},
-                title: t('profile.myProfile'),
-                isFromNew: false,
-                url: 'UserProfile',
-              });
-            }}
-            style={styles.profileCard}
-          >
-            <View style={styles.profileHeader}>
-              <View style={styles.profileAvatar}>
-                <FastImage
-                  source={{
-                    uri: `${baseLink}/FileUpload/1/UserMaster/${
-                      user?.id
-                    }/profileimage.jpeg?ts=${new Date().getTime()}`,
-                    priority: FastImage.priority.normal,
-                    cache: FastImage.cacheControl.web,
-                  }}
-                  style={{ height: 56, width: 56, borderRadius: 46 }}
-                />
-                
-              </View>
-               <TouchableOpacity
-                style={styles.switchButton}
-                onPress={() => {
-                  navigation.navigate('Page', {
-                    id: user?.id,
-                    item: {},
-                    title: t('profile.myProfile'),
-                    isFromNew: false,
-                    url: 'UserProfile',
-                  });
-                }}
-                activeOpacity={0.8}
-              >
-                <MaterialIcons name={'edit'} color={'white'} size={16} />
-              </TouchableOpacity>
-              
-              <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>{firstLetterUpperCase(user?.name)}</Text>
-                <Text style={styles.profileEmail}>{user?.companyName}</Text>
-                <Text style={styles.accountType}>{user?.rolename}</Text>
-              </View>
-             
+          <View style={{ width: '50%' }}>
+  {user && (
+    <TouchableOpacity style={styles.profileCard}>
+      <View style={styles.profileHeader}>
+        
+        {/* Avatar */}
+        <FastImage
+          source={{ uri: user.avatar }}
+          style={styles.avatar}
+        />
+
+        {/* Profile Info */}
+        <View style={styles.profileInfo}>
+          <Text style={styles.profileName}>
+            {user.username}
+          </Text>
+
+          <Text style={styles.profileCompany}>
+            {user.companyName}
+          </Text>
+
+          <View style={styles.badgeRow}>
+            <View style={styles.roleBadge}>
+              <Text style={styles.badgeText}>
+                {user.rolename}
+              </Text>
             </View>
-          </TouchableOpacity>
-        )}
+
+            <View style={styles.typeBadge}>
+              <Text style={styles.typeText}>
+                {user.accountType.toUpperCase()}
+              </Text>
+            </View>
           </View>
+        </View>
+
+      </View>
+    </TouchableOpacity>
+  )}
+</View>
+
           <View style={{width:'50%', marginTop: 16}}>
 
              <View style={styles.sectionContainer}>

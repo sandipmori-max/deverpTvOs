@@ -77,6 +77,10 @@ const ListScreen = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerStyle: {
+                  height: 45,
+                  backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, // 👈 header bg color
+                },
       headerTitle: () => (
         <Text
           numberOfLines={1}
@@ -479,7 +483,7 @@ const ListScreen = () => {
             handleItemPressed({}, pageParamsName, pageTitle);
           }}
         >
-          <MaterialIcons size={32} name="add" color={ERP_COLOR_CODE.ERP_WHITE} />
+          <MaterialIcons size={24} name="add" color={ERP_COLOR_CODE.ERP_WHITE} />
         </TouchableOpacity>
       )}
 

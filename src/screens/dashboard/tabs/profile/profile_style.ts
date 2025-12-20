@@ -54,10 +54,7 @@ export const styles = StyleSheet.create({
     borderWidth: 0.6,
     borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE
     
-  },
-  profileHeader: { 
-    alignItems: 'center',
-  },
+  }, 
   profileAvatar: {
     width: 60,
     height: 60,
@@ -66,17 +63,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
-  },
-  profileInfo: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  profileName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: ERP_COLOR_CODE.ERP_222,
-    marginBottom: 2,
-  },
+  },  
   profileEmail: {
     fontSize: 14,
     color: ERP_COLOR_CODE.ERP_666,
@@ -183,5 +170,64 @@ export const styles = StyleSheet.create({
   bottomSpacing: {
     height: 20,
   },
+  avatar: {
+  height: 56,
+  width: 56,
+  borderRadius: 28,
+},
+
+profileHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+profileInfo: {
+  marginLeft: 12,
+  flex: 1,
+},
+
+profileName: {
+  fontSize: 16,
+  fontWeight: '600',
+},
+
+profileCompany: {
+  fontSize: 13,
+  color: '#666',
+  marginTop: 2,
+},
+
+badgeRow: {
+  flexDirection: 'row',
+  marginTop: 6,
+},
+
+roleBadge: {
+  backgroundColor: '#007AFF20',
+  paddingHorizontal: 8,
+  paddingVertical: 3,
+  borderRadius: 10,
+  marginRight: 6,
+},
+
+typeBadge: {
+  backgroundColor: '#34C75920',
+  paddingHorizontal: 8,
+  paddingVertical: 3,
+  borderRadius: 10,
+},
+
+badgeText: {
+  fontSize: 11,
+  color: '#007AFF',
+  fontWeight: '500',
+},
+
+typeText: {
+  fontSize: 11,
+  color: '#34C759',
+  fontWeight: '500',
+},
+
   
 });

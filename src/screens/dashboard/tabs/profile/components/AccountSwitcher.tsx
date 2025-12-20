@@ -70,7 +70,10 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
 
     return (
       <TouchableOpacity
-        style={[styles.accountItem, isActive && styles.activeAccount]}
+        style={[styles.accountItem, isActive && styles.activeAccount, {
+          width:'49%',
+          marginHorizontal: 4
+        }]}
         onPress={async () => {
           dispatch(setEmptyMenu([]))
           DevERPService.setAppId(item?.user?.app_id || '');
@@ -186,14 +189,17 @@ const AccountSwitcher: React.FC<AccountSwitcherProps> = ({ visible, onClose, onA
         <FlatList
           data={accounts}
           renderItem={renderAccount}
+          numColumns={2}
           keyExtractor={item => item?.id}
           style={styles.accountsList}
           showsVerticalScrollIndicator={false}
         />
 
-        <TouchableOpacity style={styles.addAccountButton} onPress={onAddAccount}>
+       <View style={{width: '100%', alignContent:'flex-end', alignItems:'flex-end', alignSelf:'flex-end'}}>
+         <TouchableOpacity style={styles.addAccountButton} onPress={onAddAccount}>
           <Text style={styles.addAccountText}>+ Add Another Account</Text>
         </TouchableOpacity>
+       </View>
       </View>
       <CustomAlert
         visible={alertVisible}

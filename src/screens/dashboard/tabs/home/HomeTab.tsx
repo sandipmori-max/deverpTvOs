@@ -65,18 +65,31 @@ const HomeScreen = () => {
       }),
     ).start();
   }, []);
+const TOTAL_TIME = 3 * 60; // 3 min in seconds
+
+const [remainingTime, setRemainingTime] = useState(TOTAL_TIME);
 
   useLayoutEffect(() => {
     navigation.setOptions({
+          headerStyle: {
+      height: 45,
+      backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, // 👈 header bg color
+    },
+
       headerTitle: () => (
         <>
-          <Text style={{ color: ERP_COLOR_CODE.ERP_WHITE, fontSize: 18, fontWeight: '600' }}>
+          <Text style={{ color: ERP_COLOR_CODE.ERP_WHITE, fontSize: 16, fontWeight: '600' }}>
             {user?.companyName || ''}
           </Text>
         </>
       ),
       headerRight: () => (
         <>
+        <Text style={{ color: '#fff', fontSize: 12 }}>
+  Next refresh in {formatTime(remainingTime)}
+</Text>
+
+
           <ERPIcon
             name="refresh"
             onPress={() => {
@@ -95,18 +108,9 @@ const HomeScreen = () => {
           />
         </>
       ),
-      headerLeft: () => (
-        <>
-          <ERPIcon
-            extSize={24}
-            isMenu={true}
-            name="menu"
-            onPress={() => navigation?.openDrawer()}
-          />
-        </>
-      ),
+      
     });
-  }, [navigation, isRefresh, actionLoader, isHorizontal]);
+  }, [navigation, isRefresh, actionLoader, isHorizontal, remainingTime]);
 
   useFocusEffect(
     useCallback(() => {
@@ -121,24 +125,40 @@ const HomeScreen = () => {
     }, [isAuthenticated, dispatch]),
   );
 
-  useEffect(() => {
+ useEffect(() => {
   if (!isAuthenticated) return;
 
   const fetchDashboard = () => {
-    dispatch(getERPDashboardThunk(false));
-    setTimeout(() => {
-      setActionLoader(false);
-    }, 100);
+    dispatch(getERPDashboardThunk(true));
+    setRemainingTime(TOTAL_TIME); // reset timer on fetch
+    setTimeout(() => setActionLoader(false), 100);
   };
- 
+
+  // initial call
   fetchDashboard();
- 
-  const intervalId = setInterval(fetchDashboard, 3 * 60 * 1000);
+
+  // API call every 3 min
+  const apiInterval = setInterval(fetchDashboard, 3 * 60 * 1000);
+
+  // countdown every second
+  const countdownInterval = setInterval(() => {
+    setRemainingTime(prev => (prev > 0 ? prev - 1 : 0));
+  }, 1000);
 
   return () => {
-    clearInterval(intervalId); 
+    clearInterval(apiInterval);
+    clearInterval(countdownInterval);
   };
 }, [isAuthenticated, dispatch]);
+
+
+const formatTime = time => {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+};
+
+
 
 
   const getInitials = (text?: string) => {
@@ -374,7 +394,7 @@ const HomeScreen = () => {
                     keyboardShouldPersistTaps="handled"
                     data={[...textItems, ...emptyItems]}
                     keyExtractor={item => item?.id}
-                    numColumns={isHorizontal ? 1 : 3}
+                    numColumns={isHorizontal ? 1 : 4}
                     columnWrapperStyle={!isHorizontal ? styles.columnWrapper : undefined}
                     renderItem={
                       ({ item, index }) =>
@@ -389,7 +409,7 @@ const HomeScreen = () => {
                     key={`${isHorizontal}`}
                     keyboardShouldPersistTaps="handled"
                     data={htmlItems}
-                    keyExtractor={item => item?.id}
+                    keyExtractor={item => item?.id} 
                     renderItem={
                       ({ item, index }) =>
                         renderDashboardItem({ item, index, isFromHtml: true, isFromMenu: true }) // 👈 custom prop passed here

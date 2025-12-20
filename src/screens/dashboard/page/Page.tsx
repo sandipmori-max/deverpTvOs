@@ -100,6 +100,10 @@ const PageScreen = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerStyle: {
+                  height: 45,
+                  backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, // 👈 header bg color
+                },
       headerTitle: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', maxWidth: 210 }}>
           <Text

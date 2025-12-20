@@ -67,6 +67,10 @@ const EntryTab = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+          headerStyle: {
+            height: 45,
+            backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, // 👈 header bg color
+          },
       headerTitle: () =>
         showSearch ? (
           <View
@@ -124,10 +128,7 @@ const EntryTab = () => {
             </>
           )}
         </>
-      ),
-      headerLeft: () => (
-        <ERPIcon extSize={24} isMenu={true} name="menu" onPress={() => navigation.openDrawer()} />
-      ),
+      ), 
     });
   }, [navigation, showBookmarksOnly, isHorizontal, isRefresh, showSearch, searchText]);
 
@@ -168,7 +169,7 @@ const EntryTab = () => {
           style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
         >
           <MaterialIcons
-            size={24}
+            size={18}
             name={bookmarks[item?.id] ? 'bookmark' : 'bookmark-outline'}
             color={ERP_COLOR_CODE.ERP_BLACK}
           />

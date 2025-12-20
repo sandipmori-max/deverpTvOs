@@ -5,15 +5,17 @@ import { ERP_COLOR_CODE } from '../utils/constants';
 import EntryTab from '../screens/dashboard/tabs/entry/EntryTab';
 import ReportTab from '../screens/dashboard/tabs/report/ReportTab';
 import HomeScreen from '../screens/dashboard/tabs/home/HomeTab';
-import AuthTab from '../screens/dashboard/tabs/auth/AuthTab'; 
+import AuthTab from '../screens/dashboard/tabs/auth/AuthTab';
 import ProfileTab from '../screens/dashboard/tabs/profile/ProfileTab';
 import TabIcon from '../components/tab_icon/TabIcon';
+import { View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
-const TabNavigator = () => { 
+const TabNavigator = () => {
   return (
-    <Tab.Navigator
+  <View style={{flex: 1, backgroundColor:'white'}}>
+      <Tab.Navigator
       screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: ERP_COLOR_CODE.ERP_APP_COLOR,
@@ -22,11 +24,15 @@ const TabNavigator = () => {
           backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
           borderTopWidth: 1,
           borderTopColor: '#E5E5EA',
-          height: 56,
+          height: 46,
           paddingBottom: 5,
           paddingTop: 5,
-        },
-                tabBarShowLabel: false,
+          width: '28%',
+          alignContent: 'center',
+          alignItems: 'center',
+          alignSelf: 'center',
+         },
+        tabBarShowLabel: false,
 
         tabBarLabelStyle: {
           fontSize: 12,
@@ -90,7 +96,7 @@ const TabNavigator = () => {
       <Tab.Screen
         name="Auth"
         component={AuthTab}
-        options={{ 
+        options={{
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '500',
@@ -104,7 +110,7 @@ const TabNavigator = () => {
       <Tab.Screen
         name="Profile"
         component={ProfileTab}
-        options={{ 
+        options={{
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '500',
@@ -116,6 +122,7 @@ const TabNavigator = () => {
         }}
       />
     </Tab.Navigator>
+  </View>
   );
 };
 

@@ -8,7 +8,7 @@ const TabIcon: React.FC<TabIconProps & { focused: boolean }> = ({ name, color, s
 
   const iconSource = getBottomTabIcon(name, focused);
 
-  return <Image source={iconSource} style={styles.icon(size, focused, color)} />;
+  return <Image source={iconSource} style={styles.icon(size - 8, focused, color)} />;
 };
 
 export default TabIcon;

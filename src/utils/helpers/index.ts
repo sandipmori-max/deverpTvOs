@@ -560,3 +560,18 @@ export const clearAllTempFiles = async () => {
     console.log('Error reading temp directory:', err);
   }
 };
+
+export const formatDateList = (input: string) => {
+  const inputDate = input.split(" ")[0];
+
+  const today = new Date();
+  const formattedToday =
+    (today.getMonth() + 1).toString().padStart(2, "0") + "/" +
+    today.getDate().toString().padStart(2, "0") + "/" +
+    today.getFullYear();
+  if (inputDate === formattedToday) {
+    return "Today"
+  } else {
+    return input.replace(" ", input.length > 11 ? "\n" : " ");
+  }
+}

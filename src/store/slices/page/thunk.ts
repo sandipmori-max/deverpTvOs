@@ -31,3 +31,20 @@ export const handlePageActionThunk = createAsyncThunk<
     return rejectWithValue(error?.message || 'Failed to perform page action');
   }
 });
+
+export const handleDeleteActionThunk = createAsyncThunk<
+  any,
+  { 
+    remarks: "",
+    id: string; 
+    page: string;
+  },
+  { rejectValue: string }
+>('page/action', async ({  id, page , remarks}, { rejectWithValue }) => {
+  try {
+    const response = await DevERPService.handleDeleteAction( id, page, remarks);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue(error?.message || 'Failed to perform page action');
+  }
+});

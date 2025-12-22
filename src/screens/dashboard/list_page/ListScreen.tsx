@@ -14,9 +14,10 @@ import TableView from './components/TableView';
 import ReadableView from './components/ReadableView';
 import ERPIcon from '../../../components/icon/ERPIcon';
 import CustomAlert from '../../../components/alert/CustomAlert';
-import { handlePageActionThunk } from '../../../store/slices/page/thunk';
+import { handleDeleteActionThunk, handlePageActionThunk } from '../../../store/slices/page/thunk';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { ERP_COLOR_CODE } from '../../../utils/constants';
+import useTranslations from '../../../hooks/useTranslations';
 
 const ListScreen = () => {
   const navigation = useNavigation();
@@ -26,7 +27,7 @@ const ListScreen = () => {
     error: actionError,
     response: actionResponse,
   } = useAppSelector(state => state.page);
-
+  const { t } = useTranslations();
   const [loadingListId, setLoadingListId] = useState<string | null>(null);
   const [listData, setListData] = useState<any[]>([]);
   const [configData, setConfigData] = useState<any[]>([]);
@@ -61,13 +62,57 @@ const ListScreen = () => {
 
   const route = useRoute<RouteProp<ListRouteParams, 'List'>>();
   const { item } = route?.params;
+  const theme = useAppSelector(state => state?.theme.mode);
 
   const pageTitle = item?.title || item?.name || 'List Data';
   const pageParamsName = item?.name || 'List Data';
   const pageName = item?.url;
+  const isFromBusinessCard = item?.isFromBusinessCard || false;
+  const isFromAlertCard = item?.isFromAlertCard || false;
+ 
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  useEffect(() => {
+    if (!filteredData) return;
+    setPage(1);
+    setHasMore(true);
+
+    const firstPage = filteredData.slice(0, pageSize);
+    setListData(firstPage);
+  }, [filteredData]);
+
+  const loadMore = () => {
+  if (isLoadingMore || !hasMore) return;
+
+  setIsLoadingMore(true);
+
+  setTimeout(() => {
+    const start = page * pageSize;
+    const end = start + pageSize;
+
+    const newItems = filteredData.slice(start, end);
+
+    if (newItems.length === 0) {
+      setHasMore(false);
+    } else {
+      setListData(prev => [...prev, ...newItems]);
+      setPage(prev => prev + 1);
+    }
+
+    setIsLoadingMore(false);
+  }, 300);
+};
 
   const totalAmount = filteredData?.reduce((sum, item) => {
     const amount = parseFloat(item?.amount) || 0;
+    return sum + amount;
+  }, 0);
+
+  const totalQty = filteredData?.reduce((sum, item) => {
+    const amount = parseFloat(item?.qty) || 0;
     return sum + amount;
   }, 0);
 
@@ -75,12 +120,16 @@ const ListScreen = () => {
     item => item?.datafield && item?.datafield.toLowerCase() === 'date',
   );
 
+  const hasIdField = configData.some(
+    item => item?.datafield && item?.datafield.toLowerCase() === 'id',
+  );
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerStyle: {
-                  height: 45,
-                  backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR, // 👈 header bg color
-                },
+        backgroundColor: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_APP_COLOR, 
+      },
+      headerTintColor: '#fff',
       headerTitle: () => (
         <Text
           numberOfLines={1}
@@ -88,7 +137,7 @@ const ListScreen = () => {
             maxWidth: 180,
             fontSize: 18,
             fontWeight: '700',
-            color: ERP_COLOR_CODE.ERP_WHITE,
+            color: theme === 'dark' ? "white" : ERP_COLOR_CODE.ERP_WHITE,
           }}
         >
           {pageTitle || 'List Data'}
@@ -104,13 +153,14 @@ const ListScreen = () => {
             }}
             isLoading={actionLoaders}
           />
-          <ERPIcon
-            name={isTableView ? 'list' : 'apps'}
-            onPress={() => {
-              setIsTableView(!isTableView);
-            }}
-          />
-
+          {/* {
+            !isFromAlertCard && <ERPIcon
+              name={isTableView ? 'list' : 'apps'}
+              onPress={() => {
+                setIsTableView(!isTableView);
+              }}
+            />
+          } */}
           <ERPIcon
             name={!hasDateField ? 'search' : isFilterVisible ? 'filter-alt' : 'filter-alt'}
             onPress={() => {
@@ -188,7 +238,6 @@ const ListScreen = () => {
     try {
       await fetchListData(fromDate, toDate);
     } catch (e) {
-      console.error('Refresh failed', e);
     }
   };
 
@@ -278,7 +327,6 @@ const ListScreen = () => {
         setListData(dataArray);
         setFilteredData(dataArray);
       } catch (e: any) {
-        console.log('Failed to load list data:', e);
         setError(e || 'Failed to load list data');
         setParsedError(e);
       } finally {
@@ -306,11 +354,12 @@ const ListScreen = () => {
     useCallback(() => {
       const { fromDate: initialFromDate, toDate: initialToDate } = getCurrentMonthRange();
       fetchListData(initialFromDate, initialToDate);
-      return () => {};
+      return () => { };
     }, [getCurrentMonthRange, fetchListData]),
   );
 
   const handleItemPressed = (item, page, pageTitle = '') => {
+    
     setIsFilterVisible(false);
     setSearchQuery('');
     navigation.navigate('Page', {
@@ -319,20 +368,47 @@ const ListScreen = () => {
       isFromNew: true,
       url: pageName,
       pageTitle: pageTitle,
+      isFromBusinessCard: isFromBusinessCard,
     });
   };
 
-  const handleActionButtonPressed = (actionValue, label, color, id) => {
-    setAlertConfig({
-      title: label,
-      message: `Are you sure you want to ${label.toLowerCase()} ?`,
-      type: 'info',
-      actionValue: actionValue,
-      color: color,
-      id: id,
-    });
-    setAlertVisible(true);
+  const handleActionButtonPressed = (actionValue, label, color, id, item) => { 
+    if(item?.btn_edit && item?.btn_edit?.includes("/")){
+      const left = item?.btn_edit.substring(0, item?.btn_edit.indexOf('/'));
+      const result = item?.btn_edit.split('/')[1];
+      navigation.navigate('Page', {
+        item,
+        id:  result,
+        title: pageName,
+        isFromNew: false,
+        url: left,
+        pageTitle: pageTitle,
+        isFromBusinessCard: false,
+      });
+    }else{
+      setAlertConfig({
+        title: label,
+        message: `${t("msg.msg8")} ${label.toLowerCase()} ?`,
+        type: 'info',
+        actionValue: actionValue,
+        color: color,
+        id: id,
+      });
+      setAlertVisible(true);
+    }
   };
+
+  const handleDeleteNotification = async (item: any) => {
+    await dispatch(
+      handleDeleteActionThunk({
+        id: item.id.toString(),
+        remarks: "",
+        page: "DEVNOTIFY",
+      }),
+    ).unwrap();
+    setAlertVisible(false);
+    onRefresh();
+  }
 
   if (parsedError) {
     return (
@@ -342,7 +418,7 @@ const ListScreen = () => {
     );
   }
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, theme === 'dark' && { backgroundColor: 'black' }]}>
       {isFilterVisible && (
         <View>
           <View style={styles.searchContainer}>
@@ -378,7 +454,7 @@ const ListScreen = () => {
                       color="#000"
                       style={{ marginRight: 8 }}
                     />
-                    <Text style={styles.dateButtonText}>{fromDate || 'Select From Date'}</Text>
+                    <Text style={styles.dateButtonText}>{fromDate || t("msg.msg9")}</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -397,7 +473,7 @@ const ListScreen = () => {
                       color="#000"
                       style={{ marginRight: 8 }}
                     />
-                    <Text style={styles.dateButtonText}>{toDate || 'Select To Date'}</Text>
+                    <Text style={styles.dateButtonText}>{toDate || t("msg.msg11")}</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -410,8 +486,8 @@ const ListScreen = () => {
                 showDatePicker?.type === 'from' && fromDate
                   ? parseCustomDate(fromDate)
                   : showDatePicker?.type === 'to' && toDate
-                  ? parseCustomDate(toDate)
-                  : new Date()
+                    ? parseCustomDate(toDate)
+                    : new Date()
               }
               mode="date"
               onChange={handleDateChange}
@@ -443,27 +519,35 @@ const ListScreen = () => {
                     filteredData={filteredData}
                     loadingListId={loadingListId}
                     totalAmount={totalAmount}
+                    totalQty={totalQty}
                     pageParamsName={pageParamsName}
                     handleItemPressed={handleItemPressed}
                     pageName={pageName}
                     setIsFilterVisible={setIsFilterVisible}
                     setSearchQuery={setSearchQuery}
+                    isFromBusinessCard={isFromBusinessCard}
                     handleActionButtonPressed={handleActionButtonPressed}
                   />
                 </>
               ) : (
                 <>
                   <ReadableView
+                    handleDeleteNotification={handleDeleteNotification}
+                    isFromAlertCard={isFromAlertCard}
                     configData={configData}
                     filteredData={filteredData}
                     loadingListId={loadingListId}
                     totalAmount={totalAmount}
+                    totalQty={totalQty}
+                    isFromBusinessCard={isFromBusinessCard}
                     pageParamsName={pageParamsName}
                     handleItemPressed={handleItemPressed}
                     pageName={pageName}
                     setIsFilterVisible={setIsFilterVisible}
                     setSearchQuery={setSearchQuery}
                     handleActionButtonPressed={handleActionButtonPressed}
+                    isLoadingMore={isLoadingMore}
+                    loadMore={loadMore}
                   />
                 </>
               )}
@@ -471,19 +555,23 @@ const ListScreen = () => {
           )}
         </>
       )}
-      {!loadingListId && configData && (
+
+      {hasIdField && !isFromAlertCard && !loadingListId && configData && (
         <TouchableOpacity
           style={[
             styles.addButton,
             {
               bottom: filteredData.length === 0 ? 40 : totalAmount === 0 ? 64 : 78,
             },
+            theme === 'dark' && {
+              backgroundColor: 'white'
+            }
           ]}
           onPress={() => {
             handleItemPressed({}, pageParamsName, pageTitle);
           }}
         >
-          <MaterialIcons size={24} name="add" color={ERP_COLOR_CODE.ERP_WHITE} />
+          <MaterialIcons size={32} name="add" color={theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_WHITE} />
         </TouchableOpacity>
       )}
 
@@ -498,19 +586,15 @@ const ListScreen = () => {
         isBottomButtonVisible={true}
         doneText={alertConfig.title}
         color={alertConfig.color}
-        onDone={async remark => {
-          console.log('🚀 ~ remark:', remark);
-          console.log('🚀 ~ alertConfig:', alertConfig);
-
+        onDone={async remark => { 
           try {
             const type = `page${alertConfig.title}`;
-            console.log('🚀 ~ type:', type);
-             await dispatch(
+            await dispatch(
               handlePageActionThunk({
                 action: type,
                 id: alertConfig.id.toString(),
                 remarks: remark,
-                page: pageName,
+                page: alertConfig?.actionValue,
               }),
             ).unwrap();
 
@@ -527,8 +611,6 @@ const ListScreen = () => {
               id: 0,
             });
             setApiError(true);
-
-            console.error('❌ Failed:', err);
           }
         }}
         isFromButtonList={true}

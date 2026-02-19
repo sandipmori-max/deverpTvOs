@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, LayoutAnimation, Platform, UIManager } fr
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
 import { useAppSelector } from '../../../../store/hooks';
 import useTranslations from '../../../../hooks/useTranslations';
+import TranslatedText from '../../tabs/home/TranslatedText';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -25,7 +26,7 @@ const RemarksView = ({ remarks }) => {
 
   return (
     <View style={{ paddingHorizontal: 4, paddingVertical: 2, borderColor: '#E5E7EB', width: '100%' }}>
-      <Text
+      <TranslatedText
         numberOfLines={isExpanded ? undefined : 2}
         style={{
           color: theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_777,
@@ -34,9 +35,10 @@ const RemarksView = ({ remarks }) => {
           fontSize: 13,
           lineHeight: 18,
         }}
-      >
+        text=
         {remarks}
-      </Text>
+      >
+      </TranslatedText>
 
       {isLongText && (
         <TouchableOpacity

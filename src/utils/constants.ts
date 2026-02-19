@@ -28,7 +28,7 @@ const lightColors = {
   ERP_161515: '#161515',
   ERP_eee: '#eee',
   ERP_6C757D: '#6C757D',
-  ERP_green: 'green',
+  ERP_green: '00c851',
   ERP_ICON: '#FFFFFF'
 };
 
@@ -66,6 +66,7 @@ const darkColors = {
 };
 
 let currentTheme: 'light' | 'dark' = 'light';
+export const DARK_COLOR = '#454545'
 
 export const setERPTheme = (theme: 'light' | 'dark') => {
   currentTheme = theme;

@@ -18,6 +18,9 @@ const attendanceSlice = createSlice({
       state.error = null;
       state.response = null;
     },
+    setResponse : (state, action: any) => {
+      state.response = action.payload;
+    },
   },
   extraReducers: builder => {
     builder
@@ -53,5 +56,5 @@ const attendanceSlice = createSlice({
   },
 });
 
-export const { resetAttendanceState } = attendanceSlice.actions;
+export const { resetAttendanceState , setResponse} = attendanceSlice.actions;
 export default attendanceSlice.reducer;

@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { formatDateList, } from '../../../../utils/helpers';
+import { formatDateList, formatDateToDDMMMYYYY } from '../../../../utils/helpers';
 import { styles } from '../list_page_style';
 import NoData from '../../../../components/no_data/NoData';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
@@ -26,6 +26,8 @@ import MemoizedFooterView from './MemoizedFooterView';
 import RemarksView from './RemarksView';
 import { useAppSelector } from '../../../../store/hooks';
 import useTranslations from '../../../../hooks/useTranslations';
+import { Easing } from 'react-native';
+import ImageBottomSheetModal from '../../../../components/bottomsheet/ImageBottomSheetModal';
 
 // enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -37,6 +39,7 @@ const SwipeableRow = ({ children, onDelete, id }) => {
   const translateX = useRef(new Animated.Value(0)).current;
   const rowWidth = useRef(0);
   const DISMISS_THRESHOLD = -120;
+
 
   const panResponder = useRef(
     PanResponder.create({
@@ -101,15 +104,34 @@ const ReadableView = ({
   isLoadingMore
 }: any) => {
   const { t } = useTranslations();
-
   const navigation = useNavigation();
   const screenWidth = Dimensions.get('window').width;
   const [listData, setListData] = useState(filteredData || []);
   const theme = useAppSelector(state => state?.theme?.mode);
 
-  useEffect(() =>{
+
+  const slideAnim = useRef(new Animated.Value(300)).current; // right se start
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  useEffect(() => {
     setListData(filteredData)
-  },[filteredData])
+  }, [filteredData])
   const handleDelete = (item) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     handleDeleteNotification(item)
@@ -127,8 +149,22 @@ const ReadableView = ({
       color: configItem?.colorcode || ERP_COLOR_CODE.ERP_APP_COLOR,
     };
   };
+  const accentColors = ['#dbe0f5ff', '#c8f3edff', '#faf1e0ff', '#f0e1e1ff', '#f2e3f8ff', '#e0f3edff',
+    '#eaf1fbff',
+    '#e9f7f1ff',
+    '#fff4e6ff',
+    '#f5edf7ff',
+    '#eef6eaff',
+
+  ];
 
   const RenderCard = ({ item, index }: any) => {
+    const bgColor = accentColors[index % accentColors.length];
+
+
+    const [showModal, setShowModal] = useState(false);
+    const [img, setImg] = useState('')
+
     if (!item) return null;
     const name = item?.name?.toString() || `-`;
     const subName = item?.number || `-`;
@@ -160,6 +196,7 @@ const ReadableView = ({
 
 
     const card = (
+      <>
       <View
         style={{
           backgroundColor: theme === 'dark' ? 'black' : isFromAlertCard ? '#f8fff8ff' : ERP_COLOR_CODE.ERP_WHITE,
@@ -167,6 +204,7 @@ const ReadableView = ({
           paddingHorizontal: 8,
           paddingBottom: 6,
           marginVertical: 2.5,
+          marginHorizontal: 8,
           paddingTop: 6,
           borderWidth: 1,
           borderColor: ERP_COLOR_CODE.ERP_ddd,
@@ -177,12 +215,12 @@ const ReadableView = ({
           activeOpacity={0.8}
           style={[
             {
-            flexDirection: 'row', 
-          },
-          status && {
-            alignItems: 'center',
+              flexDirection: 'row',
+            },
+            status && {
+              alignItems: 'center',
 
-          }
+            }
           ]}
           onPress={async () => {
             if (authUser) return;
@@ -201,26 +239,33 @@ const ReadableView = ({
         >
           <View
             style={{
-              width: 34,
-              height: 34,
-              borderRadius: 34,
-              backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              backgroundColor: bgColor,
               justifyContent: 'center',
               alignItems: 'center',
               marginRight: 12,
               borderWidth: 1,
-              borderColor: theme === 'dark' ? 'white' : 'black'
+              borderColor: ERP_COLOR_CODE.ERP_999
             }}
           >
             {
               isFromAlertCard ? <>
                 <MaterialIcons name='notifications' size={24} color={ERP_COLOR_CODE.ERP_WHITE} />
-              </> : <>{item?.image && item?.image !== '' ? (
-                <Image source={{ uri: baseUrl }} style={styles.profileImage} />
+              </> : <>
+              {item?.image && item?.image !== '' ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    setImg(baseUrl)
+                    setShowModal(true)
+                  }}>
+                  <Image source={{ uri: baseUrl }} style={styles.profileImage} />
+                </TouchableOpacity>
               ) : (
                 <Text
                   style={{
-                    color: theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_WHITE,
+                    color: 'black',
                     fontWeight: '400',
                     fontSize: 16,
                   }}
@@ -259,8 +304,8 @@ const ReadableView = ({
                 style={{
                   fontWeight: '600',
                   fontSize: 12,
-                  width:'100%',
-                  textAlign:'right',
+                  width: '100%',
+                  textAlign: 'right',
                   color: theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_ERROR,
                 }}
               >
@@ -274,14 +319,14 @@ const ReadableView = ({
                   fontWeight: '800',
                   fontSize: 12,
                   color: theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_BLACK,
-                  alignSelf:'flex-end',
-                  alignItems:'flex-end',
-                  textAlign:'right'
+                  alignSelf: 'flex-end',
+                  alignItems: 'flex-end',
+                  textAlign: 'right'
                 }}
               >
-                    {
-                      formatDateList(date)
-                    }    
+                {
+                  formatDateList(date)
+                }
               </Text>
             )}
           </View>
@@ -289,16 +334,16 @@ const ReadableView = ({
 
         <TouchableOpacity
           onPress={async () => {
-            if (authUser) return;
-            if (item?.id !== undefined) {
-              navigation.navigate('Page', {
-                item,
-                title: pageParamsName,
-                id: item?.id,
-                url: pageName,
-                isFromBusinessCard,
-              });
-            }
+            // if (authUser) return;
+            // if (item?.id !== undefined) {
+            //   navigation.navigate('Page', {
+            //     item,
+            //     title: pageParamsName,
+            //     id: item?.id,
+            //     url: pageName,
+            //     isFromBusinessCard,
+            //   });
+            // }
           }}
         >
           {(remarks || address || amount) && (
@@ -345,21 +390,22 @@ const ReadableView = ({
                     size={16}
                     color={theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_APP_COLOR}
                   />
-                  <Text 
-                  numberOfLines={2}
-                  style={{
-                     width: '96%',
-                    color: theme === 'dark' ? 'white' : 'black'
-                  }}>{address}</Text>
+                  <Text
+                    numberOfLines={2}
+                    style={{
+                      width: '96%',
+                      color: theme === 'dark' ? 'white' : 'black'
+                    }}>{address}</Text>
                 </View>
               )}
             </View>
           )}
         </TouchableOpacity>
         {
-          qty && amount && <View style={{
-            justifyContent: 'space-between',
-            width: '100%', flexDirection: 'row'
+          <View style={{
+            justifyContent: qty && amount ? 'space-between' : 'flex-start',
+            width: '100%', flexDirection: 'row',
+
           }}>
             {!!qty && (
               <View style={{ flexDirection: 'row', width: '50%' }}>
@@ -387,12 +433,11 @@ const ReadableView = ({
                 </Text>
               </View>
             )}
-            {!!amount && (
+            {!!amount && !!qty && (
               <View style={{
                 flexDirection: 'row',
-                justifyContent: 'flex-end',
-                width: '50%',
               }}>
+
                 <Text
                   numberOfLines={1}
                   style={{
@@ -403,7 +448,7 @@ const ReadableView = ({
 
                   }}
                 >
-                    {t("text.text29")}:
+                  {t("text.text29")}:
                 </Text>
                 <Text
                   numberOfLines={1}
@@ -413,7 +458,9 @@ const ReadableView = ({
                     fontWeight: '700',
                     color: 'green',
                   }}
-                >  {amount}
+                >  {
+                    amount
+                  }
                 </Text>
               </View>
             )}
@@ -425,44 +472,50 @@ const ReadableView = ({
         </View>
 
         {('btn_edit' in item ? item?.btn_edit !== '' : true) && btnKeys?.length > 0 && (
-  <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 0, gap: 1 }}>
-    {btnKeys?.map((key, idx) => {
-      const actionValue = item[key];
-      const { label, color } = getButtonMeta(key);
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 0, gap: 1 }}>
+            {btnKeys?.map((key, idx) => {
+              const actionValue = item[key];
+              const { label, color } = getButtonMeta(key);
 
-      return (
-        <TouchableOpacity
-          key={`${key}-${idx}`}
-          style={{
-            backgroundColor: authUser ? '#C6C6C6' : color,
-            paddingHorizontal: 6,
-            paddingVertical: 4,
-            borderRadius: 4,
-            flexGrow: 1,
-            maxWidth: screenWidth / 4,
-            alignItems: 'center',
-          }}
-          onPress={() => {
-            if (authUser) return;
-            handleActionButtonPressed(actionValue, label, color, item?.id, item);
-          }}
-        >
-          <Text
-            style={{
-              color: ERP_COLOR_CODE.ERP_WHITE,
-              fontWeight: '600',
-              fontSize: 12,
-            }}
-          >
-            {label}
-          </Text>
-        </TouchableOpacity>
-      );
-    })}
-  </View>
-)}
+              return (
+                <TouchableOpacity
+                  key={`${key}-${idx}`}
+                  style={{
+                    backgroundColor: authUser ? '#C6C6C6' : color,
+                    paddingHorizontal: 6,
+                    paddingVertical: 4,
+                    borderRadius: 4,
+                    flexGrow: 1,
+                    maxWidth: screenWidth / 4,
+                    alignItems: 'center',
+                  }}
+                  onPress={() => {
+                    if (authUser) return;
+                    // handleActionButtonPressed(actionValue, label, color, item?.id, item);
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: ERP_COLOR_CODE.ERP_WHITE,
+                      fontWeight: '600',
+                      fontSize: 12,
+                    }}
+                  >
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
       </View>
+       <ImageBottomSheetModal
+          visible={showModal}
+          onClose={() => setShowModal(false)}
+          imageUrl={img}
+        />
+      </>
     );
 
     return (
@@ -492,7 +545,7 @@ const ReadableView = ({
           backgroundColor: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_WHITE,
         }}
       >
-        <NoData />
+        <NoData isShowTop={false}/>
       </View>
     );
   }
@@ -506,103 +559,112 @@ const ReadableView = ({
         renderItem={({ item, index }) => <RenderCard item={item} index={index} />}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-         onEndReached={loadMore}
-          onEndReachedThreshold={0.2} // trigger when 80% scrolled
-          ListFooterComponent={
-            isLoadingMore ? (
-              <View style={{ padding: 20 }}>
-                <Text style={{ textAlign: 'center', color: 'gray' }}>{t("text.text30")}</Text>
-              </View>
-            ) : null
-          }
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.2} // trigger when 80% scrolled
+        ListFooterComponent={
+          isLoadingMore ? (
+            <View style={{ padding: 20 }}>
+              <Text style={{ textAlign: 'center', color: 'gray' }}>{t("text.text30")}</Text>
+            </View>
+          ) : null
+        }
       />
 
       {listData?.length > 0 && (
-        <View
+        <Animated.View
           style={{
-            marginTop: 6,
-            padding: 8,
-            borderRadius: 8,
-            backgroundColor: '#f1f1f1',
-            borderWidth: 1,
-            borderColor: ERP_COLOR_CODE.ERP_ddd,
-            marginBottom: 12,
+            opacity: fadeAnim,
+            transform: [{ translateX: slideAnim }],
           }}
         >
           <View
             style={{
-              justifyContent: 'space-between',
-              flexDirection: 'row',
-              width: '100%',
+              marginTop: 6,
+              padding: 8,
+              borderRadius: 8,
+              backgroundColor: theme === 'dark' ? '#000' : '#f1f1f1',
+              borderWidth: 1,
+              borderColor: ERP_COLOR_CODE.ERP_ddd,
+              marginBottom: 12,
+              marginHorizontal: 8
             }}
           >
-            {totalQty && (
-              <View style={{ flexDirection: 'row', width: '50%' }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: '700',
-
-                    color: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_333,
-                  }}
-                >
-                  {t("text.text28")} :-
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    color: '#28a745',
-                    marginLeft: 8,
-                  }}
-                >
-                  {totalQty?.toFixed(2)}
-                </Text>
-              </View>
-            )}
-
-            {totalAmount && (
-              <View style={{
-
-                flexDirection: 'row', width: '50%'
-              }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: '700',
-                    flexShrink: 1,
-                    color: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_333,
-                  }}
-                >
-                  {t("text.text29")} :-
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    color: '#28a745',
-                    marginLeft: 8,
-
-                  }}
-                >
-                  ₹ {totalAmount?.toFixed(2)}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-            <Text
+            <View
               style={{
-                fontSize: 14,
-                fontWeight: '700',
-                color: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_333,
+                justifyContent: 'space-between',
+                flexDirection: 'row',
+                width: '100%',
               }}
             >
-              {listData?.length} {t("text.text31")}
-            </Text>
+              {totalQty && (
+                <View style={{ flexDirection: 'row', width: '50%' }}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: '700',
+
+                      color: theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_333,
+                    }}
+                  >
+                    {t("text.text28")} :-
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      color: theme === 'dark' ? 'white' : '#28a745',
+                      marginLeft: 8,
+                    }}
+                  >
+                    {totalQty?.toFixed(2)}
+                  </Text>
+                </View>
+              )}
+
+              {totalAmount && (
+                <View style={{
+
+                  flexDirection: 'row', width: '50%'
+                }}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: '700',
+                      flexShrink: 1,
+                      color: theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_333,
+                    }}
+                  >
+                    {t("text.text29")} :-
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      color: theme === 'dark' ? 'white' : '#28a745',
+                      marginLeft: 8,
+
+                    }}
+                  >
+                    ₹ {totalAmount?.toFixed(2)}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: '700',
+                  color: theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_333,
+                }}
+              >
+                {listData?.length} {t("text.text31")}
+              </Text>
+            </View>
           </View>
-        </View>
+        </Animated.View>
+
       )}
     </View>
   );

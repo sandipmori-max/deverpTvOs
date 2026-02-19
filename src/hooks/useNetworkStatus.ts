@@ -11,11 +11,9 @@ const useNetworkStatus = (): boolean => {
 
   useEffect(() => {
     checkConnection();
-
     const unsubscribe = NetInfo.addEventListener(state => {
       setIsConnected(state.isConnected ?? false);
     });
-
     return () => unsubscribe();
   }, []);
 

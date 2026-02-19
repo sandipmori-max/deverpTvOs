@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
+import useTranslations from '../../../../hooks/useTranslations';
  
 interface SlideButtonProps {
   onSlideSuccess: () => void;
@@ -32,6 +33,7 @@ const SlideButton: React.FC<SlideButtonProps> = ({
    blocked = false,
 }) => {
   const translateX = useRef(new Animated.Value(0)).current;
+  const { t } = useTranslations();
 
   // 🔹 Reset knob automatically if API fails (completed = false)
   useEffect(() => {
@@ -77,7 +79,7 @@ const SlideButton: React.FC<SlideButtonProps> = ({
     <View style={styles.container}>
       <View style={[styles.sliderContainer, { borderColor: successColor }]}>
         <Text style={styles.label}>
-          {loading ? 'Please wait...' : completed ? '✔ Done' : label}
+          {loading ? t("text.text22") : completed ? t('text.text23') : label}
         </Text>
 
         <Animated.View
@@ -110,7 +112,7 @@ const styles = StyleSheet.create({
   sliderContainer: {
     width: SLIDE_WIDTH,
     height: SLIDER_SIZE,
-    borderRadius: 6, // 🔹 square style with light rounding
+    borderRadius: 6,
     borderWidth: 2,
     backgroundColor: '#f2f2f2',
     justifyContent: 'center',

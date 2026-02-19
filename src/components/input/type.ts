@@ -9,10 +9,11 @@ export interface ERPTextInputProps extends TextInputProps {
   secureTextEntry?: boolean;
   showToggle?: boolean;
   icon?: React.ReactNode;
-
+  isInputEdit?: any,
   containerStyle?: ViewStyle | ViewStyle[];
   labelStyle?: TextStyle | TextStyle[];
   inputStyle?: TextStyle | TextStyle[];
   errorStyle?: TextStyle | TextStyle[];
   helperStyle?: TextStyle | TextStyle[];
+  field?: string;
 }

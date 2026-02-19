@@ -10,8 +10,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   errorImage: {
-    width: 380,
-    height: 280,
+    width: 180,
+    height: 180,
     marginBottom: 10,
   },
   errorText: {

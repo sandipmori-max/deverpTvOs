@@ -4,12 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import en from './translations/en';
 import hi from './translations/hi';
+import gu from './translations/gu';
 
 i18n.use(initReactI18next).init({
   fallbackLng: 'en',
   resources: {
     en: { translation: en },
     hi: { translation: hi },
+    gu: { translation: gu },
   },
   interpolation: {
     escapeValue: false,
@@ -29,5 +31,6 @@ export const getAvailableLanguages = () => {
   return [
     { code: 'en', name: 'English' },
     { code: 'hi', name: 'हिन्दी' },
+    { code: 'gu', name: 'ગુજરાતી' },
   ];
 };

@@ -45,7 +45,7 @@ const BottomSheet = ({ visible, onClose, children, heightRatio = 0.6 }: BottomSh
         <View
           onLayout={(e) => {
             const h = e.nativeEvent.layout.height;
-            setContentHeight(Math.min(h, screenHeight * heightRatio));  
+            setContentHeight(Math.min(h, screenHeight * heightRatio));
           }}
         >
           {children}

@@ -6,8 +6,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
-    alignItems: 'center',
-
   },
     inputContainer: {
     marginBottom: 16,
@@ -18,7 +16,6 @@ export const styles = StyleSheet.create({
     color: ERP_COLOR_CODE.ERP_333,
   },
     input: {
-    borderWidth: 1,
     borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     borderRadius: 6,
     paddingHorizontal: 12,
@@ -34,7 +31,6 @@ export const styles = StyleSheet.create({
     minHeight: 220,
     maxHeight: 340,
     alignItems: 'center',
-    width: '50%'
   },
   header: {
     flexDirection: 'row',
@@ -127,6 +123,11 @@ export const styles = StyleSheet.create({
   },
   buttonText: {
     color: ERP_COLOR_CODE.ERP_WHITE,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  cancelButtonText: {
+    color: ERP_COLOR_CODE.ERP_BLACK,
     fontWeight: '600',
     fontSize: 14,
   },

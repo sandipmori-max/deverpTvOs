@@ -8,6 +8,7 @@ import {
   logoutUserThunk,
   getERPMenuThunk,
   getERPDashboardThunk,
+  getERPAppConfigMenuThunk,
 } from './thunk';
 
 const initialState: AuthState = {
@@ -23,6 +24,18 @@ const initialState: AuthState = {
   isDashboardLoading: false,
   activeToken: null,
   isPinLoaded: false,
+  dashboardFromDate: '',
+  dashboardToDate: '',
+  dashboardBranch: '',
+  dashboardType: '',
+  dashboardBranchId: '',
+  dashboardTypeId: '',
+  appDrawerMenuList: [],
+  appBottomMenuList: [],
+  appColorCode: '',
+  isPinVerifyLoaded: false,
+  attendanceDone: false,
+  locationLogs: [],
 };
 
 const authSlice = createSlice({
@@ -32,11 +45,29 @@ const authSlice = createSlice({
     clearError: state => {
       state.error = null;
     },
+     addLocation: (state, action) => {
+      state.locationLogs.unshift(action.payload);
+    },
+    updatePinVerifyLoadedState: (state, action: PayloadAction<boolean>) => {
+      state.isPinVerifyLoaded = action.payload;
+    },
+    updateAttendanceState: (state, action: PayloadAction<boolean>) => {
+      state.attendanceDone = action.payload;
+    },
     setIsPinLoaded: state => {
       state.isPinLoaded = true;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
+    },
+    clearAuthState: state => {
+      
+      state.dashboardBranch = '';
+      state.dashboardBranchId = '',
+      state.dashboardFromDate = '',
+      state.dashboardToDate = '',
+      state.dashboardType = '',
+      state.dashboardTypeId = ''
     },
     logout: state => {
       state.user = null;
@@ -65,6 +96,25 @@ const authSlice = createSlice({
     setActiveToken: (state, action: PayloadAction<string | null>) => {
       state.activeToken = action?.payload;
     },
+    setActiveDashboardBranchId: (state, action: PayloadAction<string | null>) => {
+      state.dashboardBranchId = action?.payload;
+    },
+    setActiveDashboardTypeId: (state, action: PayloadAction<string | null>) => {
+      state.dashboardTypeId = action?.payload;
+    },
+    setActiveDashboardFromDate: (state, action: PayloadAction<string | null>) => {
+      state.dashboardFromDate = action?.payload;
+    },
+    setActiveDashboardToDate: (state, action: PayloadAction<string | null>) => {
+      state.dashboardToDate = action?.payload;
+    },
+    setActiveDashboardBranch: (state, action: PayloadAction<string | null>) => {
+      state.dashboardBranch = action?.payload;
+    },
+    setActiveDashboardType: (state, action: PayloadAction<string | null>) => {
+      state.dashboardType = action?.payload;
+    },
+    
   },
   extraReducers: builder => {
     builder
@@ -124,7 +174,6 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.error = action.payload as string;
       })
-
       .addCase(switchAccountThunk.pending, state => {
         state.isLoading = true;
       })
@@ -214,13 +263,12 @@ const authSlice = createSlice({
                   menus = innerData.menus;
                 }
               } catch (innerParseError) {
-                console.error('Error parsing inner d property:', innerParseError);
               }
             }
           }
 
           state.menu = menus.map((menu: any, index: number) => ({
-            id: menu?.Link || `menu_${index}`,
+            id: `menu_${index}`,
             name: menu?.Name || '',
             url: menu?.Link || '',
             icon: menu?.Image || '',
@@ -228,7 +276,35 @@ const authSlice = createSlice({
             title: menu?.Title || '',
             isReport: menu?.IsReport,
           }));
-          console.log("🚀 ~ menus:", menus)
+          state.error = null;
+          // state.isMenuLoading = false;
+        } catch (error) {
+          state.menu = [];
+          // state.isMenuLoading = false;
+        }
+      })
+      .addCase(getERPMenuThunk.rejected, (state, action) => {
+        // state.isMenuLoading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(getERPAppConfigMenuThunk.pending, state => {
+        state.isMenuLoading = true;
+        state.menu = [];
+      })
+      .addCase(getERPAppConfigMenuThunk.fulfilled, (state, action) => {
+         try {
+          let menuData;
+          if (typeof action.payload === 'string') {
+            menuData = JSON.parse(action.payload);
+          } else {
+            menuData = action.payload;
+          }
+
+          state.appBottomMenuList = menuData?.bottom
+          state.appDrawerMenuList = menuData?.drawer
+          state.appColorCode = menuData?.hexacolor
+  
           state.error = null;
           state.isMenuLoading = false;
         } catch (error) {
@@ -236,54 +312,45 @@ const authSlice = createSlice({
           state.isMenuLoading = false;
         }
       })
-      .addCase(getERPMenuThunk.rejected, (state, action) => {
-        state.isMenuLoading = false;
+      .addCase(getERPAppConfigMenuThunk.rejected, (state, action) => {
+        // state.isMenuLoading = false;
         state.error = action.payload as string;
       })
 
-      .addCase(getERPDashboardThunk.pending,  (state, action) => {
 
-        const isAutoRefresh: boolean = action.meta.arg;  
-        if (isAutoRefresh) {
-          state.isDashboardLoading = true;
-        }
+      .addCase(getERPDashboardThunk.pending, state => {
+        state.isDashboardLoading = true;
       })
       .addCase(getERPDashboardThunk.fulfilled, (state, action) => {
         try {
           let dashboardData;
-          if (typeof action.payload === 'string') {
-            dashboardData = JSON.parse(action.payload);
+          if (typeof action?.payload === 'string') {
+            dashboardData = JSON.parse(action?.payload);
           } else {
-            dashboardData = action.payload;
+            dashboardData = action?.payload;
           }
-            console.log("🚀 ~ dashboardData:", dashboardData)
-
           let dashboardItems = [];
 
-          if (dashboardData.data && dashboardData.data.d) {
+          if (dashboardData?.data && dashboardData?.data?.d) {
             try {
-              const innerData = JSON.parse(dashboardData.data.d);
+              const innerData = JSON.parse(dashboardData?.data?.d);
               if (innerData?.success === 1 && innerData?.dbs) {
                 dashboardItems = innerData.dbs;
               }
             } catch (innerParseError) {
-              console.error('Error parsing data.d property:', innerParseError);
             }
-          } else if (dashboardData.success === 1 && dashboardData.dbs) {
-            dashboardItems = dashboardData.dbs;
+          } else if (dashboardData?.success === 1 && dashboardData?.dbs) {
+            dashboardItems = dashboardData?.dbs;
           } else if (dashboardData.d) {
             try {
-              const innerData = JSON.parse(dashboardData.d);
+              const innerData = JSON.parse(dashboardData?.d);
               if (innerData?.success === 1 && innerData?.dbs) {
                 dashboardItems = innerData.dbs;
               }
             } catch (innerParseError) {
-              console.error('Error parsing inner d property:', innerParseError);
             }
           }
-            console.log("🚀 ~-------------- dashboardItems:", dashboardItems)
-
-          state.dashboard = dashboardItems.map((item: any, index: number) => ({
+          state.dashboard = dashboardItems.length > 0 ? dashboardItems?.map((item: any, index: number) => ({
             id: item?.Link || `dashboard_${index}`,
             name: item?.Name || '',
             data: item?.Data || '',
@@ -291,16 +358,16 @@ const authSlice = createSlice({
             title: item?.Title || '',
             isReport: item.IsReport || '',
             footer: item?.footer || '',
-          }));
+          })): [];
           state.error = null;
+          
         } catch (error) {
-          console.error('Error parsing dashboard data:', error);
           state.dashboard = [];
         }
-        state.isDashboardLoading = false;
+        
       })
       .addCase(getERPDashboardThunk.rejected, (state, action) => {
-        state.isDashboardLoading = false;
+         
         state.error = action.payload as string;
       });
   },
@@ -317,5 +384,15 @@ export const {
   setDashboardLoading,
   setActiveToken,
   setIsPinLoaded,
+  setActiveDashboardBranchId,
+  setActiveDashboardBranch,
+  setActiveDashboardFromDate,
+  setActiveDashboardToDate,
+  setActiveDashboardType,
+  setActiveDashboardTypeId,
+  clearAuthState,
+  updatePinVerifyLoadedState,
+  updateAttendanceState,
+  addLocation
 } = authSlice.actions;
 export default authSlice.reducer;

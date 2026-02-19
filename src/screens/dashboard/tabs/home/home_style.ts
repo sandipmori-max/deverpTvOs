@@ -14,9 +14,125 @@ export const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: 'space-between',
   },
+   dateRow: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
+
+  sheet: {
+    overflow:'hidden',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingBottom: 20,
+  },
+
+  header: {
+    height: 50,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+
+  doneText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2563eb', // iOS blue
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+
+  picker: {
+    height: 220,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+    marginBottom: 5,
+    borderRadius: 20,
+  },
+   dateButton: {
+    // backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
+    alignItems: 'center',
+  },
+  dateButtonText: {
+    fontSize: 14,
+    color: ERP_COLOR_CODE.ERP_WHITE,
+    fontWeight: '500',
+  },
+  datePickerModal: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  datePickerContent: {
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    borderRadius: 16,
+    padding: 20,
+    width: '90%',
+    maxHeight: '80%',
+  },
+  datePickerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  datePickerGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+    dateContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  datePickerDay: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: ERP_COLOR_CODE.ERP_F8F9FA,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 2,
+  },
+  datePickerDayText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: ERP_COLOR_CODE.ERP_1A1A1A,
+  },
   containerDark: {
     flex: 1,
-    backgroundColor: ERP_COLOR_CODE.ERP_BLACK,
+    backgroundColor: ERP_COLOR_CODE.ERP_999,
   },
   chartContainer: {
     padding: 16,
@@ -56,7 +172,7 @@ export const styles = StyleSheet.create({
 
   dashboardSection: {
     flex: 1,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingTop: 0,
   },
 
@@ -73,11 +189,11 @@ export const styles = StyleSheet.create({
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderRadius: 16,
     borderColor: ERP_COLOR_CODE.ERP_BORDER,
-    borderWidth: 0.6,
+    borderWidth: 0.8,
     overflow: 'hidden',
   },
   dashboardItemContent: {
-    padding: 6,
+    padding: 10,
   },
   dashboardItemHeader: {
     marginBottom: 2,
@@ -294,5 +410,70 @@ export const styles = StyleSheet.create({
   },
   itemType: {
     fontSize: 12,
+  },
+   openButton: {
+    width:'49.5%',
+    // backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    borderWidth: 1,
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignContent:'center',
+    alignItems:'center'
+  },
+  openText: {
+    color: ERP_COLOR_CODE.ERP_WHITE,
+     fontSize: 16,
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  bottomSheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingTop: 15,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  closeText: {
+    fontSize: 20,
+    color: '#333',
+  },
+  item: {
+    paddingVertical: 14,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+  },
+  selectedItem: {
+    backgroundColor: '#E0F0FF',
+  },
+   
+  selectedText: {
+    color: '#007BFF',
+    fontWeight: '600',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#eee',
   },
 });

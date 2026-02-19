@@ -107,10 +107,12 @@ const CreateTaskScreen = ({ onCreate }) => {
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Assignment</Text>
         <TouchableOpacity style={styles.dropdown} onPress={() => setDropdownVisible(true)}>
-          <Text style={{ flex: 1, color: assignedTo.length > 0 ? '#000' : '#999' }}>
+          <Text
+            style={{ flex: 1, color: assignedTo.length > 0 ? ERP_COLOR_CODE.ERP_BLACK : '#999' }}
+          >
             {assignedTo.length > 0 ? `Assigned: ${assignedTo.length} dev(s)` : 'Select Developers'}
           </Text>
-          <MaterialIcons name="person-add" size={22} color="#555" />
+          <MaterialIcons name="person-add" size={22} color={ERP_COLOR_CODE.ERP_555} />
         </TouchableOpacity>
       </View>
 
@@ -122,7 +124,7 @@ const CreateTaskScreen = ({ onCreate }) => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Developers</Text>
               <TouchableOpacity onPress={() => setDropdownVisible(false)}>
-                <MaterialIcons name="close" size={22} color="#333" />
+                <MaterialIcons name="close" size={22} color={ERP_COLOR_CODE.ERP_333} />
               </TouchableOpacity>
             </View>
             <Text style={styles.modalSubText}>Choose one or more juniors to assign this task.</Text>
@@ -131,7 +133,7 @@ const CreateTaskScreen = ({ onCreate }) => {
             <FlatList
               data={dummyUsers}
               keyboardShouldPersistTaps="handled"
-                    keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item, index) => index.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity style={styles.option} onPress={() => toggleUser(item.id)}>
                   <Text style={{ flex: 1 }}>{item.name}</Text>
@@ -154,13 +156,13 @@ const CreateTaskScreen = ({ onCreate }) => {
         <Text style={styles.label}>Start Date</Text>
         <TouchableOpacity style={styles.dateButton} onPress={() => showDatePicker('start')}>
           <Text style={styles.dateText}>{formatDate(startDate)}</Text>
-          <MaterialIcons name="date-range" size={20} color="#555" />
+          <MaterialIcons name="date-range" size={20} color={ERP_COLOR_CODE.ERP_555} />
         </TouchableOpacity>
 
         <Text style={styles.label}>End Date</Text>
         <TouchableOpacity style={styles.dateButton} onPress={() => showDatePicker('end')}>
           <Text style={styles.dateText}>{formatDate(endDate)}</Text>
-          <MaterialIcons name="event" size={20} color="#555" />
+          <MaterialIcons name="event" size={20} color={ERP_COLOR_CODE.ERP_555} />
         </TouchableOpacity>
       </View>
 
@@ -180,7 +182,11 @@ const CreateTaskScreen = ({ onCreate }) => {
               style={[styles.priorityChip, priority === p && styles.priorityChipActive(p)]}
               onPress={() => setPriority(p as 'Low' | 'Medium' | 'High')}
             >
-              <Text style={[styles.priorityText, priority === p && { color: '#fff' }]}>{p}</Text>
+              <Text
+                style={[styles.priorityText, priority === p && { color: ERP_COLOR_CODE.ERP_WHITE }]}
+              >
+                {p}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -192,7 +198,7 @@ const CreateTaskScreen = ({ onCreate }) => {
 export default CreateTaskScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
+  container: { flex: 1, backgroundColor: ERP_COLOR_CODE.ERP_WHITE, padding: 16 },
 
   card: {
     borderRadius: 12,
@@ -202,31 +208,31 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 15,
     fontWeight: '700',
-    backgroundColor: '#ccc',
+    backgroundColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     paddingVertical: 4,
     paddingLeft: 8,
     marginBottom: 4,
-    color: '#333',
+    color: ERP_COLOR_CODE.ERP_333,
   },
 
-  label: { fontSize: 13, marginTop: 6, marginBottom: 4, color: '#666' },
+  label: { fontSize: 13, marginTop: 6, marginBottom: 4, color: ERP_COLOR_CODE.ERP_666 },
 
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: ERP_COLOR_CODE.ERP_ddd,
     borderRadius: 8,
     padding: 10,
-    backgroundColor: '#fafafa',
+    backgroundColor: ERP_COLOR_CODE.ERP_fafafa,
   },
 
   dropdown: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: ERP_COLOR_CODE.ERP_ddd,
     borderRadius: 8,
     padding: 12,
-    backgroundColor: '#fafafa',
+    backgroundColor: ERP_COLOR_CODE.ERP_fafafa,
   },
 
   modalContainer: {
@@ -235,7 +241,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     padding: 16,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -247,15 +253,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  modalTitle: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-  modalSubText: { fontSize: 13, color: '#666', marginBottom: 12 },
+  modalTitle: { fontSize: 16, fontWeight: 'bold', color: ERP_COLOR_CODE.ERP_333 },
+  modalSubText: { fontSize: 13, color: ERP_COLOR_CODE.ERP_666, marginBottom: 12 },
 
   option: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
     borderBottomWidth: 1,
-    borderColor: '#eee',
+    borderColor: ERP_COLOR_CODE.ERP_eee,
   },
 
   dateButton: {
@@ -264,28 +270,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: ERP_COLOR_CODE.ERP_ddd,
     borderRadius: 8,
     marginBottom: 8,
-    backgroundColor: '#fafafa',
+    backgroundColor: ERP_COLOR_CODE.ERP_fafafa,
   },
-  dateText: { color: '#333' },
+  dateText: { color: ERP_COLOR_CODE.ERP_333 },
 
   priorityContainer: { flexDirection: 'row', marginTop: 8 },
   priorityChip: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: ERP_COLOR_CODE.ERP_ddd,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 14,
     marginRight: 8,
-    backgroundColor: '#fafafa',
+    backgroundColor: ERP_COLOR_CODE.ERP_fafafa,
   },
   priorityChipActive: (p: string) => ({
     backgroundColor: p === 'Low' ? '#4caf50' : p === 'Medium' ? '#ff9800' : '#f44336',
     borderColor: 'transparent',
   }),
-  priorityText: { fontSize: 13, fontWeight: '600', color: '#333' },
+  priorityText: { fontSize: 13, fontWeight: '600', color: ERP_COLOR_CODE.ERP_333 },
 
   createButton: {
     backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
@@ -294,5 +300,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-  createText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  createText: { color: ERP_COLOR_CODE.ERP_WHITE, fontSize: 16, fontWeight: 'bold' },
 });

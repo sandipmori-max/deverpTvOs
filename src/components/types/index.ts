@@ -9,7 +9,7 @@ export interface CustomAlertProps {
   visible: boolean;
   title: string;
   message: string;
-  type?: 'error' | 'success' | 'info';
+  type?: 'error' | 'success' | 'info' | 'confirmation' | 'exit';
   onClose: () => void;
   onDone?: (remarks?: any) => void;
   onCancel?: () => void;
@@ -19,7 +19,8 @@ export interface CustomAlertProps {
   actionLoader: any,
   color?: string;
   isBottomButtonVisible?: any,
-  isSettingVisible?: boolean
+  isSettingVisible?: boolean,
+  closeHide: any,
 }
 
 export type DrawerItemConfig = {
@@ -46,4 +47,5 @@ export interface ERPTextInputProps extends TextInputProps {
 export interface ErrorMessageProps {
   message: string;
   visible?: boolean;
+  isShowTop?: boolean;
 }

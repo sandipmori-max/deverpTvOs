@@ -1,57 +1,58 @@
 import React, { useMemo } from 'react';
 import { View, Text, FlatList, Dimensions, TouchableOpacity } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
+import { useAppSelector } from '../../../../store/hooks';
+import { DARK_COLOR } from '../../../../utils/constants';
+import TranslatedText from './TranslatedText';
 
 const MAX_ITEMS_PER_LIST = 5;
 
-const PieChartSection = ({ pieChartData, navigation, t }) => {
+const PieChartSection = ({ pieChartData, navigation, t }: any) => {
   const [firstList, secondList] = useMemo(() => {
     if (!pieChartData) return [[], []];
     const first = pieChartData.slice(0, MAX_ITEMS_PER_LIST);
     const second = pieChartData.slice(MAX_ITEMS_PER_LIST);
     return [first, second];
   }, [pieChartData]);
+  const theme = useAppSelector(state => state?.theme.mode);
 
   return (
     pieChartData?.length > 0 && (
       <View>
         <View
           style={{
-            marginVertical: 12,
             borderColor: 'black',
             flexDirection: 'row',
-            justifyContent: 'center',
-            alignContent: 'center',
-            height: Dimensions.get('screen').height * 0.30,
+            height: Dimensions.get('screen').height * 0.22,
           }}
         >
           {/* Pie Chart */}
           <TouchableOpacity
             onPress={() => navigation.navigate('Web', { isFromChart: true })}
             style={{
-              width: '48%',
+              width: '30%',
               alignItems: 'center',
               justifyContent: 'center',
               alignContent: 'center',
+              marginLeft: 32,
             }}
           >
             <PieChart
               data={pieChartData}
               donut
-              radius={90}
-              innerRadius={80}
+              radius={78}
+              innerRadius={68}
               textSize={14}
-              textColor="#000"
+              textColor={theme === 'dark' ? '#fff' : "#000"}
               showValuesAsLabels
-              labelPosition="outside"
-              innerCircleColor="#fff"
+              innerCircleColor={theme === 'dark' ? 'black' : "#fff"}
               centerLabelComponent={() => (
                 <Text
                   style={{
                     textAlign: 'center',
                     fontSize: 16,
                     fontWeight: 'bold',
-                    color: 'black',
+                    color: theme === 'dark' ? '#fff' : "#000",
                   }}
                 >
                   {t('home.dashboard')}
@@ -60,19 +61,16 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
             />
           </TouchableOpacity>
 
-          {/* Legends - separate lists */}
-          <View
-            style={{
-              justifyContent: 'center',
-              alignContent: 'center',
-              height: Dimensions.get('screen').height * 0.22,
-              marginLeft: 8,
-              width: '44%',
-              overflow: 'hidden',
-            }}
-          >
-            {/* First List */}
-            {firstList.length > 0 && (
+          {firstList.length > 0 && (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignContent: 'center',
+                height: Dimensions.get('screen').height * 0.22,
+                marginLeft: 34,
+                overflow: 'hidden',
+              }}
+            >
               <View
                 style={{
                   width: '90%',
@@ -82,12 +80,13 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
                   data={firstList}
                   showsHorizontalScrollIndicator={false}
                   showsVerticalScrollIndicator={false}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item }) => (
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
                       <View
                         style={{
-                          width: 16,
-                          height: 16,
+                          width: 12,
+                          height: 12,
                           borderRadius: 8,
                           backgroundColor: item.color,
                           marginRight: 6,
@@ -95,41 +94,44 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
                           gap: 4,
                         }}
                       />
-                      <Text
+                      <TranslatedText
                         numberOfLines={1}
                         style={{
                           fontWeight: '500',
-                         }}
+                          maxWidth: 110,
+                          color: theme === 'dark' ? '#fff' : "#000",
+                        }}
+                        text={item.text}
                       >
-                        {item.text}
-                      </Text>
-                      <Text
+                        
+                      </TranslatedText>
+                      <TranslatedText
                         style={{
                           marginLeft: 8,
                           fontSize: 14,
                           color: item.color,
                           fontWeight: '800',
                         }}
+                        numberOfLines={1}
+                        text={`:- ${item.value}` }
                       >
-                        :- {item.value}
-                      </Text>
+                        
+                      </TranslatedText>
                     </View>
                   )}
-                    keyExtractor={(item, index) => index.toString()}
                 />
               </View>
-            )}
-
-            {/* Second List */}
-          </View>
+            </View>
+          )}
         </View>
-        <View style={{ flexDirection: 'row', paddingHorizontal: 12, marginBottom: 12 }}>
-          {secondList.length > 0 && (
+        {secondList.length > 0 && (
+          <View style={{ flexDirection: 'row', paddingHorizontal: 12, marginBottom: 12 }}>
             <View>
               <FlatList
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
                 horizontal={true}
+                keyExtractor={(item, index) => index.toString()}
                 data={secondList}
                 renderItem={({ item }) => (
                   <View
@@ -142,8 +144,8 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
                   >
                     <View
                       style={{
-                        width: 16,
-                        height: 16,
+                        width: 12,
+                        height: 12,
                         borderRadius: 8,
                         backgroundColor: item.color,
                         marginRight: 6,
@@ -151,22 +153,24 @@ const PieChartSection = ({ pieChartData, navigation, t }) => {
                         gap: 4,
                       }}
                     />
-                    <Text numberOfLines={1}  >
-                      {item.text}
-                    </Text>
-                    <Text
+                    <TranslatedText 
+                    text={item.text}
+                    numberOfLines={1} style={{ maxWidth: 80 }}>
+                      
+                    </TranslatedText>
+                    <TranslatedText
+                    numberOfLines={1}
+                    text={`:- ${item.value}`}
                       style={{ marginLeft: 8, fontSize: 14, color: item.color, fontWeight: '800' }}
                     >
-                      :- {item.value}
-                    </Text>
+                      
+                    </TranslatedText>
                   </View>
                 )}
-                    keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
               />
             </View>
-          )}
-        </View>
+          </View>
+        )}
       </View>
     )
   );

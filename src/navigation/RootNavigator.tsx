@@ -1,111 +1,188 @@
-import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, Platform, NativeModules, Alert, Linking } from 'react-native';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { checkAuthStateThunk } from '../store/slices/auth/thunk';
-import DevERPService from '../services/api/deverp';
-import AuthNavigator from './AuthNavigator';
-import StackNavigator from './StackNavigator';
-import FullViewLoader from '../components/loader/FullViewLoader';
-import DeviceInfo from 'react-native-device-info';
-import CustomAlert from '../components/alert/CustomAlert';
-import { generateGUID } from '../utils/helpers';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { requestLocationPermissions } from '../utils/helpers';
+import React, { useEffect, useState, useRef } from "react";
+import {
+  PermissionsAndroid,
+  Platform,
+  NativeModules,
+  AppState,
+  Linking,
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { checkAuthStateThunk } from "../store/slices/auth/thunk";
+import DevERPService from "../services/api/deverp";
+import AuthNavigator from "./AuthNavigator";
+import StackNavigator from "./StackNavigator";
+import FullViewLoader from "../components/loader/FullViewLoader";
+import DeviceInfo from "react-native-device-info";
+import CustomAlert from "../components/alert/CustomAlert";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ERP_COLOR_CODE } from "../utils/constants";
+import { changeLanguage } from "../i18n";
+import { request, PERMISSIONS, RESULTS } from "react-native-permissions";
+import { getLastPunchInThunk } from "../store/slices/attendance/thunk";
+import { setReloadApp } from "../store/slices/reloadApp/reloadAppSlice";
+import {
+  updateAttendanceState,
+  updatePinVerifyLoadedState,
+} from "../store/slices/auth/authSlice";
+import { useTranslation } from "react-i18next";
 
-const RootNavigator = () => {
-  const dispatch = useAppDispatch();
-  const { isLoading, isAuthenticated, accounts } = useAppSelector(state => state.auth);
-  const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [modalClose, setModalClose] = useState(false);
-  const [isSettingVisible, setIsSettingVisible] = useState(false);
-  const [alertConfig, setAlertConfig] = useState({
-    title: '',
-    message: '',
-    type: 'info' as 'error' | 'success' | 'info',
-  });
-  const [hasSyncedDisabledLocation, setHasSyncedDisabledLocation] = useState(false);
+// ------------------------- Location Permission Helper -------------------------
+export async function requestLocationPermissions(): Promise<
+  "granted" | "foreground-only" | "denied" | "blocked"
+> {
+  if (Platform.OS === "android") {
+    const fine = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
 
-  const requestLocationPermission = async (): Promise<boolean> => {
-    if (Platform.OS === 'android') {
-      try {
-        const alreadyGranted = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        );
-        if (alreadyGranted) return true;
+    if (fine === PermissionsAndroid.RESULTS.GRANTED) {
+      // Ask background AFTER foreground
+      const background = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+      );
 
-        const permissions = [
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-        ];
-        if (Platform.Version >= 34) {
-          permissions.push(PermissionsAndroid.PERMISSIONS.FOREGROUND_SERVICE_LOCATION);
-        }
-
-        const results = await PermissionsAndroid.requestMultiple(permissions);
-
-        let allGranted = true;
-        let permanentlyDenied = false;
-
-        for (const [perm, status] of Object.entries(results)) {
-          if (status !== PermissionsAndroid.RESULTS.GRANTED) {
-            allGranted = false;
-            if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-              permanentlyDenied = true;
-            }
-          }
-        }
-
-        if (allGranted) return true;
-        if (permanentlyDenied) {
-          setIsSettingVisible(true);
-          // Alert.alert(
-          //   'Permission Blocked',
-          //   'Location permission is permanently denied. Please enable it in Settings.',
-          //   [
-          //     { text: 'Cancel', style: 'cancel' },
-          //     { text: 'Open Settings', onPress: () => Linking.openSettings() },
-          //   ],
-          // );
-          // -------------------
-          setAlertConfig({
-            title: 'Permission Blocked',
-            message:
-             'Location permission is permanently denied. Please enable it in Settings.',
-            type: 'error',
-          });
-          setAlertVisible(true);
-          return false;
-        }
-
-        Alert.alert(
-          'Permission Denied',
-          'Location permission is required for this feature.',
-        );
-        setIsSettingVisible(false);
-        return false;
-      } catch (err) {
-        console.warn('⚠️ requestLocationPermission error:', err);
-        return false;
-      }
+      return background === PermissionsAndroid.RESULTS.GRANTED
+        ? "granted"
+        : "foreground-only";
     }
-    return true;
+
+    if (fine === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+      return "blocked";
+    }
+
+    return "denied";
+  }
+
+  // -------------------- iOS --------------------
+  const whenInUse = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+
+  if (whenInUse === RESULTS.GRANTED || whenInUse === RESULTS.LIMITED) {
+    const always = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+    return always === RESULTS.GRANTED ? "granted" : "foreground-only";
+  }
+
+  if (whenInUse === RESULTS.BLOCKED) {
+    return "blocked";
+  }
+
+  return "denied";
+}
+
+// ------------------------- RootNavigator -------------------------
+const RootNavigator = () => {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const LOCATION_MESSAGES = {
+    PERMISSION_DENIED: t("text1"),
+    SERVICE_DISABLED: t("text2"),
   };
 
-  const app_id = generateGUID();
+  const { isLoading, isAuthenticated, accounts, user, appColorCode } =
+    useAppSelector((state) => state.auth);
+  const { reLoading } = useAppSelector((state) => state.reloadApp);
+
+  const langCode = useAppSelector((state) => state.theme.langcode);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [openSettings, setOpenSettings] = useState(false);
+  const [isLocationRequired, setIsLocationReuired] = useState(false);
+
+  const [backgroundDeniedModal, setBackgroundDeniedModal] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: "",
+    message: "",
+    type: "error" as "error" | "success" | "info" | "location",
+  });
+
+  const locationModalShownRef = useRef(false);
+  const appState = useRef(AppState.currentState);
+
+  const locationServiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const gpsModalShownRef = useRef(false);
+
+  const checkLocationServiceOnly = async () => {
+    if (!isAuthenticated) return;
+
+    const enabled = await DeviceInfo.isLocationEnabled();
+
+    // GPS OFF → show modal once & stop features
+    if (!enabled && !gpsModalShownRef.current) {
+      setAlertConfig({
+        title: t("test3"),
+        message: LOCATION_MESSAGES.SERVICE_DISABLED,
+        type: "location",
+      });
+
+      setAlertVisible(true);
+      setOpenSettings(false);
+      setBackgroundDeniedModal(false);
+
+      gpsModalShownRef.current = true;
+      locationModalShownRef.current = true; // reuse existing stop-flow logic
+      return;
+    }
+
+    // GPS ON again → reset flags & resume
+    if (enabled && gpsModalShownRef.current) {
+      gpsModalShownRef.current = false;
+      locationModalShownRef.current = false;
+      setAlertVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Start checking every 1 second
+    locationServiceIntervalRef.current = setInterval(() => {
+      try {
+        dispatch(getLastPunchInThunk())
+          .unwrap()
+          .then((res) => {
+            if (res?.success === 1 || res?.success === "1") {
+              dispatch(updateAttendanceState(true));
+              checkLocationServiceOnly();
+            } else {
+              dispatch(updateAttendanceState(false));
+            }
+          })
+          .catch((err) => {
+            dispatch(updateAttendanceState(false));
+          });
+      } catch (error) {
+        dispatch(updateAttendanceState(false));
+
+        console.log(error);
+      }
+    }, 1000);
+
+    return () => {
+      // Cleanup on logout / unmount
+      if (locationServiceIntervalRef.current) {
+        clearInterval(locationServiceIntervalRef.current);
+        locationServiceIntervalRef.current = null;
+      }
+    };
+  }, [isAuthenticated, reLoading]);
+  const app_id = user?.app_id;
 
   useEffect(() => {
     const fetchDeviceName = async () => {
       const name = await DeviceInfo.getDeviceName();
-      let appid = await AsyncStorage.getItem('appid');
+      let appid = await AsyncStorage.getItem("appid");
       if (!appid) {
         appid = app_id;
-        await AsyncStorage.setItem('appid', appid);
+        await AsyncStorage.setItem("appid", appid || "");
       }
-      await AsyncStorage.setItem('device', name);
+      await AsyncStorage.setItem("device", name);
 
       DevERPService.initialize();
-      DevERPService.setAppId(appid);
+      DevERPService.setAppId(appid || "");
       DevERPService.setDevice(name);
 
       dispatch(checkAuthStateThunk());
@@ -113,130 +190,251 @@ const RootNavigator = () => {
     fetchDeviceName();
   }, [dispatch]);
 
-  // for location debug -----------
-  // useEffect(() => {
-  //   const checkLocation = async () => {
-  //     if (isAuthenticated === false) {
-  //       return;
-  //     }
-  //     const enabled = await DeviceInfo.isLocationEnabled();
+  // ------------------------- AppState Listener -------------------------
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        try {
+          dispatch(getLastPunchInThunk())
+            .unwrap()
+            .then((res) => {
+              if (res?.success === 1 || res?.success === "1") {
+                dispatch(updateAttendanceState(true));
 
-  //     console.log('🚀 ~ checkLocation ~ enabled + + + enabled :', enabled);
+                checkLocation();
+              } else {
+                dispatch(updateAttendanceState(false));
+              }
+            })
+            .catch((err) => {
+              dispatch(updateAttendanceState(false));
+            });
+        } catch (error) {
+          dispatch(updateAttendanceState(false));
 
-  //     if (locationEnabled === null) {
-  //       if (!enabled) {
-  //         setAlertConfig({
-  //           title: 'Location Status',
-  //           message:
-  //             'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-  //           type: 'error',
-  //         });
-  //         setAlertVisible(true);
-  //       }
-  //       setLocationEnabled(enabled);
-  //       return;
-  //     }
+          console.log(error);
+        }
+      }
+      appState.current = nextAppState;
+    };
 
-  //     if (enabled !== locationEnabled) {
-  //       setAlertConfig({
-  //         title: 'Location Status',
-  //         message: enabled
-  //           ? `Location is now enabled`
-  //           : 'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-  //         type: enabled ? 'success' : 'error',
-  //       });
-  //       setAlertVisible(true);
-  //     }
+    const sub = AppState.addEventListener("change", handleAppStateChange);
+    return () => sub.remove();
+  }, [isAuthenticated, reLoading]);
 
-  //     setModalClose(enabled);
-  //     setLocationEnabled(enabled);
+  // ------------------------- Language -------------------------
+  useEffect(() => {
+    changeLanguage(langCode);
+  }, [langCode]);
 
-  //     if (isAuthenticated) {
-  //       console.log('🚀 ~ checkLocation ~ enabled:', enabled);
-  //       if (enabled) {
-  //         setHasSyncedDisabledLocation(false);
+  // ------------------------- Device Setup -------------------------
+  const init = async () => {
+    const name = await DeviceInfo.getDeviceName();
+    await AsyncStorage.setItem("device", name);
+    await DevERPService.initialize();
+    await dispatch(checkAuthStateThunk());
+  };
 
-  //         const hasPermission = await requestLocationPermission();
-  //         console.log('🚀 ~ checkLocation ~ hasPermission:', hasPermission);
+  // ------------------------- Check Location -------------------------
+  const checkLocation = async () => {
+    if (!isAuthenticated) return;
 
-  //         if (hasPermission === false || enabled === false) {
-  //           setAlertConfig({
-  //             title: 'Location Status',
-  //             message:
-  //               'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-  //             type: 'error',
-  //           });
-  //           setAlertVisible(true);
-  //           setModalClose(false);
-  //           return;
-  //         }
-  //         if (!hasPermission) return;
+    const enabled = await DeviceInfo.isLocationEnabled();
 
-  //         try {
-  //           if (accounts.length > 0) {
-  //             if (Platform.OS === 'android') {
-  //               requestLocationPermissions().then(granted => {
-  //                 console.log('🚀 ~ checkLocation ~ granted-------------------:', granted);
-  //                 console.log('🚀 ~ checkLocation ~ isAuthenticated:', isAuthenticated);
-  //                 if (granted && isAuthenticated) {
-  //                   const data = accounts.map(u => ({
-  //                     token: u?.user?.token,
-  //                     link: u?.user?.companyLink,
-  //                   }));
-  //                   console.log(
-  //                     '🚀 ~ checkLocation companyLink ---------------------~ data:',
-  //                     data,
-  //                   );
+    const permission = await requestLocationPermissions();
 
-  //                   NativeModules.LocationModule.setUserTokens(data);
-  //                   NativeModules.LocationModule?.startService();
-  //                 } else {
-  //                   setAlertConfig({
-  //                     title: 'Location Status',
-  //                     message:
-  //                       'To continue using our services, please enable location access. Without location permissions, you won’t be able to use this app',
-  //                     type: 'error',
-  //                   });
-  //                   setAlertVisible(true);
-  //                   setModalClose(false)
-  //                 }
-  //               });
-  //             }
-  //           }
-  //         } catch (err) {
-  //           console.log('Location fetch error:', err);
-  //         }
-  //       } else {
-  //         console.log('🚀 ~ checkLocation ~ enabled: else ------------------------');
-  //       }
-  //     }
-  //   };
-  //   if (isAuthenticated) {
-  //     checkLocation();
-  //   }
+    if (enabled && permission === "granted") {
+      locationModalShownRef.current = false;
+      setAlertVisible(false);
+      setBackgroundDeniedModal(false);
 
-  //   const interval = setInterval(checkLocation, 1800);
-  //   return () => clearInterval(interval);
-  // }, [locationEnabled, accounts, dispatch, isAuthenticated, hasSyncedDisabledLocation]);
+      if (accounts.length) {
+        const data = accounts
+          .map((u) => {
+            if (user?.id.toString() === u?.user?.id.toString()) {
+              return {
+                token: u.user.token,
+                link: u.user.companyLink.replace(/^https:\/\//i, "http://"),
+              };
+            }
+            return null;
+          })
+          .filter(Boolean);
 
-  if (isLoading) {
-    return <FullViewLoader />;
-  }
+        NativeModules.LocationModule.setUserTokens(data);
+        NativeModules.LocationModule.startService();
+      }
+      return;
+    }
+
+    if (permission === "foreground-only") {
+      setBackgroundDeniedModal(true);
+      setAlertVisible(false);
+      return;
+    }
+
+    // ------------------------- Denied / Disabled Handling -------------------------
+    if (!locationModalShownRef.current) {
+      // CASE 1: Location service disabled (GPS OFF)
+      if (!enabled) {
+        setAlertConfig({
+          title: t("test3"),
+          message: LOCATION_MESSAGES.SERVICE_DISABLED,
+          type: "location",
+        });
+
+        setAlertVisible(true);
+        setOpenSettings(false);
+        setBackgroundDeniedModal(false); // ❌ no Open Settings modal
+        locationModalShownRef.current = true;
+        return;
+      }
+
+      // CASE 2: Permission denied or blocked
+      if (permission === "denied" || permission === "blocked") {
+        setAlertConfig({
+          title: "Permission Denied",
+          message: LOCATION_MESSAGES.PERMISSION_DENIED,
+          type: "location",
+        });
+
+        setAlertVisible(true);
+        setOpenSettings(true);
+        setBackgroundDeniedModal(false); // ❌ background modal not needed here
+        locationModalShownRef.current = true;
+        return;
+      }
+    }
+  };
+
+  useEffect(() => {
+    init();
+    return () => {
+      dispatch(setReloadApp());
+      dispatch(updatePinVerifyLoadedState(false));
+    };
+  }, []);
+
+  // ------------------------- Focus -------------------------
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Optional: cancel timeout if component unmounts
+      const timer = setTimeout(() => {
+        try {
+          dispatch(getLastPunchInThunk())
+            .unwrap()
+            .then((res) => {
+              if (res?.success === 1 || res?.success === "1") {
+                dispatch(updateAttendanceState(true));
+
+                checkLocation();
+              } else {
+                dispatch(updateAttendanceState(false));
+
+                setAlertVisible(false);
+                setOpenSettings(false);
+                setBackgroundDeniedModal(false);
+                NativeModules.LocationModule.setUserTokens([]);
+                NativeModules.LocationModule.stopService();
+              }
+            })
+            .catch((err) => {
+              dispatch(updateAttendanceState(false));
+
+              setAlertVisible(false);
+              setOpenSettings(false);
+              setBackgroundDeniedModal(false);
+              NativeModules.LocationModule.setUserTokens([]);
+              NativeModules.LocationModule.stopService();
+            });
+        } catch (error) {
+          dispatch(updateAttendanceState(false));
+
+          console.log(error);
+        }
+      }, 2500);
+      // Cleanup to avoid memory leaks
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, reLoading]);
+
+  // ------------------------- Render -------------------------
+  if (isLoading) return <FullViewLoader />;
 
   return (
     <>
       {isAuthenticated ? <StackNavigator /> : <AuthNavigator />}
-      <CustomAlert
-        visible={alertVisible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        type={alertConfig.type}
-        onClose={() => {
-          if (modalClose) setAlertVisible(false);
-        } }
-        actionLoader={undefined}      />
+      {isAuthenticated && (
+        <CustomAlert
+          visible={alertVisible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          onClose={() => {
+            // setAlertVisible(true)
+          }}
+          isSettingVisible={openSettings}
+          actionLoader={undefined}
+          closeHide={true}
+        />
+      )}
+      {isAuthenticated && (
+        <Modal visible={backgroundDeniedModal} transparent>
+          <View style={styles.overlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.title}>{t("test21")}</Text>
+              <Text style={styles.message}>{t("test22")}</Text>
+              <TouchableOpacity
+                style={styles.btnPrimary}
+                onPress={() => Linking.openSettings()}
+              >
+                <Text style={styles.btnText}>{t("test23")}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </>
   );
 };
 
 export default RootNavigator;
+
+// ------------------------- Styles -------------------------
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    width: "85%",
+    padding: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  message: {
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  btnPrimary: {
+    backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+    padding: 12,
+    borderRadius: 10,
+  },
+  btnText: {
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+});

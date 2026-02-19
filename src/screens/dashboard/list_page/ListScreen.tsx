@@ -1,5 +1,5 @@
-import { Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
-import React, { useEffect, useLayoutEffect, useState, useCallback, useMemo } from 'react';
+import { Text, View, TextInput, TouchableOpacity, Alert, Modal, Platform, Animated, ActivityIndicator } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
@@ -18,6 +18,9 @@ import { handleDeleteActionThunk, handlePageActionThunk } from '../../../store/s
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { ERP_COLOR_CODE } from '../../../utils/constants';
 import useTranslations from '../../../hooks/useTranslations';
+import { tags } from 'react-native-svg/lib/typescript/xmlTags';
+import { JumpingTransition } from 'react-native-reanimated';
+import TranslatedText from '../tabs/home/TranslatedText';
 
 const ListScreen = () => {
   const navigation = useNavigation();
@@ -39,10 +42,18 @@ const ListScreen = () => {
   const [isTableView, setIsTableView] = useState<boolean>(false);
 
   const [filteredData, setFilteredData] = useState<any[]>([]);
+
   const [alertVisible, setAlertVisible] = useState(false);
   const [actionLoaders, setActionLoader] = useState(false);
   const [parsedError, setParsedError] = useState<any>();
   const [apiError, setApiError] = useState<any>(false);
+  const [tapLoader, setTapLoader] = useState(false)
+
+  useEffect(() => {
+    return (() => {
+      setTapLoader(false)
+    })
+  }, [])
 
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -62,6 +73,7 @@ const ListScreen = () => {
 
   const route = useRoute<RouteProp<ListRouteParams, 'List'>>();
   const { item } = route?.params;
+  console.log("-----------------------------------")
   const theme = useAppSelector(state => state?.theme.mode);
 
   const pageTitle = item?.title || item?.name || 'List Data';
@@ -69,42 +81,57 @@ const ListScreen = () => {
   const pageName = item?.url;
   const isFromBusinessCard = item?.isFromBusinessCard || false;
   const isFromAlertCard = item?.isFromAlertCard || false;
- 
+
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize] = useState(100);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const pressAnim = useRef(new Animated.Value(1)).current;
+  const onPressIn = () => {
+    Animated.spring(pressAnim, {
+      toValue: 0.86,
+      useNativeDriver: true,
+    }).start();
+  };
 
-  useEffect(() => {
-    if (!filteredData) return;
-    setPage(1);
-    setHasMore(true);
+  const onPressOut = () => {
+    Animated.spring(pressAnim, {
+      toValue: 1,
+      friction: 4,
+      tension: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+  // useEffect(() => {
+  //   if (!filteredData) return;
+  //   setPage(1);
+  //   setHasMore(true);
 
-    const firstPage = filteredData.slice(0, pageSize);
-    setListData(firstPage);
-  }, [filteredData]);
+  //   const firstPage = filteredData.slice(0, pageSize);
+  //   setListData(firstPage);
+  // }, [filteredData]);
 
   const loadMore = () => {
-  if (isLoadingMore || !hasMore) return;
+    if (isLoadingMore || !hasMore) return;
 
-  setIsLoadingMore(true);
+    setIsLoadingMore(true);
 
-  setTimeout(() => {
-    const start = page * pageSize;
-    const end = start + pageSize;
+    setTimeout(() => {
+      const start = page * pageSize;
+      const end = start + pageSize;
 
-    const newItems = filteredData.slice(start, end);
+      const newItems = filteredData.slice(start, end);
 
-    if (newItems.length === 0) {
-      setHasMore(false);
-    } else {
-      setListData(prev => [...prev, ...newItems]);
-      setPage(prev => prev + 1);
-    }
+      if (newItems.length === 0) {
+        setHasMore(false);
+      } else {
+        setListData(prev => [...prev, ...newItems]);
+        setPage(prev => prev + 1);
+      }
 
-    setIsLoadingMore(false);
-  }, 300);
-};
+      setIsLoadingMore(false);
+    }, 300);
+  };
 
   const totalAmount = filteredData?.reduce((sum, item) => {
     const amount = parseFloat(item?.amount) || 0;
@@ -124,14 +151,28 @@ const ListScreen = () => {
     item => item?.datafield && item?.datafield.toLowerCase() === 'id',
   );
 
+    useFocusEffect(
+    useCallback(() => {
+       setTapLoader(false)
+      return () => {
+      };
+    }, [navigation])
+  );
+ 
+
   useLayoutEffect(() => {
+     
+    
     navigation.setOptions({
       headerStyle: {
-        backgroundColor: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_APP_COLOR, 
+        backgroundColor: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_APP_COLOR,
+        // borderBottomWidth: 1,
+        borderBottomColor: '#fff',
       },
+      headerBackTitle: '',
       headerTintColor: '#fff',
       headerTitle: () => (
-        <Text
+        <TranslatedText
           numberOfLines={1}
           style={{
             maxWidth: 180,
@@ -139,20 +180,23 @@ const ListScreen = () => {
             fontWeight: '700',
             color: theme === 'dark' ? "white" : ERP_COLOR_CODE.ERP_WHITE,
           }}
+          text= {pageTitle || 'List Data'}
         >
-          {pageTitle || 'List Data'}
-        </Text>
+         
+        </TranslatedText>
       ),
       headerRight: () => (
         <>
-          <ERPIcon
-            name="refresh"
-            onPress={() => {
-              setActionLoader(true);
-              onRefresh();
-            }}
-            isLoading={actionLoaders}
-          />
+          {
+            !error && <ERPIcon
+              name="refresh"
+              onPress={() => {
+                setActionLoader(true);
+                onRefresh();
+              }}
+              isLoading={actionLoaders}
+            />
+          }
           {/* {
             !isFromAlertCard && <ERPIcon
               name={isTableView ? 'list' : 'apps'}
@@ -161,16 +205,18 @@ const ListScreen = () => {
               }}
             />
           } */}
-          <ERPIcon
-            name={!hasDateField ? 'search' : isFilterVisible ? 'filter-alt' : 'filter-alt'}
-            onPress={() => {
-              setIsFilterVisible(!isFilterVisible);
-            }}
-          />
+          {
+            !error && <ERPIcon
+              name={!hasDateField ? 'search' : isFilterVisible ? 'close' : 'filter-alt'}
+              onPress={() => {
+                setIsFilterVisible(!isFilterVisible);
+              }}
+            />
+          }
         </>
       ),
     });
-  }, [navigation, pageTitle, isFilterVisible, hasDateField, isTableView, actionLoaders]);
+  }, [navigation, pageTitle, isFilterVisible, hasDateField, isTableView, actionLoaders, error]);
 
   const getCurrentMonthRange = useCallback(() => {
     const now = new Date();
@@ -236,6 +282,8 @@ const ListScreen = () => {
 
   const onRefresh = async () => {
     try {
+      setSearchQuery('');
+      getCurrentMonthRange();
       await fetchListData(fromDate, toDate);
     } catch (e) {
     }
@@ -323,6 +371,7 @@ const ListScreen = () => {
             configArray = parsed.config || [];
           }
         }
+
         setConfigData(configArray);
         setListData(dataArray);
         setFilteredData(dataArray);
@@ -359,7 +408,6 @@ const ListScreen = () => {
   );
 
   const handleItemPressed = (item, page, pageTitle = '') => {
-    
     setIsFilterVisible(false);
     setSearchQuery('');
     navigation.navigate('Page', {
@@ -369,23 +417,25 @@ const ListScreen = () => {
       url: pageName,
       pageTitle: pageTitle,
       isFromBusinessCard: isFromBusinessCard,
+      isFromProfile : false
     });
   };
 
-  const handleActionButtonPressed = (actionValue, label, color, id, item) => { 
-    if(item?.btn_edit && item?.btn_edit?.includes("/")){
+  const handleActionButtonPressed = (actionValue, label, color, id, item) => {
+    if (item?.btn_edit && item?.btn_edit?.includes("/")) {
       const left = item?.btn_edit.substring(0, item?.btn_edit.indexOf('/'));
       const result = item?.btn_edit.split('/')[1];
       navigation.navigate('Page', {
         item,
-        id:  result,
+        id: result,
         title: pageName,
         isFromNew: false,
         url: left,
         pageTitle: pageTitle,
         isFromBusinessCard: false,
+        isFromProfile: false
       });
-    }else{
+    } else {
       setAlertConfig({
         title: label,
         message: `${t("msg.msg8")} ${label.toLowerCase()} ?`,
@@ -412,20 +462,42 @@ const ListScreen = () => {
 
   if (parsedError) {
     return (
-      <View style={{ flex: 1, backgroundColor: ERP_COLOR_CODE.ERP_WHITE }}>
-        <ErrorMessage message={parsedError} />
+      <View style={{ flex: 1, backgroundColor: theme == 'dark' ? 'black' :  ERP_COLOR_CODE.ERP_WHITE }}>
+        <ErrorMessage message={parsedError} isShowTop ={false} />
       </View>
     );
   }
+
+  if(loadingListId){
+    return <FullViewLoader isShowTop={theme === 'dark' ? false : true}/>
+  }
+
   return (
     <View style={[styles.container, theme === 'dark' && { backgroundColor: 'black' }]}>
+       
+           
       {isFilterVisible && (
-        <View>
+        <View style={{
+          backgroundColor: theme === 'dark' ?  '#000': ERP_COLOR_CODE.ERP_APP_COLOR,
+          borderWidth: 1,
+          padding: 8,
+          paddingBottom: 8,
+          borderBottomEndRadius: 12,
+          borderBottomStartRadius: 12
+        }}>
           <View style={styles.searchContainer}>
-            <View style={styles.searchInputContainer}>
-              <MaterialIcons size={24} name="search" />
+            <View style={[styles.searchInputContainer,
+            theme === 'dark' && {
+              backgroundColor: 'black'
+            }
+            ]}>
+              <MaterialIcons size={24} name="search" color={theme === 'dark' ? 'white' : 'black'} />
               <TextInput
-                style={styles.searchInput}
+                style={[styles.searchInput,
+                theme === 'dark' && {
+                  color: 'white'
+                }
+                ]}
                 placeholder={`Search ${pageTitle.toLowerCase()} in list...`}
                 value={searchQuery}
                 onChangeText={handleSearchChange}
@@ -444,7 +516,10 @@ const ListScreen = () => {
               {/* Start Date */}
               <View style={styles.dateRow}>
                 <TouchableOpacity
-                  onPress={() => setShowDatePicker({ type: 'from', show: true })}
+                  onPress={() => {
+                    setSearchQuery('');
+                    setShowDatePicker({ type: 'from', show: true })
+                  }}
                   style={styles.dateButton}
                 >
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -454,7 +529,10 @@ const ListScreen = () => {
                       color="#000"
                       style={{ marginRight: 8 }}
                     />
-                    <Text style={styles.dateButtonText}>{fromDate || t("msg.msg9")}</Text>
+                    <TranslatedText 
+                    numberOfLines={1}
+                    text={fromDate || t("msg.msg9")}
+                    style={styles.dateButtonText}></TranslatedText>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -463,7 +541,10 @@ const ListScreen = () => {
               {/* End Date */}
               <View style={styles.dateRow}>
                 <TouchableOpacity
-                  onPress={() => setShowDatePicker({ type: 'to', show: true })}
+                  onPress={() => {
+                    setSearchQuery('');
+                    setShowDatePicker({ type: 'to', show: true })
+                  }}
                   style={styles.dateButton}
                 >
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -480,7 +561,61 @@ const ListScreen = () => {
             </View>
           )}
 
-          {showDatePicker?.show && (
+          {showDatePicker?.show && Platform.OS === 'ios' && (
+            <Modal transparent animationType="slide" statusBarTranslucent>
+              <View style={styles.overlay}>
+               <View style={[styles.sheet,
+                             theme === 'dark' && {
+                               borderWidth: 1,
+                               borderColor: 'white'
+                             }
+                             ]}>
+                               {/* Divider */}
+                               <View style={[
+                                 theme === 'dark' && {
+                                   overflow: 'hidden',
+                                   borderColor: 'white',
+                                 },
+                                 {
+               
+                                   flexDirection: 'row', justifyContent: 'space-between', padding: 12, alignContent: "center", alignItems: 'center'
+                                 }]}>
+                                 <Text style={{
+                                   color: theme === 'dark' ? 'white' : 'black'
+                                 }}>{t('text27')}</Text>
+                                 <TouchableOpacity onPress={() => {
+                                   setShowDatePicker(null);
+               
+               
+                                 }}>
+                                   <MaterialIcons name='close' color={ 'black'} size={24} />
+                                 </TouchableOpacity>
+                               </View>
+                               <View style={styles.divider} />
+
+                  {/* Date Picker */}
+                  <DateTimePicker
+                    value={
+                      showDatePicker.type === 'from' && fromDate
+                        ? parseCustomDate(fromDate)
+                        : showDatePicker.type === 'to' && toDate
+                          ? parseCustomDate(toDate)
+                          : new Date()
+                    }
+                    mode="date"
+                    display="spinner"
+                    is24Hour={false}
+                    onChange={handleDateChange}
+                    style={styles.picker}
+                  />
+                </View>
+              </View>
+            </Modal>
+
+          )}
+
+
+          {Platform.OS !== 'ios' && showDatePicker?.show && (
             <DateTimePicker
               value={
                 showDatePicker?.type === 'from' && fromDate
@@ -490,22 +625,19 @@ const ListScreen = () => {
                     : new Date()
               }
               mode="date"
+              display="spinner"
+              is24Hour={false}
               onChange={handleDateChange}
-              minimumDate={
-                showDatePicker?.type === 'to' && fromDate
-                  ? parseCustomDate(fromDate)
-                  : new Date(new Date().getFullYear(), 0, 1)
-              }
-              maximumDate={
-                showDatePicker?.type === 'from' && toDate ? parseCustomDate(toDate) : new Date()
-              }
-            />
+             />
+
           )}
         </View>
       )}
 
       {!!error ? (
-        <ErrorMessage message={error} />
+       <View style={{flex: 1, backgroundColor:theme === 'dark' ? 'black' : 'white'}}>
+         <ErrorMessage message={error} isShowTop ={false} />
+        </View>
       ) : (
         <>
           {loadingListId ? (
@@ -556,24 +688,41 @@ const ListScreen = () => {
         </>
       )}
 
-      {hasIdField && !isFromAlertCard && !loadingListId && configData && (
-        <TouchableOpacity
-          style={[
-            styles.addButton,
-            {
-              bottom: filteredData.length === 0 ? 40 : totalAmount === 0 ? 64 : 78,
-            },
-            theme === 'dark' && {
-              backgroundColor: 'white'
-            }
-          ]}
-          onPress={() => {
-            handleItemPressed({}, pageParamsName, pageTitle);
+      {/* {hasIdField && !isFromAlertCard && !loadingListId && configData && (
+        <Animated.View
+          style={{
+            transform: [
+              { scale: pressAnim },
+            ],
           }}
         >
-          <MaterialIcons size={32} name="add" color={theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_WHITE} />
-        </TouchableOpacity>
-      )}
+          <TouchableOpacity
+            style={[
+              styles.addButton,
+              {
+                bottom: filteredData.length === 0 ? 40 : totalAmount === 0 ? 64 : 78,
+              },
+              theme === 'dark' && {
+                backgroundColor: 'white',
+                borderWidth: 1,
+                borderColor: 'white'
+              }
+            ]}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            onPress={() => {
+              setTapLoader(true)
+              handleItemPressed({}, pageParamsName, pageTitle);
+            }}
+          >
+            {
+              tapLoader ? <ActivityIndicator size={'large'} color={'#fff'} /> : 
+              <MaterialIcons size={32} name="add" color={theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_WHITE} />
+            }
+          </TouchableOpacity>
+        </Animated.View>
+
+      )} */}
 
       <CustomAlert
         visible={alertVisible}
@@ -586,7 +735,7 @@ const ListScreen = () => {
         isBottomButtonVisible={true}
         doneText={alertConfig.title}
         color={alertConfig.color}
-        onDone={async remark => { 
+        onDone={async (remark) => {
           try {
             const type = `page${alertConfig.title}`;
             await dispatch(
@@ -595,7 +744,7 @@ const ListScreen = () => {
                 id: alertConfig.id.toString(),
                 remarks: remark,
                 page: alertConfig?.actionValue,
-              }),
+              })
             ).unwrap();
 
             setAlertVisible(false);
@@ -612,8 +761,8 @@ const ListScreen = () => {
             });
             setApiError(true);
           }
-        }}
-        isFromButtonList={true}
+        } }
+        isFromButtonList={true} closeHide={undefined}      
       />
 
       <CustomAlert
@@ -624,6 +773,7 @@ const ListScreen = () => {
         onClose={() => setApiError(false)}
         onCancel={() => setApiError(false)}
         actionLoader={actionLoader}
+        closeHide={undefined}      
       />
     </View>
   );

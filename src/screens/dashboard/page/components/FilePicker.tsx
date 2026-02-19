@@ -12,6 +12,8 @@ import { pick, types } from '@react-native-documents/picker';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
 import RNFS from 'react-native-fs';
+import { Linking } from 'react-native';
+import useTranslations from '../../../../hooks/useTranslations';
 
 interface FileType {
   name: string;
@@ -20,7 +22,18 @@ interface FileType {
   type?: string;
 }
 
-const FilePickerRow = ({ item, handleAttachment }) => {
+const FilePickerRow = ({ item, handleAttachment, baseLink, infoData, isFromFileManager = false, onFilePicked }) => {
+  const { t } = useTranslations();
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+  const ALLOWED_EXTENSIONS = [
+    'jpg', 'jpeg', 'png',
+    'mov', 'avi',
+    'pdf',
+    'doc', 'docx',
+    'xls', 'xlsx',
+  ];
+
+  const base = `${baseLink}fileupload/1/${infoData?.tableName}/${infoData?.id}/${item?.text}`;
   const [selectedFiles, setSelectedFiles] = useState<FileType[]>([]);
 
   const openFilePicker = async () => {
@@ -29,15 +42,34 @@ const FilePickerRow = ({ item, handleAttachment }) => {
         type: [types.allFiles],
       });
       setSelectedFiles(prev => [...prev, ...files]);
+      const file = files[0];
 
       let filePath = files[0].uri;
+      const extension = file.name?.split('.').pop()?.toLowerCase();
 
+      if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+        Alert.alert(
+          t("title.title1"),
+          t("Selected file type is not supported")
+        );
+        return;
+      }
+      if (file.size && file.size > MAX_FILE_SIZE) {
+        Alert.alert(
+          t("title.title1"),
+          t("File size must be less than or equal to 25MB")
+        );
+        return;
+      }
       if (Platform.OS === 'android' && files[0].uri.startsWith('content://')) {
         const destPath = `${RNFS.TemporaryDirectoryPath}/${files[0].name}`;
         await RNFS.copyFile(files[0].uri, destPath);
         filePath = destPath;
       }
-
+      if (isFromFileManager && onFilePicked) {
+        onFilePicked(files[0]);
+        return;
+      }
       const fileBase64 = await RNFS.readFile(filePath, 'base64');
 
       handleAttachment(
@@ -46,10 +78,8 @@ const FilePickerRow = ({ item, handleAttachment }) => {
       );
     } catch (err: any) {
       if (err.code === 'USER_CANCELED') {
-        console.log('User canceled picker');
       } else {
-        console.warn('Picker error', err);
-        Alert.alert('Error', 'Failed to pick file.');
+        Alert.alert(t("title.title1"), t("msg.msg12"));
       }
     }
   };
@@ -64,7 +94,7 @@ const FilePickerRow = ({ item, handleAttachment }) => {
       setSelectedFiles(prev => prev.map((f, i) => (i === index ? file : f)));
     } catch (err: any) {
       if (err.code === 'USER_CANCELED') return;
-      Alert.alert('Error', 'Failed to update file.');
+      Alert.alert(t("title.title1"), t("msg.msg13"));
     }
   };
 
@@ -96,10 +126,27 @@ const FilePickerRow = ({ item, handleAttachment }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{item?.fieldtitle} - Upload Files</Text>
+      <Text style={styles.label}>{item?.fieldtitle}</Text>
+      {!isFromFileManager && selectedFiles.length === 0 && (
+        <>
+          {item?.text !== '' && (
+            <View style={{ marginBottom: 8 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (base) {
+                    Linking.openURL(base).catch(err => console.error('Failed to open link:', err));
+                  }
+                }}
+              >
+                <Text style={{ color: 'blue', textDecorationLine: 'underline' }}>{base}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </>
+      )}
 
       <ScrollView showsHorizontalScrollIndicator={false}>
-        {selectedFiles.map((file, index) => (
+        {!isFromFileManager && selectedFiles.map((file, index) => (
           <View key={index} style={styles.fileRow}>
             <View style={{ flexDirection: 'row' }}>
               <MaterialIcons
@@ -123,12 +170,18 @@ const FilePickerRow = ({ item, handleAttachment }) => {
             </View>
           </View>
         ))}
-        {selectedFiles.length === 0 && (
+        {!isFromFileManager && selectedFiles.length === 0 && (
           <TouchableOpacity style={styles.addBtn} onPress={openFilePicker}>
             <MaterialIcons name="add" size={20} color={ERP_COLOR_CODE.ERP_WHITE} />
-            <Text style={[styles.btnText, { marginLeft: 4 }]}>Select File</Text>
+            <Text style={[styles.btnText, { marginLeft: 4 }]}>{t("text.text36")}</Text>
           </TouchableOpacity>
         )}
+        {
+          isFromFileManager && <TouchableOpacity style={styles.addBtn} onPress={openFilePicker}>
+            <MaterialIcons name="add" size={20} color={ERP_COLOR_CODE.ERP_WHITE} />
+            <Text style={[styles.btnText, { marginLeft: 4 }]}>{t("text.text36")}</Text>
+          </TouchableOpacity>
+        }
       </ScrollView>
     </View>
   );

@@ -6,12 +6,16 @@ import { ERP_COLOR_CODE } from '../../../../utils/constants';
 import { getDDLThunk } from '../../../../store/slices/dropdown/thunk';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import FullViewLoader from '../../../../components/loader/FullViewLoader';
+import useTranslations from '../../../../hooks/useTranslations';
+import InputError from '../../../../components/error/InputError';
+import NoData from '../../../../components/no_data/NoData';
 
-const CustomMultiPicker = ({ label, selectedValue, onValueChange, item, errors, dtext }: any) => {
+const CustomMultiPicker = ({ isValidate,label, selectedValue, onValueChange, item, errors, dtext }: any) => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<any[]>([]);
   const dispatch = useAppDispatch();
   const [loader, setLoader] = useState(false);
+  const { t } = useTranslations();
 
   // Store selected options in an array
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -92,7 +96,7 @@ const CustomMultiPicker = ({ label, selectedValue, onValueChange, item, errors, 
         activeOpacity={0.7}
       >
         <Text style={{ color: selectedOptions.length ? ERP_COLOR_CODE.ERP_BLACK : ERP_COLOR_CODE.ERP_888, flex: 1 }}>
-          {selectedOptions.length ? selectedOptions.join(', ') : `Select ${label}`}
+          {selectedOptions.length ? selectedOptions.join(', ') : `${t("text.text34")} ${label}`}
         </Text>
         <MaterialIcons name={open ? 'arrow-drop-up' : 'arrow-drop-down'} size={24} color={ERP_COLOR_CODE.ERP_555} />
       </TouchableOpacity>
@@ -100,7 +104,7 @@ const CustomMultiPicker = ({ label, selectedValue, onValueChange, item, errors, 
       {open && (
         <View style={styles.dropdownCard}>
           {loader ? (
-            <FullViewLoader />
+            <FullViewLoader isShowTop={false}/>
           ) : (
             options.length > 0 ? (
               <ScrollView style={{ maxHeight: 200 }}>
@@ -130,18 +134,26 @@ const CustomMultiPicker = ({ label, selectedValue, onValueChange, item, errors, 
                 ))}
               </ScrollView>
             ) : (
-              <View style={{ marginVertical: 12, justifyContent: 'center', alignItems: 'center', height: 100 }}>
-                <Text>No data</Text>
-              </View>
+               <View
+                  style={{
+                    marginVertical: 12,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 100,
+                    alignContent:'center',
+                    marginTop: 200,
+                  }}
+                >
+                  <NoData isShowTop = {false}/>
+                </View>
             )
           )}
         </View>
       )}
 
       {errors[item?.field] && (
-        <Text style={{ color: ERP_COLOR_CODE.ERP_ERROR, marginTop: 4 }}>
-          {errors[item?.field]}
-        </Text>
+                <InputError error = {errors[item?.field]}/>
+
       )}
     </View>
   );

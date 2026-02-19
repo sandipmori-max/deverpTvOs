@@ -18,8 +18,11 @@ import { launchCamera, launchImageLibrary, Asset } from 'react-native-image-pick
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import CustomAlert from '../../../../components/alert/CustomAlert';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
+import { useAppSelector } from '../../../../store/hooks';
+import { useTranslation } from 'react-i18next';
 
-const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) => {
+const Media = ({ isValidate, item, handleAttachment, infoData, baseLink, isFromNew }: any) => {
+  const {t} = useTranslation()
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [pickerModalVisible, setPickerModalVisible] = useState(false);
@@ -41,6 +44,7 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
   const translateY = useRef(new Animated.Value(0)).current;
   const lastScale = useRef(1);
   const lastTranslate = useRef({ x: 0, y: 0 });
+  const theme = useAppSelector(state => state?.theme.mode);
 
   const pendingCameraAction = useRef(false);
   const appState = useRef(AppState.currentState);
@@ -48,10 +52,9 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
   const getImageUri = (type: 'small' | 'large') => {
     const base =
       imageUri ||
-      `${baseLink}fileupload/1/${infoData?.tableName}/${infoData?.id}/${
-        type === 'small' ? `d_${item?.text}` : item?.text
+      `${baseLink}fileupload/1/${infoData?.tableName}/${infoData?.id}/${type === 'small' ? `d_${item?.text}` : item?.text
       }`;
-    return `${base}?cb=${cacheBuster}`;
+     return `${base}?cb=${cacheBuster}`;
   };
 
   // -------------------- Permissions --------------------
@@ -65,14 +68,15 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
         // Gallery / Photos
         if (Platform.OS === 'ios') {
           permission = PERMISSIONS.IOS.PHOTO_LIBRARY;
-        } else {
-          // Android 13+
-          if (Platform.Version >= 33) {
-            permission = PERMISSIONS.ANDROID.READ_MEDIA_IMAGES;
-          } else {
-            permission = PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
-          }
-        }
+        } 
+        // else {
+        //   // Android 13+
+        //   if (Platform.Version >= 33) {
+        //     permission = PERMISSIONS.ANDROID.READ_MEDIA_IMAGES;
+        //   } else {
+        //     permission = PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
+        //   }
+        // }
       }
 
       let result = await check(permission);
@@ -86,8 +90,8 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
 
       if (result === RESULTS.BLOCKED || result === RESULTS.DENIED) {
         setAlertConfig({
-          title: `${type === 'camera' ? 'Camera' : 'Gallery'} Permission Required`,
-          message: `Please enable ${type === 'camera' ? 'camera' : 'gallery'} access from Settings to continue.`,
+          title: `${type === 'camera' ? 'Camera' : 'Gallery'} ${t('text28')}`,
+          message: `${t('text29')} ${type === 'camera' ? 'camera' : 'gallery'} ${t('text30')}`,
           type: 'error',
         });
         setModalClose(true);
@@ -100,8 +104,7 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
 
       return result === RESULTS.GRANTED;
     } catch (error) {
-      console.log('⚠️ Permission error:', error);
-      return false;
+       return false;
     }
   };
 
@@ -118,7 +121,7 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
           setIsSettingVisible(false);
           setAlertVisible(false);
           pendingCameraAction.current = false;
-          launchCamera({ mediaType: 'photo', quality: 0.8, includeBase64: true }, response => {
+          launchCamera({ mediaType: 'photo', quality: 0.5, includeBase64: true }, response => {
             if (response.assets && response.assets.length > 0) {
               const asset: Asset = response.assets[0];
               setImageUri(asset.uri || null);
@@ -148,7 +151,7 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
             const granted = await requestPermission('camera');
             if (!granted) return;
 
-            launchCamera({ mediaType: 'photo', quality: 0.8, includeBase64: true }, response => {
+            launchCamera({ mediaType: 'photo', quality: 0.5, includeBase64: true ,cameraType: 'front'}, response => {
               if (response.assets && response.assets.length > 0) {
                 const asset: Asset = response.assets[0];
                 setImageUri(asset.uri || null);
@@ -171,7 +174,7 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
             const granted = await requestPermission('camera');
             if (!granted) return;
 
-            launchCamera({ mediaType: 'photo', quality: 0.8, includeBase64: true }, response => {
+            launchCamera({ mediaType: 'photo', quality: 0.5, includeBase64: true , cameraType: 'front'}, response => {
               if (response.assets && response.assets.length > 0) {
                 const asset: Asset = response.assets[0];
                 setImageUri(asset.uri || null);
@@ -215,7 +218,7 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
   const handleChooseImage = () => {
     setPickerModalVisible(true);
   };
-   // -------------------- PanResponder & Zoom --------------------
+  // -------------------- PanResponder & Zoom --------------------
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -256,7 +259,15 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
   // -------------------- JSX --------------------
   return (
     <>
-      <Text style={{ fontWeight: '600', marginBottom: 4 }}>{item?.fieldtitle}</Text>
+      <View style={{ flexDirection: 'row' }}>
+        <Text style={[styles.label, theme === 'dark' && {
+          color: 'white'
+        }]}>{item?.fieldtitle}</Text>
+        {item?.tooltip !== item?.fieldtitle && <Text style={[styles.label, theme === 'dark' && {
+          color: 'white'
+        }]}> - ( {item?.tooltip} ) </Text>}
+        {item?.mandatory === '1' && <Text style={{ color: ERP_COLOR_CODE.ERP_ERROR }}>*</Text>}
+      </View>
       <View style={styles.imageWrapper}>
         <TouchableOpacity
           onPress={() => {
@@ -264,9 +275,14 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
             setModalVisible(true);
           }}
         >
-          <View style={{ width: 100, height: 100 }}>
+          <View style={[
+            theme === 'dark' && {
+              borderWidth: 1,
+              borderColor: 'white'
+            },
+            { width: 100, height: 100, }]}>
             {loadingSmall && (
-              <ActivityIndicator style={StyleSheet.absoluteFill} size="small" color="#000" />
+              <ActivityIndicator style={StyleSheet.absoluteFill} size="small" color={theme === 'dark' ? 'white' : 'black'} />
             )}
             <Image
               key={item.field}
@@ -279,8 +295,12 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleChooseImage} style={styles.editBtn}>
-          <MaterialIcons name={'edit'} color={ERP_COLOR_CODE.ERP_BLACK} size={20} />
+        <TouchableOpacity onPress={handleChooseImage} style={[styles.editBtn, theme === 'dark' && {
+          borderWidth: 1,
+          borderColor: 'white',
+          backgroundColor: 'black'
+        },]}>
+          <MaterialIcons name={'edit'} color={theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_BLACK} size={20} />
         </TouchableOpacity>
       </View>
 
@@ -355,11 +375,17 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
         onRequestClose={() => setPickerModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, theme === 'dark' && {
+            borderWidth: 1,
+            borderColor: 'white',
+            backgroundColor: 'black'
+          }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Image</Text>
+              <Text style={[styles.modalTitle, theme === 'dark' && {
+                color: 'white'
+              }]}>{t('text31')}</Text>
               <TouchableOpacity onPress={() => setPickerModalVisible(false)}>
-                <MaterialIcons name="close" size={24} color="#000" />
+                <MaterialIcons name="close" size={24} color={theme === 'dark' ? 'white' : 'black'} />
               </TouchableOpacity>
             </View>
 
@@ -367,14 +393,20 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
               {renderMedia().map((option, idx) => (
                 <TouchableOpacity
                   key={idx}
-                  style={styles.optionCard}
+                  style={[styles.optionCard, theme === 'dark' && {
+                    backgroundColor: 'black',
+                    borderWidth: 1,
+                    borderColor: 'white'
+                  }]}
                   onPress={async () => {
                     setPickerModalVisible(false);
                     await option.onPress();
                   }}
                 >
-                  <MaterialIcons name={option?.icon} size={36} color="#000" />
-                  <Text style={styles.optionLabel}>{option?.text}</Text>
+                  <MaterialIcons name={option?.icon} size={36} color={theme === 'dark' ? 'white' : 'black'} />
+                  <Text style={[styles.optionLabel, {
+                    color: theme === 'dark' ? 'white' : 'black'
+                  }]}>{option?.text}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -392,27 +424,33 @@ const Media = ({ item, handleAttachment, infoData, baseLink, isFromNew }: any) =
           if (!modalClose) {
             setAlertVisible(false);
           }
-        }}
+        } }
         isSettingVisible={isSettingVisible}
-        actionLoader={undefined}
-      />
+        actionLoader={undefined} closeHide={undefined}      />
     </>
   );
 };
-
-const styles = StyleSheet.create({
+ const styles = StyleSheet.create({
   imageWrapper: {
     width: '100%',
-    alignContent: 'center',
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 4,
   },
+
+  label: {
+    fontSize: 14,
+    color: ERP_COLOR_CODE.ERP_333,
+    marginBottom: 6,
+    fontWeight: '600',
+  },
+
   imageThumb: {
     borderWidth: 1,
     width: 100,
     height: 100,
   },
+
   editBtn: {
     height: 36,
     width: 36,
@@ -420,19 +458,20 @@ const styles = StyleSheet.create({
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     position: 'absolute',
     bottom: 28,
+    left: Dimensions.get('screen').width / 1.88,
     justifyContent: 'center',
-    alignContent: 'center',
     alignItems: 'center',
-    left: Dimensions.get('screen').width / 5.4,
     borderWidth: 1,
   },
+
+  /* ---------- Bottom Sheet ---------- */
+
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.5)',
-    alignContent:'center',
-    alignItems:'center'
   },
+
   modalContent: {
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderTopLeftRadius: 16,
@@ -440,24 +479,28 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     maxHeight: '60%',
-    width: '50%',
+    width: '100%',
   },
+
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
     marginBottom: 16,
   },
+
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
   },
+
   optionRow: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     width: '100%',
     marginTop: 12,
   },
+
   optionCard: {
     width: 100,
     height: 100,
@@ -467,48 +510,81 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 10,
   },
+
   optionLabel: {
     marginTop: 6,
     fontSize: 14,
     fontWeight: '500',
   },
+
+  /* ---------- FULLSCREEN IMAGE MODAL (IMPROVED) ---------- */
+
   fullscreenModalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.95)',
+    backgroundColor: 'rgba(0,0,0,0.92)',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   fullscreenModalContent: {
     flex: 1,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   fullscreenImage: {
     width: '100%',
     height: '100%',
   },
+
   closeBtn: {
     position: 'absolute',
-    top: 40,
+    top: 48,
     right: 20,
-    zIndex: 10,
+    zIndex: 20,
+
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
   },
+
   zoomControls: {
     position: 'absolute',
     bottom: 40,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '30%',
+    gap: 16,
+
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 30,
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 8,
   },
+
   zoomBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     justifyContent: 'center',
     alignItems: 'center',
   },
 });
+
 
 export default Media;

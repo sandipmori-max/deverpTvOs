@@ -4,7 +4,9 @@ import { styles } from '../list_page_style';
 import { formatHeaderTitle } from '../../../../utils/helpers';
 import NoData from '../../../../components/no_data/NoData';
 import { useNavigation } from '@react-navigation/native';
-import { ERP_COLOR_CODE } from '../../../../utils/constants';
+import { DARK_COLOR, ERP_COLOR_CODE } from '../../../../utils/constants';
+import Footer from '../../tabs/home/Footer';
+import MemoizedFooterView from './MemoizedFooterView';
 
 const TableView = ({
   configData,
@@ -16,6 +18,8 @@ const TableView = ({
   handleActionButtonPressed,
   setIsFilterVisible,
   setSearchQuery,
+  totalQty,
+  isFromBusinessCard,
 }: any) => {
   const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
@@ -118,6 +122,8 @@ const TableView = ({
               title: pageParamsName,
               id: item?.id,
               url: pageName,
+              isFromBusinessCard: isFromBusinessCard,
+              isFromProfile: false
             });
           }
         }}
@@ -173,7 +179,7 @@ const TableView = ({
                   <TouchableOpacity
                     key={`${key}-${idx}`}
                     style={{
-                      backgroundColor: authUser ? 'gray' : color,
+                      backgroundColor: authUser ? DARK_COLOR : color,
                       paddingHorizontal: 12,
                       paddingVertical: 8,
                       borderRadius: 6,
@@ -196,6 +202,7 @@ const TableView = ({
             </View>
           )}
         </View>
+        <View>{item?.html && <MemoizedFooterView item={item} index={index} />}</View>
       </TouchableOpacity>
     );
   };
@@ -210,7 +217,7 @@ const TableView = ({
             backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
           }}
         >
-          <NoData />
+          <NoData isShowTop = {false}/>
         </View>
       </>
     );
@@ -226,13 +233,14 @@ const TableView = ({
         data={['']}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyExtractor={(item, index) => index.toString()}
         renderItem={() => {
           return (
             <FlatList
+              keyExtractor={(item, index) => index.toString()}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
               data={filteredData}
-                    keyExtractor={(item, index) => index.toString()}
               renderItem={renderItem}
               contentContainerStyle={styles.listContent}
             />
@@ -252,28 +260,62 @@ const TableView = ({
             marginBottom: 12,
           }}
         >
-          {totalAmount !== 0 && (
+          {
             <View
               style={{
                 justifyContent: 'space-between',
                 flexDirection: 'row',
               }}
             >
-              <Text style={{ fontSize: 14, fontWeight: '700', color: ERP_COLOR_CODE.ERP_333 }}>
-                Total Amount
-              </Text>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  color: '#28a745',
-                  marginTop: 2,
-                }}
-              >
-                ₹ {totalAmount?.toFixed(2)}
-              </Text>
+              {totalQty && (
+                <View
+                  style={{
+                    justifyContent: 'space-between',
+                    flexDirection: 'row',
+                    width: '50%',
+                  }}
+                >
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: ERP_COLOR_CODE.ERP_333 }}>
+                    Total Qty
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      color: '#28a745',
+                      marginLeft: 8,
+                    }}
+                  >
+                    ₹ {totalQty?.toFixed(2)}
+                  </Text>
+                </View>
+              )}
+
+              {totalAmount && (
+                <View
+                  style={{
+                    justifyContent: 'space-between',
+                    flexDirection: 'row',
+                    width: '50%',
+                  }}
+                >
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: ERP_COLOR_CODE.ERP_333 }}>
+                    Total Amount
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      color: '#28a745',
+                      marginLeft: 8,
+                    }}
+                  >
+                    ₹ {totalAmount?.toFixed(2)}
+                  </Text>
+                </View>
+              )}
             </View>
-          )}
+          }
 
           <View
             style={{
@@ -282,16 +324,7 @@ const TableView = ({
             }}
           >
             <Text style={{ fontSize: 14, fontWeight: '700', color: ERP_COLOR_CODE.ERP_333 }}>
-              Total Rows
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: 'bold',
-                marginTop: 2,
-              }}
-            >
-              {filteredData?.length}
+              {filteredData?.length} Row(s)
             </Text>
           </View>
         </View>

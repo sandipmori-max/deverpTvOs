@@ -1,13 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View, Modal, ScrollView } from 'react-native';
-import { useAppDispatch } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { styles } from '../page_style';
-import { ERP_COLOR_CODE } from '../../../../utils/constants';
+import { DARK_COLOR, ERP_COLOR_CODE } from '../../../../utils/constants';
 import { getAjaxThunk } from '../../../../store/slices/ajax/thunk';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import FullViewLoader from '../../../../components/loader/FullViewLoader';
+import useTranslations from '../../../../hooks/useTranslations';
+import InputError from '../../../../components/error/InputError';
+import NoData from '../../../../components/no_data/NoData';
+import TranslatedText from '../../tabs/home/TranslatedText';
 
-const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: any) => {
+const AjaxPicker = ({ isValidate, label, onValueChange, item, errors, dtext, formValues }: any) => {
   const dispatch = useAppDispatch();
 
   const [selectedOption, setSelectedOption] = useState(dtext || item?.text || item?.value);
@@ -15,6 +19,10 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
   const [options, setOptions] = useState<any[]>([]);
   const [loader, setLoader] = useState(false);
   const [search, setSearch] = useState('');
+  const theme = useAppSelector(state => state?.theme.mode);
+  const { t } = useTranslations();
+  const { user } = useAppSelector((state) => state?.auth);
+    console.log("user------user-------user------------", user)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -31,14 +39,24 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
 
   const fetchOptions = useCallback(async () => {
 
-     const resolvedWhere = item?.ddlwhere.replace(/\{(\w+)\}/g, (_, key) => {
-      const lowerKey = key.toLowerCase();
-      console.log("🚀 ~ AjaxPicker ~ lowerKey:", lowerKey)
-      return formValues.hasOwnProperty(lowerKey) ? formValues[lowerKey] : `{${key}}`;
-    });
-     console.log("🚀 ~ AjaxPicker ~ resolvedWhere:", resolvedWhere)
+   console.log("item-------------------------", item);
 
+let resolvedWhere = item?.ddlwhere;
 
+// 1️⃣ Replace {key} format
+resolvedWhere = resolvedWhere?.replace(/\{(\w+)\}/g, (_, key) => {
+  const lowerKey = key.toLowerCase();
+  return formValues.hasOwnProperty(lowerKey)
+    ? formValues[lowerKey]
+    : `{${key}}`;
+});
+
+// 2️⃣ Replace $UID with item.id
+resolvedWhere = resolvedWhere?.replace(/\$UID/g, user?.id);
+
+console.log("resolvedWhere-------------------------", resolvedWhere);
+
+ 
     try {
       setLoader(true);
       const res = await dispatch(
@@ -62,6 +80,7 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
   };
 
   const handleSelect = (opt: any) => {
+    console.log("item----", item)
     const afterDash = item?.ddl?.split('-')[1];
     const arr = afterDash?.split(',');
 
@@ -88,8 +107,16 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
   return (
     <View style={{ marginBottom: 16 }}>
       <View style={{ flexDirection: 'row' }}>
-        <Text style={styles.label}>{label}</Text>
-        {item?.tooltip !== label && <Text> - ( {item?.tooltip} ) </Text>}
+        <TranslatedText 
+        numberOfLines={1}
+        style={[styles.label, theme === 'dark' && {
+          color: 'white'
+        }]}
+        text={label}
+        ></TranslatedText>
+        {item?.tooltip !== label && <Text style={[styles.label, theme === 'dark' && {
+          color: 'white'
+        }]}> - ( {item?.tooltip} ) </Text>}
         {item?.mandatory === '1' && <Text style={{ color: ERP_COLOR_CODE.ERP_ERROR }}>*</Text>}
       </View>
 
@@ -100,6 +127,21 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
           errors[item?.field] && {
             borderColor: ERP_COLOR_CODE.ERP_ERROR,
           },
+          isValidate && item?.mandatory === '1' && selectedOption && {
+            borderColor: 'green',
+            borderWidth: 0.8
+          }, 
+          theme === 'dark' && {
+            backgroundColor: 'black',
+            borderWidth: 1,
+          },
+           item?.background && {
+              
+            backgroundColor: item?.background
+            },
+            item?.disabled == '1' &&  theme === 'dark' && {
+            backgroundColor: DARK_COLOR,
+          }
         ]}
         onPress={() => {
           if (item?.disabled !== '1') {
@@ -108,9 +150,13 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
         }}
         activeOpacity={0.7}
       >
-        <Text style={{ color: selectedOption ? ERP_COLOR_CODE.ERP_BLACK : ERP_COLOR_CODE.ERP_888, flex: 1 }}>
-          {selectedOption || `Select ${label}`}
-        </Text>
+        <TranslatedText 
+        numberOfLines={1}
+        text={selectedOption || `${t("text.text34")} ${label}`}
+
+        style={{ color: theme === 'dark' ? 'white' : selectedOption ? ERP_COLOR_CODE.ERP_BLACK : ERP_COLOR_CODE.ERP_888, flex: 1 }}>
+          
+        </TranslatedText>
         <MaterialIcons name={'arrow-drop-down'} size={24} color={ERP_COLOR_CODE.ERP_555} />
       </TouchableOpacity>
 
@@ -120,31 +166,44 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
             flex: 1,
             justifyContent: 'flex-end',
             backgroundColor: 'rgba(0,0,0,0.4)',
-            alignContent:'center',
-            alignItems:'center'
           }}
         >
           <View
-            style={{
-              height: '75%',
-              width:'50%',
-              backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
-              padding: 16,
-            }}
+            style={[
+              {
+                height: '75%',
+                backgroundColor: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_WHITE,
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
+                padding: 16,
+              },
+              theme === 'dark' && {
+                borderWidth: 1,
+                borderColor: 'white'
+              }
+            ]}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 16, fontWeight: '600' }}>{label}</Text>
+              <TranslatedText 
+              numberOfLines={1}
+              text={label}
+              style={{ fontSize: 16, fontWeight: '600', color: theme === 'dark' ? 'white' : "#000" }}></TranslatedText>
               <TouchableOpacity onPress={() => setOpen(false)}>
-                <MaterialIcons name="close" size={24} color="#000" />
+                <MaterialIcons name="close" size={24} color={theme === 'dark' ? 'white' : "#000"} />
               </TouchableOpacity>
             </View>
 
             <View style={{ position: 'relative', marginVertical: 12 }}>
               <TextInput
-                style={[styles.textInput, { paddingRight: 40 }]}
-                placeholder="Search here..."
+                style={[styles.textInput,
+                theme === 'dark' && {
+                  color: 'white',
+                  backgroundColor: 'black',
+                  borderWidth: 1,
+                  borderColor: 'white'
+                },
+                { paddingRight: 40 }]}
+                placeholder={t("title.title5")}
                 placeholderTextColor={ERP_COLOR_CODE.ERP_888}
                 value={search}
                 onChangeText={setSearch}
@@ -160,14 +219,14 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
                     transform: [{ translateY: -12 }],
                   }}
                 >
-                  <MaterialIcons name="close" size={20} color={ERP_COLOR_CODE.ERP_888}/>
+                  <MaterialIcons name="close" size={20} color={ERP_COLOR_CODE.ERP_888} />
                 </TouchableOpacity>
               )}
             </View>
 
             {loader ? (
-             <View style={{flex: 1, justifyContent:'center', alignContent:'center', alignItems:'center'}}>
-               <FullViewLoader />
+              <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
+                <FullViewLoader isShowTop={false}/>
               </View>
             ) : (
               <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
@@ -182,7 +241,11 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
                     return (
                       <TouchableOpacity
                         key={i}
-                        style={[styles.option, { paddingVertical: 12 }]}
+                        style={[styles.option, { paddingVertical: 12 },
+                          theme === 'dark' && {
+                             borderBottomColor : ERP_COLOR_CODE.ERP_F8F9FA
+                          }
+                        ]}
                         onPress={() => handleSelect(opt)}
                       >
                         <View
@@ -200,20 +263,22 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
                                 paddingHorizontal: 6,
                               }}
                             >
-                              <Text
-                                style={{
+                              <TranslatedText
+                                style={[{
                                   color:
                                     key === label?.toLowerCase()
                                       ? ERP_COLOR_CODE.ERP_APP_COLOR
                                       : ERP_COLOR_CODE.ERP_BLACK,
                                   fontSize: key === label?.toLowerCase() ? 16 : 14,
                                   fontWeight: key === label?.toLowerCase() ? '700' : '400',
-                                }}
+                                }, {
+                                  color: theme === 'dark' ? 'white' : "#000"
+                                }]}
                                 numberOfLines={1}
-                                ellipsizeMode="tail"
+                                text= {String(value)}
                               >
-                                {String(value)}
-                              </Text>
+                               
+                              </TranslatedText>
                             </View>
                           ))}
                         </View>
@@ -222,15 +287,17 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
                   })
                 ) : (
                   <View
-                    style={{
-                      marginVertical: 12,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: 100,
-                    }}
-                  >
-                    <Text>No data</Text>
-                  </View>
+                  style={{
+                    marginVertical: 12,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 100,
+                    alignContent:'center',
+                    marginTop: 200,
+                  }}
+                >
+                  <NoData isShowTop = {false}/>
+                </View>
                 )}
               </ScrollView>
             )}
@@ -239,8 +306,9 @@ const AjaxPicker = ({ label, onValueChange, item, errors, dtext, formValues }: a
       </Modal>
 
       {errors[item.field] && (
-        <Text style={{ color: ERP_COLOR_CODE.ERP_ERROR, marginTop: 4 }}>{errors[item?.field]}</Text>
+        <InputError error = {errors[item?.field]}/>
       )}
+
     </View>
   );
 };

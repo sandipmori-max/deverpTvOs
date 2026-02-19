@@ -12,5 +12,15 @@ export const styles = StyleSheet.create({
   gif: {
     width: 200,
     height: 200,
+  },  
+  title: {
+    marginTop: 4,
+    fontSize: 18,
+    fontWeight: '800',
+    color:'black'
+  },
+  subtitle: {
+    marginTop: 6,
+    fontSize: 14,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, StatusBar, StyleSheet } from 'react-native';
+import { Alert, AppState, StatusBar, StyleSheet, View } from 'react-native';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,26 +20,84 @@ import {
   checkInitialNotification,
 } from './src/firebase/firebaseService';
 
+import { clearAllTempFiles } from './src/utils/helpers';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import FullViewLoader from './src/components/loader/FullViewLoader';
+import TermsAndConsent from './src/screens/TermsConditions/TermsCondition';
+import { useAppSelector } from './src/store/hooks';
+
 const App = () => {
+  return (
+    <Provider store={store}>
+      <TranslationProvider>
+        <AppContent />
+      </TranslationProvider>
+    </Provider>
+  );
+};
+
+const AppContent = () => {
   const isConnected = useNetworkStatus();
+  const theme = useAppSelector(state => state?.theme?.mode);
+
+  const statusBarColor =
+    theme === 'dark'
+      ? '#000000'
+      : ERP_COLOR_CODE.ERP_APP_COLOR;
+
+  const barStyle ='light-content';
+
   const [isSplashVisible, setSplashVisible] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [accepted, setAccepted] = useState(false);
+
+  useEffect(() => {
+    const checkAcceptance = async () => {
+      const value = await AsyncStorage.getItem('TERMS_ACCEPTED');
+      if (value === 'true') {
+        setAccepted(true);
+      }
+      setIsLoading(false);
+    };
+    checkAcceptance();
+  }, []);
+
+  const handleAccept = async () => {
+    await AsyncStorage.setItem('TERMS_ACCEPTED', 'true');
+    setAccepted(true);
+  };
+
+  useEffect(() => {
+    clearAllTempFiles();
+  }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'background') {
+        clearAllTempFiles();
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     requestUserPermission();
     setBackgroundMessageHandler();
+
     const unsubscribeForeground = onMessageListener(remoteMessage => {
       Alert.alert(
-        remoteMessage.notification?.title ?? 'New Message',
-        remoteMessage.notification?.body ?? JSON.stringify(remoteMessage.data)
+        remoteMessage?.notification?.title ?? 'New Message',
+        remoteMessage?.notification?.body ?? JSON.stringify(remoteMessage?.data),
       );
     });
 
     const unsubscribeBackground = onNotificationOpenedAppListener(remoteMessage => {
-      Alert.alert('App opened from background', JSON.stringify(remoteMessage.data));
+      Alert.alert('App opened from background', JSON.stringify(remoteMessage?.data));
     });
 
     checkInitialNotification(remoteMessage => {
-      Alert.alert('App opened from quit state', JSON.stringify(remoteMessage.data));
+      Alert.alert('App opened from quit state', JSON.stringify(remoteMessage?.data));
     });
 
     return () => {
@@ -48,42 +106,52 @@ const App = () => {
     };
   }, []);
 
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1 }}>
+        <FullViewLoader />
+      </View>
+    );
+  }
+
+  if (!accepted) {
+    return <TermsAndConsent onAccept={handleAccept} />;
+  }
+
   if (!isConnected) {
     return (
-      <TranslationProvider>
-        <StatusBar backgroundColor={ERP_COLOR_CODE.ERP_APP_COLOR} barStyle="light-content" />
-        <SafeAreaView edges={['top']} style={{ backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR }} />
-        <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.safeArea}>
+      <>
+        <StatusBar backgroundColor={statusBarColor} barStyle={barStyle} />
+        <SafeAreaView edges={['top']} style={{ backgroundColor: statusBarColor }} />
+        <SafeAreaView style={styles.safeArea}>
           <NoInternetScreen onRetry={() => {}} />
         </SafeAreaView>
-      </TranslationProvider>
+      </>
     );
   }
 
   if (isSplashVisible) {
     return (
-      <TranslationProvider>
-        <StatusBar backgroundColor={ERP_COLOR_CODE.ERP_APP_COLOR} barStyle="light-content" />
-        <SafeAreaView edges={['top']} style={{ backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR }} />
-        <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.safeArea}>
+      <>
+        <StatusBar backgroundColor={statusBarColor} barStyle={barStyle} />
+        <SafeAreaView edges={['top']} style={{ backgroundColor: statusBarColor }} />
+        <SafeAreaView style={styles.safeArea}>
           <CustomSplashScreen onFinish={() => setSplashVisible(false)} />
         </SafeAreaView>
-      </TranslationProvider>
+      </>
     );
   }
 
   return (
-    <TranslationProvider>
-      <Provider store={store}>
-        <StatusBar backgroundColor={ERP_COLOR_CODE.ERP_APP_COLOR} barStyle="light-content" />
-        <SafeAreaView edges={['top']} style={{ backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR }} />
-        <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
-        </SafeAreaView>
-      </Provider>
-    </TranslationProvider>
+    <>
+      <StatusBar backgroundColor={statusBarColor} barStyle={barStyle} />
+      <SafeAreaView edges={['top']} style={{ backgroundColor: statusBarColor }} />
+      <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </SafeAreaView>
+    </>
   );
 };
 

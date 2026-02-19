@@ -77,6 +77,7 @@ const DisplayScreen = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: isListVisible ? 'Tasks' : 'Create Task',
+      headerBackTitle: '',
       headerRight: () => (
         <>
           <ERPIcon
@@ -139,7 +140,6 @@ const DisplayScreen = () => {
           role="junior"
           onClose={() => setModalVisible(false)}
           onUpdate={updatedTask => {
-            console.log('Updated Task:', updatedTask);
             setModalVisible(false);
           }}
         />

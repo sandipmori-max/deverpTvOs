@@ -1,18 +1,31 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { Appearance } from 'react-native';
 
-type ThemeState = 'light' | 'dark';
+interface ThemeState {
+  mode: 'light' | 'dark';
+  langcode: 'en' | 'hi' | 'gu'
+}
 
-const initialState: ThemeState = Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
+const initialState: ThemeState = {
+  mode: Appearance.getColorScheme() === 'dark' ? 'dark' : 'light',
+  langcode: 'en'
+};
 
 const themeSlice = createSlice({
   name: 'theme',
   initialState,
   reducers: {
-    toggleTheme: state => (state === 'light' ? 'dark' : 'light'),
-    setTheme: (_, action) => action.payload,
+    toggleTheme: (state) => {
+      state.mode = state.mode === 'light' ? 'dark' : 'light';
+    },
+    setTheme: (state, action) => {
+      state.mode = action.payload;
+    },
+    setLang: (state, action) => {
+      state.langcode = action.payload;
+    },
   },
 });
 
-export const { toggleTheme, setTheme } = themeSlice.actions;
+export const { toggleTheme, setTheme, setLang } = themeSlice.actions;
 export default themeSlice.reducer;

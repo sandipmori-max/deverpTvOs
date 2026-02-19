@@ -47,4 +47,16 @@ export interface AuthState {
   isDashboardLoading: boolean;
   activeToken: string | null;
   isPinLoaded: boolean;
+  dashboardFromDate: string,
+  dashboardToDate: string,
+  dashboardBranch: string,
+  dashboardType: string,
+  dashboardBranchId: string,
+  dashboardTypeId: string,
+  appDrawerMenuList: [],
+  appBottomMenuList: [],
+  appColorCode: string,
+  isPinVerifyLoaded: boolean,
+  attendanceDone: boolean,
+  locationLogs: []
 }

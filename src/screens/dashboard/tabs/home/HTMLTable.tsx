@@ -1,23 +1,23 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
- 
+import TranslatedText from "./TranslatedText";
+
 const HTMLTable = ({ html }) => {
-  console.log("🚀 ~ HTMLTable ~ html:", html)
-  // Parse <tr> rows
   const rows = Array.from(html.matchAll(/<tr>(.*?)<\/tr>/g)).map(r =>
     Array.from(r[1].matchAll(/<t[dh][^>]*>(.*?)<\/t[dh]>/g)).map(c =>
       c[1].replace(/<[^>]+>/g, "").trim()
     )
   );
-  console.log("🚀 ~ HTMLTable ~ rows:", rows)
-
   return (
     <View style={styles.table}>
       {rows.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.row}>
           {row.map((cell, cellIndex) => (
             <View key={cellIndex} style={styles.cell}>
-              <Text style={styles.text}>{cell}</Text>
+              <TranslatedText 
+              numberOfLines={1}
+              text={cell}
+              style={styles.text}></TranslatedText>
             </View>
           ))}
         </View>
@@ -28,8 +28,8 @@ const HTMLTable = ({ html }) => {
 
 const styles = StyleSheet.create({
   table: {
-     borderWidth: 1,
-     height: 250,
+    borderWidth: 1,
+    height: 250,
     borderColor: "#ccc",
     width: "100%",
     marginVertical: 5,

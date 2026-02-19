@@ -1,9 +1,11 @@
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import { View, Text, Linking, TouchableOpacity } from 'react-native'; 
+import { View, Text, Linking, TouchableOpacity } from 'react-native';
 import { ERP_COLOR_CODE } from '../../utils/constants';
+import { useAppSelector } from '../../store/hooks';
 const ContactRow = () => {
   const phoneNumber = '7935312554';
   const emailAddress = 'support@deverp.com';
+  const theme = useAppSelector(state => state.theme.mode);
 
   const handlePhonePress = () => {
     Linking.openURL(`tel:${phoneNumber}`);
@@ -28,10 +30,12 @@ const ContactRow = () => {
       >
         <MaterialIcons
           size={14}
-          color={ERP_COLOR_CODE.ERP_BLACK}
+          color={theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_BLACK}
           name="phone"
         />
-        <Text>{phoneNumber}</Text>
+        <Text style={{
+          color: theme === 'dark' ? 'white' : 'black'
+        }}>{phoneNumber}</Text>
       </TouchableOpacity>
 
       {/* Email */}
@@ -47,10 +51,12 @@ const ContactRow = () => {
       >
         <MaterialIcons
           size={14}
-          color={ERP_COLOR_CODE.ERP_BLACK}
+          color={theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_BLACK}
           name="email"
         />
-        <Text>{emailAddress}</Text>
+        <Text style={{
+          color: theme === 'dark' ? 'white' : 'black'
+        }}>{emailAddress}</Text>
       </TouchableOpacity>
     </View>
   );

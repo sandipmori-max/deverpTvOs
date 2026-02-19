@@ -3,19 +3,17 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   FlatList,
   Dimensions,
-  Alert,
   PanResponder,
 } from 'react-native';
 import NoData from '../../../../components/no_data/NoData';
 import { PieChart } from 'react-native-gifted-charts';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
-import { useAppDispatch } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { getERPListDataThunk } from '../../../../store/slices/auth/thunk';
 import FullViewLoader from '../../../../components/loader/FullViewLoader';
 import { useBaseLink } from '../../../../hooks/useBaseLink';
@@ -32,28 +30,21 @@ import {
   normalizeDate,
 } from '../../../../utils/helpers';
 import DetailsBottomSheet from './DetailsModal';
-
-const FILTERS = [
-  { key: 'all', label: 'All' },
-  { key: 'leave', label: 'Leave' },
-  { key: 'leave_first_half', label: 'First Half' },
-  { key: 'leave_second_half', label: 'Second Half' },
-  { key: 'late', label: 'Late Entry' },
-  { key: 'after_830', label: '8:30 >' },
-  { key: 'before_830', label: '8:30 <' },
-];
+import useTranslations from '../../../../hooks/useTranslations';
+import ImageBottomSheetModal from '../../../../components/bottomsheet/ImageBottomSheetModal';
+import TranslatedText from '../../tabs/home/TranslatedText';
 
 const styles = StyleSheet.create({
   recordCard: {
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderRadius: 4,
     padding: 8,
-    marginVertical: 6,
+    marginVertical: 4,
     marginHorizontal: 12,
     borderWidth: 0.5,
     width: '100%',
   },
-  recordAvatar: { width: 50, height: 50, borderRadius: 25 },
+  recordAvatar: { width: 46, height: 46, borderRadius: 25 },
   recordName: { fontSize: 14 },
   recordDateTime: { fontWeight: '600', fontSize: 14, color: ERP_COLOR_CODE.ERP_BLACK },
   recordPunchTime: { fontSize: 14, color: ERP_COLOR_CODE.ERP_333 },
@@ -91,6 +82,21 @@ const styles = StyleSheet.create({
 
 const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
   const dispatch = useAppDispatch();
+  const theme = useAppSelector(state => state?.theme.mode);
+  const { t } = useTranslations();
+
+  const [showImgModal, setShowImgModal] = useState(false);
+  const [img, setImg] = useState('')
+
+  const FILTERS = [
+    { key: 'all', label: t("text.text9") },
+    { key: 'leave', label: t("text.text10") },
+    { key: 'leave_first_half', label: t("text.text11") },
+    { key: 'leave_second_half', label: t("text.text12") },
+    { key: 'late', label: t("text.text13") },
+    { key: 'after_830', label: '8:30 >' },
+    { key: 'before_830', label: '8:30 <' },
+  ];
 
   const [activeFilter, setActiveFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
@@ -99,9 +105,18 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [currentView, setCurrentView] = useState<'pie' | 'calendar'>('pie');
-
   const baseLink = useBaseLink();
-
+  useEffect(() => {
+    return (() => {
+      setActiveFilter('all')
+      setIsLoading(false);
+      setListData([])
+      setParsedError(null)
+      setShowModal(false)
+      setSelectedItem(null);
+      setCurrentView('pie')
+    })
+  }, [])
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => {
       return (
@@ -132,13 +147,19 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
         const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
         const final = parsed?.d ? JSON.parse(parsed?.d) : parsed;
         setListData(final?.data || final || []);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1400)
       } catch (e: any) {
         setParsedError(e);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1400)
       } finally {
-        setIsLoading(false);
+
       }
     },
-    [dispatch],
+    [dispatch, theme],
   );
 
   useEffect(() => {
@@ -187,10 +208,10 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
   const present = total - leave;
 
   const chartData = [
-    { value: present, color: '#4caf50', text: 'Present' },
-    { value: leave, color: ERP_COLOR_CODE.ERP_ERROR, text: 'Leave' },
-    { value: late, color: '#a6bfc9ff', text: 'Late' },
-    { value: lessHours, color: '#ff9800', text: 'Less Hrs' },
+    { value: present, color: '#4caf50', text: t("text.text14") },
+    { value: leave, color: ERP_COLOR_CODE.ERP_ERROR, text: t("text.text15") },
+    { value: late, color: '#a6bfc9ff', text: t("text.text16") },
+    { value: lessHours, color: '#ff9800', text: t("text.text17") },
   ];
 
   if (parsedError) {
@@ -204,7 +225,7 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
           alignItems: 'center',
         }}
       >
-        <ErrorMessage message={JSON.stringify(parsedError)} />
+        <ErrorMessage message={JSON.stringify(parsedError)} isShowTop ={false} />
       </View>
     );
   }
@@ -231,7 +252,7 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
         selectedColor: color,
         customStyles: {
           container: { backgroundColor: color, borderRadius: 6 },
-          text: { color: ERP_COLOR_CODE.ERP_WHITE, fontWeight: '600' },
+          text: { color: theme === 'dark' ? '#fff' : ERP_COLOR_CODE.ERP_WHITE, fontWeight: '600' },
         },
       };
 
@@ -248,8 +269,24 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
     setSelectedItem(null);
   };
 
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          height: Dimensions.get('screen').height * 0.75,
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignContent: 'center',
+          alignSelf: 'center'
+        }}
+      >
+        <FullViewLoader />
+      </View>
+    )
+  }
+
   return (
-    <View style={{ flex: 1, backgroundColor: ERP_COLOR_CODE.ERP_WHITE }}>
+    <View style={{ flex: 1, backgroundColor: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_WHITE }}>
       {showFilter && (
         <ScrollView
           horizontal
@@ -266,34 +303,37 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                 { paddingVertical: 6, paddingHorizontal: 14, borderRadius: 4, borderWidth: 1 },
                 activeFilter === filter.key
                   ? {
-                      backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
-                      borderColor: ERP_COLOR_CODE.ERP_WHITE,
-                    }
+                    backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+                    borderColor: ERP_COLOR_CODE.ERP_WHITE,
+                  }
                   : {
-                      backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
-                      borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
-                    },
+                    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+                    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
+                  },
               ]}
             >
-              <Text
+              <TranslatedText
                 style={{
                   color:
-                    activeFilter === filter.key
-                      ? ERP_COLOR_CODE.ERP_WHITE
+                    activeFilter === filter.key ? theme === 'dark' ? '#fff' :
+                      ERP_COLOR_CODE.ERP_WHITE
                       : ERP_COLOR_CODE.ERP_BLACK,
                   fontWeight: '600',
                 }}
+                numberOfLines={1}
+                text={filter.label}
               >
-                {filter.label}
-              </Text>
+                
+              </TranslatedText>
             </TouchableOpacity>
           ))}
         </ScrollView>
       )}
 
-      {listData.length > 0 && (
+      {listData.length > 0 ?
         <FlatList
           data={['calendar']}
+          keyExtractor={(item, index) => index.toString()}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           renderItem={() => (
@@ -305,6 +345,7 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                   justifyContent: 'center',
                   alignContent: 'center',
                   alignItems: 'center',
+                  backgroundColor: theme === 'dark' ? 'black' : 'white'
                 }}
               >
                 {currentView === 'pie' && listData?.length > 0 && (
@@ -322,9 +363,15 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                       donut
                       radius={90}
                       innerRadius={80}
+                      textColor={theme === 'dark' ? '#fff' : "#000"}
+                      showValuesAsLabels
+                      innerCircleColor={theme === 'dark' ? '#000' : "#fff"}
                       centerLabelComponent={() => (
-                        <Text style={{ textAlign: 'center', fontSize: 18, fontWeight: '600' }}>
-                          {total + `\n`}Days
+                        <Text style={{
+                          color: theme === 'dark' ? '#fff' : "#000",
+                          textAlign: 'center', fontSize: 18, fontWeight: '600'
+                        }}>
+                          {total + `\n`}{t("text.text18")}
                         </Text>
                       )}
                     />
@@ -342,7 +389,13 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                               backgroundColor: c.color,
                             }}
                           />
-                          <Text>{`${c?.text} (${c?.value})`}</Text>
+                          <TranslatedText
+                          numberOfLines={1}
+                          text={`${c?.text} (${c?.value})`}
+                          style={{
+                            color: theme === 'dark' ? '#fff' : "#000"
+                          }}> 
+                          </TranslatedText>
                         </View>
                       ))}
                     </View>
@@ -357,6 +410,9 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                         alignSelf: 'center',
                         borderRadius: 8,
                         elevation: 2,
+                        backgroundColor: theme === 'dark' ? 'black' : 'white',
+                        borderWidth: 1,
+                        borderColor: theme === 'dark' ? 'white' : 'black',
                       }}
                       monthFormat={'MMMM yyyy'}
                       hideExtraDays={false}
@@ -365,17 +421,14 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                         const selectedData = listData?.find(
                           d => normalizeDate(d?.date) === day?.dateString,
                         );
-                        Alert.alert(
-                          `Attendance on ${day?.dateString}`,
-                          selectedData ? JSON.stringify(selectedData, null, 2) : 'No data',
-                        );
+                        openDetails(selectedData)
                       }}
                       markingType={'custom'}
                       markedDates={markedDates}
                       theme={{
                         textDayFontWeight: '600',
-                        todayTextColor: ERP_COLOR_CODE.ERP_APP_COLOR,
-                        arrowColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+                        todayTextColor: theme === 'dark' ? '#fff' : ERP_COLOR_CODE.ERP_APP_COLOR,
+                        arrowColor: theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_APP_COLOR,
                       }}
                     />
                   </View>
@@ -444,16 +497,25 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                     alignItems: 'center',
                   }}
                 >
-                  <NoData />
+                  <NoData isShowTop = {false}/>
                 </View>
               ) : (
-                <View style={{ marginHorizontal: 12 }}>
+                <View style={{
+                  marginHorizontal: 12,
+
+                  backgroundColor: theme === 'dark' ? 'black' : 'white'
+                }}>
                   <FlatList
                     data={timelineData}
                     keyExtractor={(item, index) => index.toString()}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => (
-                      <View style={{ marginBottom: 8 }}>
+                      <View style={{
+                        marginBottom: 8,
+
+                        backgroundColor: theme === 'dark' ? 'black' : 'white'
+
+                      }}>
                         {/* <Text style={{ 
                         backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
                         paddingHorizontal: 12,
@@ -476,16 +538,16 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
 
                           return (
                             <View key={rec.id} style={{ flexDirection: 'row', marginBottom: 0 }}>
-                              <View style={{ alignItems: 'center', width: 8 }}>
-                                <View
-                                  style={{
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: 6,
-                                    backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
-                                  }}
-                                />
-                                {
+                              {item.records.length > 1 && (
+                                <View style={{ alignItems: 'center', width: 8 }}>
+                                  <View
+                                    style={{
+                                      width: 12,
+                                      height: 12,
+                                      borderRadius: 6,
+                                      backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+                                    }}
+                                  />
                                   <View
                                     style={{
                                       width: 2,
@@ -493,47 +555,67 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                                       backgroundColor: ERP_COLOR_CODE.ERP_BLACK,
                                     }}
                                   />
-                                }
-                              </View>
+                                </View>
+                              )}
 
                               <TouchableOpacity
                                 onPress={() => openDetails(rec)}
                                 style={{
-                                  right: 16,
+                                  right: 10,
                                   flex: 1,
-                                  marginTop: 12,
+                                  marginTop: item.records.length > 1 ? 12 : 0,
                                 }}
                               >
-                                <View style={[styles.recordCard]}>
+                                <View style={[styles.recordCard, theme === 'dark' && {
+                                  borderColor: 'white',
+                                  borderWidth: 1,
+                                  backgroundColor: 'black'
+                                }]}>
                                   <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                     {/* Images */}
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                       {rec?.image && (
-                                        <FastImage
-                                          source={{
-                                            uri: baseLink + '/' + rec?.image,
-                                            priority: FastImage.priority.normal,
-                                            cache: FastImage.cacheControl.web,
+                                        <TouchableOpacity
+                                          onPress={() => {
+                                            setImg(`${baseLink}/${rec?.image}`)
+                                            setShowImgModal(true)
                                           }}
-                                          style={styles.recordAvatar}
-                                        />
+                                        >
+                                          <FastImage
+                                            source={{
+                                              uri: baseLink + '/' + rec?.image,
+                                              priority: FastImage.priority.normal,
+                                              cache: FastImage.cacheControl.web,
+                                            }}
+                                            style={styles.recordAvatar}
+                                          />
+                                        </TouchableOpacity>
+
                                       )}
                                       {rec?.image2 && (
-                                        <FastImage
-                                          source={{
-                                            uri: baseLink + '/' + rec?.image2,
-                                            priority: FastImage.priority.normal,
-                                            cache: FastImage.cacheControl.web,
+                                        <TouchableOpacity
+                                          onPress={() => {
+                                            setImg(`${baseLink}/${rec?.image2}`)
+                                            setShowImgModal(true)
                                           }}
-                                          style={[
-                                            styles.recordAvatar,
-                                            {
-                                              marginLeft: -32,
-                                              borderWidth: 2,
-                                              borderColor: ERP_COLOR_CODE.ERP_WHITE,
-                                            },
-                                          ]}
-                                        />
+                                        >
+                                          <FastImage
+                                            source={{
+                                              uri: baseLink + '/' + rec?.image2,
+                                              priority: FastImage.priority.normal,
+                                              cache: FastImage.cacheControl.web,
+                                            }}
+                                            style={[
+                                              styles.recordAvatar,
+                                              {
+                                                marginLeft: -28,
+                                                borderWidth: 2,
+                                                borderColor: ERP_COLOR_CODE.ERP_WHITE,
+                                              },
+                                            ]}
+                                          />
+                                        </TouchableOpacity>
+
                                       )}
                                     </View>
 
@@ -546,8 +628,18 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                                           marginBottom: 4,
                                         }}
                                       >
-                                        <Text style={styles.recordName}>{rec?.employee}</Text>
-                                        <Text style={styles.recordDateTime}>{rec?.date}</Text>
+                                        <TranslatedText
+                                        numberOfLines={1}
+                                        text={rec?.employee}
+                                        style={[styles.recordName, theme === 'dark' && {
+                                          color: 'white'
+                                        }]}></TranslatedText>
+                                        <TranslatedText
+                                        numberOfLines={1}
+                                        text={rec?.date}
+                                        style={[styles.recordDateTime, theme === 'dark' && {
+                                          color: 'white'
+                                        }]}></TranslatedText>
                                       </View>
 
                                       {
@@ -570,9 +662,12 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                                               size={14}
                                               name="access-alarm"
                                             />
-                                            <Text style={styles.recordPunchTime}>
-                                              {formatTo12Hour(rec?.intime) || '--'}
-                                            </Text>
+                                            <TranslatedText 
+                                            numberOfLines={1}
+                                            text= {formatTo12Hour(rec?.intime) || '--'}
+                                            style={[styles.recordPunchTime,]}>
+                                             
+                                            </TranslatedText>
                                           </View>
 
                                           {rec?.status?.toLowerCase() === 'working' ? (
@@ -588,27 +683,48 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                                                 size={14}
                                                 name="history-toggle-off"
                                               />
-                                              <Text style={styles.recordPunchTime}>
-                                                {rec?.status}
-                                              </Text>
+                                              <TranslatedText 
+                                              numberOfLines={1}
+                                              text=  {rec?.status}
+                                              style={styles.recordPunchTime}>
+                                              
+                                              </TranslatedText>
                                             </View>
                                           ) : (
-                                            <View
-                                              style={{
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                                gap: 4,
-                                              }}
-                                            >
-                                              <MaterialIcons
-                                                color={ERP_COLOR_CODE.ERP_666}
-                                                size={14}
-                                                name="timeline"
-                                              />
-                                              <Text style={styles.recordPunchTime}>
-                                                {getWorkedHours2(rec?.intime, rec?.outtime)}
-                                              </Text>
-                                            </View>
+                                            <>
+                                              {rec?.outtime && rec?.status?.toLowerCase() !== 'working' && rec?.status?.toLowerCase() !== 'leave' && (
+                                                <View
+                                                  style={{
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                    gap: 4,
+                                                  }}
+                                                >
+                                                  {/* <MaterialIcons
+                                                    color={ERP_COLOR_CODE.ERP_666}
+                                                    size={14}
+                                                    name="timeline"
+                                                  /> */}
+                                                  <Text
+                                                    style={[
+                                                      styles.recordPunchTime,
+                                                      {
+                                                        color:
+                                                          getWorkedHours(
+                                                            rec?.intime,
+                                                            rec?.outtime,
+                                                          ) < 9.5
+                                                            ? ERP_COLOR_CODE.ERP_ERROR
+                                                            : ERP_COLOR_CODE.ERP_666,
+                                                      },
+                                                    ]}
+                                                  >
+                                                    -
+                                                    {/* {getWorkedHours2(rec?.intime, rec?.outtime)} */}
+                                                  </Text>
+                                                </View>
+                                              )}
+                                            </>
                                           )}
 
                                           {rec?.status?.toLowerCase() !== 'working' && (
@@ -624,19 +740,23 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                                                 size={14}
                                                 name="access-alarm"
                                               />
-                                              <Text style={styles.recordPunchTime}>
-                                                {formatTo12Hour(rec?.outtime) || '--'}
-                                              </Text>
+                                              <TranslatedText 
+                                              numberOfLines={1}
+                                              text= {formatTo12Hour(rec?.outtime) || '--'}
+                                              style={styles.recordPunchTime}>
+                                               
+                                              </TranslatedText>
                                             </View>
                                           )}
                                         </View>
                                       }
 
                                       {isLeaveFull && (
-                                        <Text style={styles.statusBadgeRed}>Leave</Text>
+                                        <Text style={styles.statusBadgeRed}>{t("text.text10")}</Text>
                                       )}
-                                      {isLate && <Text style={styles.statusBadgeBlue}>Late</Text>}
-                                      {rec?.status?.toLowerCase() !== 'working' &&
+                                      {isLate && <Text style={styles.statusBadgeBlue}>{t("text.text16")}</Text>}
+                                      {rec?.outTime &&
+                                        rec?.status?.toLowerCase() !== 'working' &&
                                         isLessThanRequired && (
                                           <View
                                             style={{
@@ -644,14 +764,15 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                                               justifyContent: 'space-between',
                                             }}
                                           >
-                                            <Text style={styles.statusBadgeGrey}>Less Hours</Text>
+                                            <Text style={styles.statusBadgeGrey}>{t("text.text21")}</Text>
                                             <Text style={styles.statusBadgeGrey}>
-                                              ({workedHours.toFixed(2)} hrs)
+                                              {/* ({workedHours.toFixed(2)} hrs) */}
+                                              -
                                             </Text>
                                           </View>
                                         )}
 
-                                      <View
+                                      {/* <View
                                         style={{
                                           alignContent: 'center',
                                           alignItems: 'center',
@@ -666,7 +787,7 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
                                           name="location-on"
                                         />
                                         <Text>{rec?.location || 'Dummy location'} </Text>
-                                      </View>
+                                      </View> */}
                                     </View>
                                   </View>
                                 </View>
@@ -681,9 +802,22 @@ const List = ({ selectedMonth, showFilter, fromDate, toDate }: any) => {
               )}
             </>
           )}
-        />
-      )}
+        /> :
+        <>
+          <View style={{
+            height: Dimensions.get('screen').height * 0.75,
+            flex: 1, justifyContent: 'center', alignContent: 'center', alignItems: 'center'
+          }}>
+            <NoData isShowTop = {false}/>
+          </View>
+        </>
+      }
 
+      <ImageBottomSheetModal
+        visible={showImgModal}
+        onClose={() => setShowImgModal(false)}
+        imageUrl={img}
+      />
       <DetailsBottomSheet
         visible={showModal}
         onClose={closeDetails}

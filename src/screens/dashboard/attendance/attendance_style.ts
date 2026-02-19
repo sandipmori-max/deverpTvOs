@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { ERP_COLOR_CODE } from '../../../utils/constants';
 
 export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: ERP_COLOR_CODE.ERP_WHITE },
+  container: { flex: 1 },
   backBtn: { marginRight: 8 },
   backIcon: { fontSize: 20, color: ERP_COLOR_CODE.ERP_222 },
   dateContainer: {
@@ -10,11 +10,52 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: 16,
     marginVertical: 8,
-    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    backgroundColor: ERP_COLOR_CODE.ERP_APP_COLOR,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
+
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingBottom: 20,
+  },
+
+  header: {
+    height: 50,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+
+  doneText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2563eb', // iOS blue
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+
+  picker: {
+    height: 220,
   },
   dateRow: {
     flex: 1,
-    marginRight: 8,
+
   },
   dateLabel: {
     fontSize: 14,
@@ -29,6 +70,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     alignItems: 'center',
+    width: '98%'
   },
   dateButtonText: {
     fontSize: 14,
@@ -135,7 +177,7 @@ export const styles = StyleSheet.create({
   formRow: { flexDirection: 'row' },
   label: { fontSize: 14, color: ERP_COLOR_CODE.ERP_BLACK, fontWeight: '600', marginBottom: 6 },
   input: {
-    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: ERP_COLOR_CODE.ERP_e0e0e0,
     borderRadius: 8,

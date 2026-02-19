@@ -2,10 +2,9 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { styles } from '../page_style';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
-import AutoHeightWebView from './AutoHeightWebView';
+import AutoHeightWebView from './AutoHeightWebView'; // the component above
 
-const HtmlRow = ({ item , isFromPage}: any) => {
- 
+const HtmlRow = ({ item, isFromPage }: any) => {
   return (
     <View>
       <View style={{ marginTop: 0 }}>
@@ -15,7 +14,14 @@ const HtmlRow = ({ item , isFromPage}: any) => {
           {item?.mandatory === '1' && <Text style={{ color: ERP_COLOR_CODE.ERP_ERROR }}>*</Text>}
         </View>
       </View>
-      <AutoHeightWebView html={item?.text} isFromPage={isFromPage} isHorizontal={false} isFromMenu={false} textColor={'#000'} />
+      <AutoHeightWebView
+        html={item?.text}
+        isFromPage={isFromPage}
+        isHorizontal={false}
+        isFromMenu={false}
+        textColor={undefined}
+        isFromListPage={undefined}
+      />
     </View>
   );
 };

@@ -7,10 +7,8 @@ const useKeyboardVisible = (): boolean => {
   useEffect(() => {
     const handleShow = () => setKeyboardVisible(true);
     const handleHide = () => setKeyboardVisible(false);
-
     const showSub = Keyboard.addListener('keyboardDidShow', handleShow);
     const hideSub = Keyboard.addListener('keyboardDidHide', handleHide);
-
     return () => {
       showSub.remove();
       hideSub.remove();

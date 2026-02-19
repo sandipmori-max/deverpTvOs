@@ -10,6 +10,7 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
+import { ERP_COLOR_CODE } from '../../../utils/constants';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -72,7 +73,7 @@ const TaskDetailsBottomSheet = ({
         <View style={styles.header}>
           <Text style={styles.title}>{task.title}</Text>
           <TouchableOpacity onPress={onClose}>
-            <MaterialIcons name="close" size={22} color="#333" />
+            <MaterialIcons name="close" size={22} color={ERP_COLOR_CODE.ERP_333} />
           </TouchableOpacity>
         </View>
 
@@ -94,7 +95,7 @@ const TaskDetailsBottomSheet = ({
 
           {/* Dates */}
           <View style={styles.row}>
-            <MaterialIcons name="date-range" size={18} color="#555" />
+            <MaterialIcons name="date-range" size={18} color={ERP_COLOR_CODE.ERP_555}/>
             <Text style={styles.dateText}>
               {formatDate(task.startDate)} → {formatDate(task.endDate)}
             </Text>
@@ -103,7 +104,7 @@ const TaskDetailsBottomSheet = ({
           {/* Assigned Developers */}
           {task.assignedTo?.length > 0 && (
             <View style={styles.row}>
-              <MaterialIcons name="person" size={18} color="#555" />
+              <MaterialIcons name="person" size={18} color={ERP_COLOR_CODE.ERP_555}/>
               <Text style={styles.assignedText}>
                 {task.assignedTo.length} developer(s) assigned
               </Text>
@@ -167,22 +168,22 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: SCREEN_HEIGHT * 0.52,
-    backgroundColor: '#f4f6fb',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontSize: 20, fontWeight: '700', color: '#333' },
+  title: { fontSize: 20, fontWeight: '700', color: ERP_COLOR_CODE.ERP_333 },
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   badge: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: 8, marginRight: 10 },
-  badgeText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  desc: { fontSize: 16, color: '#555', marginBottom: 12 },
-  dateText: { fontSize: 14, color: '#555', marginLeft: 6 },
-  assignedText: { fontSize: 14, color: '#555', marginLeft: 6 },
+  badgeText: { color: ERP_COLOR_CODE.ERP_WHITE, fontSize: 13, fontWeight: '600' },
+  desc: { fontSize: 16, color: ERP_COLOR_CODE.ERP_555, marginBottom: 12 },
+  dateText: { fontSize: 14, color: ERP_COLOR_CODE.ERP_555, marginLeft: 6 },
+  assignedText: { fontSize: 14, color: ERP_COLOR_CODE.ERP_555, marginLeft: 6 },
   actions: { marginTop: 20 },
   button: { paddingVertical: 12, borderRadius: 10, marginBottom: 12, alignItems: 'center' },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  buttonText: { color: ERP_COLOR_CODE.ERP_WHITE, fontWeight: '700', fontSize: 15 },
 });
 
 export default TaskDetailsBottomSheet;

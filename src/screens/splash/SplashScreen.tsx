@@ -4,15 +4,21 @@ import { View, Image, StatusBar, Animated, Easing } from 'react-native';
 import { ERP_ICON } from '../../assets';
 import { styles } from './splash_style';
 import { SplashProps } from './types';
+import { useAppSelector } from '../../store/hooks';
+import { DARK_COLOR } from '../../utils/constants';
+import useTranslations from '../../hooks/useTranslations';
+import { firstLetterUpperCase } from '../../utils/helpers';
 
 const CustomSplashScreen: React.FC<SplashProps> = ({ onFinish }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const textTranslateY = useRef(new Animated.Value(20)).current;
   const subtitleOpacity = useRef(new Animated.Value(0)).current;
+  const theme = useAppSelector(state => state?.theme.mode);
+  const { t } = useTranslations();
+  const { user } = useAppSelector(state => state.auth);
 
   useEffect(() => {
-    // Animate logo (fade + scale)
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -27,7 +33,6 @@ const CustomSplashScreen: React.FC<SplashProps> = ({ onFinish }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      // After logo animation, animate text with staggered effect
       Animated.sequence([
         Animated.parallel([
           Animated.timing(textTranslateY, {
@@ -54,10 +59,10 @@ const CustomSplashScreen: React.FC<SplashProps> = ({ onFinish }) => {
   }, [fadeAnim, scaleAnim, textTranslateY, subtitleOpacity, onFinish]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, theme === 'dark' && {
+      backgroundColor: '#000'
+    }]}>
       <StatusBar hidden />
-
-      {/* Logo Animation */}
       <Animated.View
         style={[
           styles.logoWrapper,
@@ -65,33 +70,54 @@ const CustomSplashScreen: React.FC<SplashProps> = ({ onFinish }) => {
             opacity: fadeAnim,
             transform: [{ scale: scaleAnim }],
           },
+          theme === 'dark' && {
+            backgroundColor: '#000'
+          }
         ]}
       >
         <Image source={ERP_ICON.APP_LOGO} style={styles.logo} resizeMode="contain" />
       </Animated.View>
-
-      {/* Title Animation */}
+      {
+        user?.name &&  <Animated.Text
+        style={[
+          styles.helloTitle,
+          {
+            transform: [{ translateY: textTranslateY }],
+          },
+          theme === 'dark' && {
+            color: 'white'
+          }
+        ]}
+      >
+        {t('text99')}, {firstLetterUpperCase(user?.name || '')} 
+      </Animated.Text>
+      }
+     
       <Animated.Text
         style={[
           styles.title,
           {
             transform: [{ translateY: textTranslateY }],
           },
+          theme === 'dark' && {
+            color: 'white'
+          }
         ]}
       >
-        Welcome to DevERP
+        {t("text.text53")}
       </Animated.Text>
-
-      {/* Subtitle Animation */}
       <Animated.Text
         style={[
           styles.subtitle,
           {
             opacity: subtitleOpacity,
           },
+          theme === 'dark' && {
+            color: 'white'
+          }
         ]}
       >
-        Your business, simplified.
+        {t('text.text54')}
       </Animated.Text>
     </View>
   );

@@ -51,17 +51,12 @@ export const retryApiCall = async <T>(
     try {
       return await apiCall();
     } catch (error) {
-      console.log("🚀 ~ retryApiCall ~ error:", error)
       lastError = error;
-
       if (isAuthError(error) || (error.response?.status >= 400 && error.response?.status < 500)) {
         throw error;
       }
 
       if (attempt < maxRetries) {
-        console.log(
-          `API call failed , retrying in ${delay}ms... (attempt ${attempt}/${maxRetries})`,
-        );
         await new Promise(resolve => setTimeout(resolve, delay));
         delay *= 2;
       }
@@ -69,4 +64,20 @@ export const retryApiCall = async <T>(
   }
 
   throw lastError;
+};
+
+export const translateSingle = async (text) => {
+  try {
+    const response = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|gu`
+    );
+
+    const result = await response.json();
+    const translated = result.responseData.translatedText;
+console.log("translated", translated)
+     return translated;
+
+  } catch (error) {
+    console.log("Translation failed");
+  }
 };

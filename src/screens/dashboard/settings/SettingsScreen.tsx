@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,19 +8,21 @@ import {
   Switch,
   ScrollView,
   Modal,
+  Platform,
+  Animated,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { styles } from './settings_style';
 import CustomAlert from '../../../components/alert/CustomAlert';
 import useTranslations from '../../../hooks/useTranslations';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import {
   logoutUserThunk,
   removeAccountThunk,
   switchAccountThunk,
 } from '../../../store/slices/auth/thunk';
-import { ERP_COLOR_CODE } from '../../../utils/constants';
+import { ERP_COLOR_CODE, setERPTheme } from '../../../utils/constants';
 import {
   createAccountsTable,
   getActiveAccount,
@@ -30,6 +32,15 @@ import {
 import { DevERPService } from '../../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApi } from '../../../hooks/useApi';
+import { firstLetterUpperCase, isTokenValid } from '../../../utils/helpers';
+import DeviceInfo from 'react-native-device-info';
+import { setLang, setTheme } from '../../../store/slices/theme/themeSlice';
+import { clearAuthState, setDashboard, setEmptyMenu } from '../../../store/slices/auth/authSlice';
+import { resetAjaxState } from '../../../store/slices/ajax/ajaxSlice';
+import { resetAttendanceState } from '../../../store/slices/attendance/attendanceSlice';
+import { resetDropdownState } from '../../../store/slices/dropdown/dropdownSlice';
+import { resetSyncLocationState } from '../../../store/slices/location/syncLocationSlice';
+import { Easing } from 'react-native';
 
 interface SettingItem {
   id: string;
@@ -45,13 +56,17 @@ interface LanguageOption {
   code: string;
   name: string;
 }
+const HIDDEN_POSITION = 400;
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const { t, changeLanguage, getAvailableLanguages, getCurrentLanguage } = useTranslations();
   const [alertVisible, setAlertVisible] = useState(false);
-
+  const theme = useAppSelector(state => state.theme.mode);
+const translateY = useRef(new Animated.Value(HIDDEN_POSITION)).current;
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
   const [logoutVisible, setLogoutVisible] = useState(false);
+  const { user } = useAppSelector(state => state.auth);
 
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState(getCurrentLanguage());
@@ -63,9 +78,72 @@ const SettingsScreen = () => {
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     message: '',
-    type: 'info' as 'error' | 'success' | 'info',
+    type: 'info' as 'error' | 'success' | 'info' | 'exit',
   });
   const [settings, setSettings] = useState<SettingItem[]>([]);
+  const appVersion = DeviceInfo.getVersion();
+
+ useEffect(() => {
+    if (languageModalVisible) {
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [languageModalVisible]);
+
+  const closeWithAnimation = () => {
+    Animated.parallel([
+      Animated.timing(translateY, {
+        toValue: 200,
+        duration: 260,
+        easing: Easing.in(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 260,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setLogoutVisible(false);
+      setLanguageModalVisible(false);
+    });
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: theme === 'dark' ? 'black' : ERP_COLOR_CODE.ERP_APP_COLOR,   // <-- BLACK HEADER
+      },
+      headerBackTitle: '',
+      headerTintColor: '#fff',
+      headerTitle: () => (
+        <Text
+          numberOfLines={1}
+          style={{
+            maxWidth: 180,
+            fontSize: 18,
+            fontWeight: '700',
+            color: theme === 'dark' ? "white" : ERP_COLOR_CODE.ERP_WHITE,
+          }}
+        >
+          {t('title.title20')}
+        </Text>
+      ),
+
+    });
+  }, [navigation, theme]);
+
 
   useEffect(() => {
     setSettings([
@@ -122,7 +200,7 @@ const SettingsScreen = () => {
       {
         id: '7',
         title: t('settings.aboutApp'),
-        subtitle: `${t('common.version')} 1.0.0`,
+        subtitle: `${t('common.version')} - ${appVersion}`,
         icon: 'info',
         type: 'navigate',
         action: 'About',
@@ -165,9 +243,15 @@ const SettingsScreen = () => {
         } else if (item?.title === t('settings.biometricAuth')) {
           navigation.navigate('PinSet');
         } else if (item?.title === t('settings.privacySettings')) {
-          navigation.navigate('Privacy Policy');
+          navigation.navigate('Privacy Policy', {
+            titlePage: t('settings.privacySettings')
+          });
+
         } else if (item?.title === t('settings.helpSupport')) {
-          // navigation.navigate('');
+          navigation.navigate('Privacy Policy', {
+            url: Platform.OS === 'ios' ? 'https://deverp.com/index.aspx?q=contact_us' : 'http://deverp.com/index.aspx?q=contact_us',
+            titlePage: t('settings.helpSupport')
+          });
         } else if (item?.action) {
           setAlertConfig({
             title: t('common.navigate'),
@@ -177,7 +261,7 @@ const SettingsScreen = () => {
           setAlertVisible(true);
           setTimeout(() => {
             setAlertVisible(false);
-          }, 1200);
+          }, 1800);
         }
         break;
       case 'action':
@@ -185,8 +269,8 @@ const SettingsScreen = () => {
           setLogoutVisible(true);
           setAlertConfig({
             title: t('settings.logout'),
-            message: t('settings.logoutConfirm'),
-            type: 'error',
+            message:`${firstLetterUpperCase(user?.name || '')}, ${t('settings.logoutConfirm')}`,
+            type: 'exit',
           });
           setAlertVisible(true);
         } else if (item?.action) {
@@ -203,6 +287,7 @@ const SettingsScreen = () => {
 
   const handleLanguageChange = async (languageCode: string) => {
     await changeLanguage(languageCode);
+    dispatch(setLang(languageCode))
     setCurrentLanguage(languageCode);
     setLanguageModalVisible(false);
 
@@ -215,32 +300,62 @@ const SettingsScreen = () => {
 
     setTimeout(() => {
       setAlertVisible(false);
-    }, 1200);
+      navigation.goBack()
+    }, 1800);
   };
 
   const renderSettingItem = ({ item }: { item: SettingItem }) => (
     <TouchableOpacity
-      style={styles.settingCard}
+      style={[styles.settingCard, theme === 'dark' && {
+        backgroundColor: 'black'
+      }]}
       onPress={() => handleAction(item)}
       disabled={item.type === 'toggle'}
     >
       <View style={styles.settingHeader}>
-        <View style={styles.settingIcon}>
-          <MaterialIcons name={item?.icon} color={ERP_COLOR_CODE.ERP_BLACK} size={22} />
+        <View style={[styles.settingIcon,
+        {
+          backgroundColor: theme === 'dark' ? 'black' : "white",
+          borderWidth: 1,
+          borderColor: 'white'
+        }
+        ]}>
+          <MaterialIcons name={item?.icon} color={theme === 'dark' ? 'white' : ERP_COLOR_CODE.ERP_BLACK} size={22} />
         </View>
         <View style={styles.settingInfo}>
-          <Text style={styles.settingTitle}>{item?.title}</Text>
+          <Text style={[styles.settingTitle, theme === 'dark' && {
+            color: 'white'
+          }]}>{item?.title}</Text>
           <Text style={styles.settingSubtitle}>{item?.subtitle}</Text>
         </View>
         {item.type === 'toggle' ? (
           <Switch
-            value={item.value}
+            value={item.title === t('settings.darkMode') ? theme === 'dark' : item.value}
             onValueChange={() => {
               handleToggle(item.id);
+              if (item.title === t('settings.darkMode')) {
+                const newTheme = theme === 'dark' ? 'light' : 'dark';
+                setERPTheme(newTheme);
+                dispatch(setTheme(newTheme));
+              }
             }}
-            trackColor={{ false: ERP_COLOR_CODE.ERP_e0e0e0, true: '#4CAF50' }}
-            thumbColor={item.value ? ERP_COLOR_CODE.ERP_WHITE : '#f4f3f4'}
+            trackColor={{
+              false: Platform.OS === 'ios' ? '#e5e7eb' : ERP_COLOR_CODE.ERP_e0e0e0,
+              true: '#4CAF50',
+            }}
+            thumbColor={
+              Platform.OS === 'android'
+                ? theme === 'dark'
+                  ? '#ffffff'
+                  : '#f4f3f4'
+                : undefined // iOS ignores thumbColor mostly
+            }
+            ios_backgroundColor="#e5e7eb"
+            style={{
+              transform: Platform.OS === 'ios' ? [{ scaleX: 0.9 }, { scaleY: 0.9 }] : [],
+            }}
           />
+
         ) : (
           <>{item?.title !== t('settings.aboutApp') && <Text style={styles.arrowIcon}>›</Text>}</>
         )}
@@ -260,11 +375,17 @@ const SettingsScreen = () => {
         style={[
           languageStyles.languageName,
           currentLanguage === item.code && languageStyles.selectedLanguageText,
+          theme === 'dark' && {
+            color: 'white'
+          },
+          currentLanguage === item.code && theme === 'dark' && {
+            color: 'black'
+          }
         ]}
       >
         {item.name}
       </Text>
-      {currentLanguage === item.code && <Text style={languageStyles.checkmark}>✓</Text>}
+      {currentLanguage === item.code && <MaterialIcons name='done-all' size={22} color={ERP_COLOR_CODE.ERP_APP_COLOR}/>}
     </TouchableOpacity>
   );
 
@@ -272,125 +393,202 @@ const SettingsScreen = () => {
     dispatch(removeAccountThunk(accountId));
   };
 
+  const sectionAnims = useRef(
+    Array(5).fill(0).map(() => new Animated.Value(0))
+  ).current;
+
+ useFocusEffect(
+  useCallback(() => {
+    // reset animations
+    sectionAnims.forEach(anim => anim.setValue(0));
+
+    Animated.stagger(
+      280,
+      sectionAnims.map(anim =>
+        Animated.timing(anim, {
+          toValue: 1,
+          duration: 780,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        })
+      )
+    ).start();
+
+    return () => {}; // cleanup not required
+  }, [])
+);
+
+  const animatedStyle = (index) => ({
+    opacity: sectionAnims[index],
+    transform: [
+      {
+        translateY: sectionAnims[index].interpolate({
+          inputRange: [0, 1],
+          outputRange: [20, 0],
+        }),
+      },
+    ],
+  });
+
   return (
-    <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={{
-          flexDirection:'row',
-           width: "100%",
-        }}>
-
-          <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('settings.notifications')}</Text>
-          <FlatList
-            keyboardShouldPersistTaps="handled"
-            data={settings.filter(item => item.id === '1' || item.id === '2')}
-            renderItem={renderSettingItem}
-                    keyExtractor={(item, index) => index.toString()}
-            scrollEnabled={false}
-          />
-        </View>
-
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('settings.appearance')}</Text>
-          <FlatList
-            keyboardShouldPersistTaps="handled"
-            data={settings.filter(item => item.id === '3')}
-            renderItem={renderSettingItem}
-                    keyExtractor={(item, index) => index.toString()}
-            scrollEnabled={false}
-          />
-        </View>
-
-        </View>
-
- <View style={{
-          flexDirection:'row',
-           width: "100%",
-        }}>
-
-          <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('settings.security')}</Text>
-          <FlatList
-            keyboardShouldPersistTaps="handled"
-            data={settings.filter(item => item.id === '4' || item.id === '5')}
-            renderItem={renderSettingItem}
-                    keyExtractor={(item, index) => index.toString()}
-            scrollEnabled={false}
-          />
-        </View>
-
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('settings.general')}</Text>
-          <FlatList
-            keyboardShouldPersistTaps="handled"
-            data={settings.filter(item => item.id === '6' || item.id === '7' || item.id === '8')}
-            renderItem={renderSettingItem}
-                    keyExtractor={(item, index) => index.toString()}
-            scrollEnabled={false}
-          />
-        </View> 
-        </View>
+    <View style={[styles.container, theme === 'dark' ? {
+      backgroundColor: 'black'
+    } : {
+      backgroundColor: 'white'
+    }]}>
        
-        <View style={{
-          flexDirection:'row',
-           width: "100%",
-        }}>
- <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('settings.account')}</Text>
-          <FlatList
-            keyboardShouldPersistTaps="handled"
-            data={settings.filter(item => item.id === '9')}
-            renderItem={renderSettingItem}
-                    keyExtractor={(item, index) => index.toString()}
-            scrollEnabled={false}
-          />
-        </View>
+   <ScrollView
+      style={styles.scrollContainer}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+    >
+      {/* Notifications */}
+      <Animated.View style={[styles.sectionContainer, animatedStyle(0)]}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            theme === 'dark' && { backgroundColor: 'black', color: 'white' },
+          ]}
+        >
+          {t('settings.notifications')}
+        </Text>
+        <FlatList
+          keyboardShouldPersistTaps="handled"
+          data={settings.filter(item => item.id === '1' || item.id === '2')}
+          renderItem={renderSettingItem}
+          keyExtractor={(item, index) => index.toString()}
+          scrollEnabled={false}
+        />
+      </Animated.View>
 
-        </View>
+      {/* Appearance */}
+      <Animated.View style={[styles.sectionContainer, animatedStyle(1)]}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            theme === 'dark' && { backgroundColor: 'black', color: 'white' },
+          ]}
+        >
+          {t('settings.appearance')}
+        </Text>
+        <FlatList
+          keyboardShouldPersistTaps="handled"
+          data={settings.filter(item => item.id === '3')}
+          renderItem={renderSettingItem}
+          keyExtractor={(item, index) => index.toString()}
+          scrollEnabled={false}
+        />
+      </Animated.View>
 
-       
+      {/* Security */}
+      <Animated.View style={[styles.sectionContainer, animatedStyle(2)]}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            theme === 'dark' && { backgroundColor: 'black', color: 'white' },
+          ]}
+        >
+          {t('settings.security')}
+        </Text>
+        <FlatList
+          keyboardShouldPersistTaps="handled"
+          data={settings.filter(item => item.id === '4' || item.id === '5')}
+          renderItem={renderSettingItem}
+          keyExtractor={(item, index) => index.toString()}
+          scrollEnabled={false}
+        />
+      </Animated.View>
 
-        <View style={styles.bottomSpacing} />
-      </ScrollView>
+      {/* General */}
+      <Animated.View style={[styles.sectionContainer, animatedStyle(3)]}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            theme === 'dark' && { backgroundColor: 'black', color: 'white' },
+          ]}
+        >
+          {t('settings.general')}
+        </Text>
+        <FlatList
+          keyboardShouldPersistTaps="handled"
+          data={settings.filter(item =>
+            item.id === '6' || item.id === '7' || item.id === '8'
+          )}
+          renderItem={renderSettingItem}
+          keyExtractor={(item, index) => index.toString()}
+          scrollEnabled={false}
+        />
+      </Animated.View>
 
-      <Modal
-        visible={languageModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => {
-          setLogoutVisible(false);
-          setLanguageModalVisible(false);
-        }}
+      {/* Account */}
+      <Animated.View style={[styles.sectionContainer, animatedStyle(4)]}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            theme === 'dark' && { backgroundColor: 'black', color: 'white' },
+          ]}
+        >
+          {t('settings.account')}
+        </Text>
+        <FlatList
+          keyboardShouldPersistTaps="handled"
+          data={settings.filter(item => item.id === '9')}
+          renderItem={renderSettingItem}
+          keyExtractor={(item, index) => index.toString()}
+          scrollEnabled={false}
+        />
+      </Animated.View>
+
+      <View style={styles.bottomSpacing} />
+    </ScrollView>
+     <Modal
+      visible={languageModalVisible}
+      transparent
+      animationType="none"
+      onRequestClose={closeWithAnimation}
+    >
+      <Animated.View
+        style={[
+          languageStyles.modalOverlay,
+          { opacity: overlayOpacity },
+        ]}
       >
-        <View style={languageStyles.modalOverlay}>
-          <View style={languageStyles.modalContent}>
-            <View style={languageStyles.modalHeader}>
-              <Text style={languageStyles.modalTitle}>{t('language.selectLanguage')}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setLogoutVisible(false);
-                  setLanguageModalVisible(false);
-                }}
-              >
-                <Text style={languageStyles.closeButton}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={languages}
-              keyboardShouldPersistTaps="handled"
-              renderItem={renderLanguageOption}
-                    keyExtractor={(item, index) => index.toString()}
-              style={languageStyles.languageList}
-            />
+        <Animated.View
+          style={[
+            languageStyles.modalContent,
+            theme === 'dark' && {
+              backgroundColor: 'black',
+              borderWidth: 1,
+              borderColor: 'white',
+            },
+            { transform: [{ translateY }] },
+          ]}
+        >
+          {/* Header */}
+          <View style={languageStyles.modalHeader}>
+            <Text style={[languageStyles.modalTitle, theme === 'dark' && {
+              color: 'white'
+            }]}>
+              {t('language.selectLanguage')}
+            </Text>
+
+            <TouchableOpacity onPress={closeWithAnimation}>
+              <Text style={languageStyles.closeButton}>✕</Text>
+            </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
+
+          {/* List */}
+          <FlatList
+            data={languages}
+            keyboardShouldPersistTaps="handled"
+            renderItem={renderLanguageOption}
+            keyExtractor={(_, index) => index.toString()}
+            style={languageStyles.languageList}
+          />
+        </Animated.View>
+      </Animated.View>
+    </Modal>
 
       <CustomAlert
         visible={alertVisible}
@@ -400,12 +598,12 @@ const SettingsScreen = () => {
         onClose={() => {
           setLogoutVisible(false);
           setAlertVisible(false);
-        }}
+        } }
         isBottomButtonVisible={logoutVisible}
         onCancel={() => {
           setLogoutVisible(false);
           setAlertVisible(false);
-        }}
+        } }
         onDone={async () => {
           if (logoutVisible) {
             const db = await getDBConnection();
@@ -416,32 +614,49 @@ const SettingsScreen = () => {
               const newActiveUser = await logoutUser(db, activeUser?.id);
 
               if (newActiveUser) {
-                DevERPService.setToken(newActiveUser?.user?.token || '');
-                await AsyncStorage.setItem('erp_token', newActiveUser?.user?.token || '');
-                await AsyncStorage.setItem('auth_token', newActiveUser?.user?.token || '');
-                await AsyncStorage.setItem(
-                  'erp_token_valid_till',
-                  newActiveUser?.user?.token || '',
-                );
+                if (isTokenValid(newActiveUser?.user?.tokenValidTill)) {
+                  DevERPService.setToken(newActiveUser?.user?.token || '');
+                  await AsyncStorage.setItem('erp_token', newActiveUser?.user?.token || '');
+                  await AsyncStorage.setItem('auth_token', newActiveUser?.user?.token || '');
+                  await AsyncStorage.setItem(
+                    'erp_token_valid_till',
+                    newActiveUser?.user?.token || ''
+                  );
 
-                const validation = await validateCompanyCode(() =>
-                  DevERPService.validateCompanyCode(newActiveUser?.user?.company_code),
-                );
-                if (!validation?.isValid) {
-                  return;
+                  const validation = await validateCompanyCode(() => DevERPService.validateCompanyCode(newActiveUser?.user?.company_code)
+                  );
+                  if (!validation?.isValid) {
+                    return;
+                  }
+
+                  dispatch(switchAccountThunk(newActiveUser?.id));
+                } else {
+                  const validation = await validateCompanyCode(() => DevERPService.validateCompanyCode(newActiveUser?.user?.company_code)
+                  );
+                  if (!validation?.isValid) {
+                    return;
+                  }
+
+                  dispatch(switchAccountThunk(newActiveUser?.id));
                 }
-
-                dispatch(switchAccountThunk(newActiveUser?.id));
               } else {
+                dispatch(setDashboard([]));
+                dispatch(setEmptyMenu([]));
+                dispatch(resetAjaxState());
+                dispatch(resetAttendanceState());
+                dispatch(clearAuthState());
+                dispatch(resetDropdownState());
+                dispatch(resetSyncLocationState());
+                dispatch(resetAttendanceState());
                 dispatch(logoutUserThunk());
               }
             }
           }
-        }}
-        doneText="Logout"
+        } }
+        cancelText={t('auth.cancel')}
+        doneText={t('auth.logout')}
         color={ERP_COLOR_CODE.ERP_ERROR}
-        actionLoader={undefined}
-      />
+        actionLoader={undefined} closeHide={undefined}      />
     </View>
   );
 };
@@ -487,6 +702,7 @@ const languageStyles = StyleSheet.create({
   },
   selectedLanguage: {
     backgroundColor: '#f5f5f5',
+    borderRadius: 8,
   },
   languageName: {
     fontSize: 16,
@@ -494,7 +710,7 @@ const languageStyles = StyleSheet.create({
   },
   selectedLanguageText: {
     fontWeight: 'bold',
-    color: '#2196F3',
+    color: ERP_COLOR_CODE.ERP_APP_COLOR,
   },
   checkmark: {
     fontSize: 18,

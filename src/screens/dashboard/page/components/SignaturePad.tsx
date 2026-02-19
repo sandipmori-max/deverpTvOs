@@ -14,13 +14,17 @@ import {
 import SignatureScreen, { SignatureViewRef } from 'react-native-signature-canvas';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
 import { useBaseLink } from '../../../../hooks/useBaseLink';
-
-const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: any) => {
+import { useAppSelector } from '../../../../store/hooks';
+import useTranslations from '../../../../hooks/useTranslations';
+ 
+const SignaturePad: React.FC = ({isValidate, item, handleSignatureAttachment, infoData }: any) => {
   const signatureRef = useRef<SignatureViewRef>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [savedSignature, setSavedSignature] = useState<string | null>(null);
   const baseLink = useBaseLink();
   const [cacheBuster, setCacheBuster] = useState(Date.now());
+  const theme = useAppSelector(state => state?.theme.mode);
+   const { t } = useTranslations();
 
   const handleSignature = (signature: string) => {
     setSavedSignature(signature);
@@ -45,8 +49,12 @@ const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: a
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={{ marginVertical: 8, fontWeight: '600' }}>{item?.fieldtitle}</Text>
+    <View style={[styles.container, theme === 'dark' && {backgroundColor : 'black'}]}>
+      <Text style={[
+        theme === 'dark' && {
+          color:'white'
+        },
+        { marginVertical: 8, fontWeight: '600' }]}>{item?.fieldtitle}</Text>
 
       <View
         style={{
@@ -57,11 +65,12 @@ const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: a
           borderWidth: 1,
           borderRadius: 8,
           borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
+          backgroundColor: 'white'
         }}
       >
         <View>
         </View>
-        <View style={{ height: 100, width: 100 }}>
+        <View style={{ height: 100, width: 100 , backgroundColor: 'white'}}>
           <Image source={{ uri: getImageUri() }} style={styles.imageThumb} resizeMode="contain" />
         </View>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
@@ -79,35 +88,43 @@ const SignaturePad: React.FC = ({ item, handleSignatureAttachment, infoData }: a
           <View style={styles.overlay} />
         </TouchableWithoutFeedback>
 
-        <View style={styles.bottomSheet}>
+        <View style={[styles.bottomSheet, theme === 'dark' && {
+            borderWidth: 1,
+            borderColor: 'white',
+            backgroundColor:'black'
+          }]}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Sign below</Text>
+            <Text style={[styles.modalTitle, theme ==='dark' && {
+              color:'white'
+            }]}>{t("text.text39")}</Text>
             <View style={styles.buttonOverlay}>
               <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
-                <MaterialIcons name="save" size={18} color="#000" />
+                <MaterialIcons name="save" size={18} color={theme ==='dark' ? 'white' : 'black'} />
               </TouchableOpacity>
 
               <TouchableOpacity style={[styles.button, styles.clearButton]} onPress={handleClear}>
-                <MaterialIcons name="auto-fix-high" size={18} color="#000" />
+                <MaterialIcons name="auto-fix-high" size={18} color={theme ==='dark' ? 'white' : 'black'} />
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.button, styles.closeButton]}
                 onPress={() => setModalVisible(false)}
               >
-                <MaterialIcons name="close" size={18} color="#000" />
+                <MaterialIcons name="close" size={18} color={theme ==='dark' ? 'white' : 'black'} />
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.signatureBox}>
+          <View style={[styles.signatureBox, {
+            backgroundColor:'white'
+          }]}>
             <SignatureScreen
               ref={signatureRef}
               onOK={handleSignature}
-              onEmpty={() => Alert.alert('Please provide a signature')}
-              descriptionText="Sign here"
-              clearText="Clear"
-              confirmText="Save"
+              onEmpty={() => Alert.alert(t("msg.msg14"))}
+              descriptionText={t("text.text40")}
+              clearText={t("text.text41")}
+              confirmText={t("text.text42")}
               autoClear={false}
               dataURL={savedSignature || undefined}
               webStyle={`

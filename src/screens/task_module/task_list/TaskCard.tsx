@@ -1,6 +1,7 @@
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ERP_COLOR_CODE } from '../../../utils/constants';
 
 const statusColors: Record<string, string> = {
   pending: '#f39c12',
@@ -10,7 +11,7 @@ const statusColors: Record<string, string> = {
 };
 
 const TaskCard = ({ task, onPress }) => {
- 
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={[styles.statusBar, { backgroundColor: statusColors[task.status] }]} />
@@ -19,7 +20,7 @@ const TaskCard = ({ task, onPress }) => {
         <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
           <Text style={styles.title}>{task.title}</Text>
           <View style={[styles.statusBadge, { backgroundColor: statusColors[task.status] }]}>
-            <Text style={styles.statusText}>{task.status.replace('_', ' ')}</Text>
+            <Text style={styles.statusText}>{task.status.replace('_', ' ').toUpperCase()}</Text>
           </View>
         </View>
         {task.description ? (
@@ -36,12 +37,12 @@ const TaskCard = ({ task, onPress }) => {
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <MaterialIcons color="#666" size={14} name="hourglass-bottom" />
+            <MaterialIcons color={ERP_COLOR_CODE.ERP_666} size={14} name="hourglass-bottom" />
             <Text style={styles.date}>22 sep 2025</Text>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <MaterialIcons color="#666" size={14} name="hourglass-top" />
+            <MaterialIcons color={ERP_COLOR_CODE.ERP_666} size={14} name="hourglass-top" />
             <Text style={styles.date}>22 sep 2025</Text>
           </View>
         </View>
@@ -63,15 +64,15 @@ const TaskCard = ({ task, onPress }) => {
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     marginVertical: 4,
     marginHorizontal: 10,
     borderRadius: 4,
     borderWidth: 0.8,
-    borderColor: '#ccc',
+    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
     overflow: 'hidden',
   },
-  date: { fontSize: 12, color: '#333' },
+  date: { fontSize: 12, color: ERP_COLOR_CODE.ERP_333 },
   statusBar: {
     width: 6,
     borderTopLeftRadius: 12,
@@ -81,26 +82,26 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 8,
   },
-  title: { fontSize: 14, fontWeight: '700', color: '#333', marginBottom: 4 },
-  desc: { fontSize: 12, color: '#555', marginBottom: 6 },
-  meta: { fontSize: 12, color: '#777', marginBottom: 6 },
+  title: { fontSize: 14, fontWeight: '700', color: ERP_COLOR_CODE.ERP_333, marginBottom: 4 },
+  desc: { fontSize: 12, color: ERP_COLOR_CODE.ERP_555, marginBottom: 6 },
+  meta: { fontSize: 12, color: ERP_COLOR_CODE.ERP_777, marginBottom: 6 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
   },
   priorityChip: {
     borderRadius: 8,
   },
-  priorityText: { color: '#000', fontSize: 12, fontWeight: '400' },
-  assigned: { fontSize: 12, color: '#444' },
+  priorityText: { color: ERP_COLOR_CODE.ERP_BLACK, fontSize: 12, fontWeight: '400' },
+  assigned: { fontSize: 12, color: ERP_COLOR_CODE.ERP_444 },
   statusBadge: {
     alignSelf: 'flex-start',
     paddingVertical: 4,
     paddingHorizontal: 12,
     borderRadius: 8,
   },
-  statusText: { fontSize: 12, fontWeight: '600', color: '#fff' },
+  statusText: { fontSize: 12, fontWeight: '600', color: ERP_COLOR_CODE.ERP_WHITE },
 });
 
 export default TaskCard;

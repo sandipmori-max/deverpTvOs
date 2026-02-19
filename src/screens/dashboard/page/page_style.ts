@@ -8,13 +8,52 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
   },
+overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
 
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingBottom: 20,
+  },
+
+  header: {
+    height: 50,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+
+  doneText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2563eb', // iOS blue
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+
+  picker: {
+    height: 220,
+  },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
   label: {
     fontSize: 14,
-    color: ERP_COLOR_CODE.ERP_333,
-    marginBottom: 6,
+     marginBottom: 6,
     fontWeight: '600',
   },
   textInput: {
@@ -23,6 +62,7 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
+    color:'black'
   },
   pickerBox: {
     borderWidth: 1,
@@ -48,6 +88,10 @@ export const styles = StyleSheet.create({
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: ERP_COLOR_CODE.ERP_eee,
+    flexDirection:'row',
+    justifyContent:'space-between',
+    alignContent:'center',
+    alignItems:'center'
   },
   disabledBox: {
     borderWidth: 1,
@@ -71,8 +115,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.4)',
-    alignContent:'center',
-    alignItems:'center'
   },
   bottomSheet: {
     backgroundColor: 'white',
@@ -81,7 +123,6 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     maxHeight: '50%',
     marginVertical: 4,
-    width:'50%'
   },
   title: {
     fontSize: 16,

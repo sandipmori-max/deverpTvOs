@@ -1,16 +1,17 @@
 import { StyleSheet } from 'react-native';
+import { ERP_COLOR_CODE } from '../../utils/constants';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: ERP_COLOR_CODE.ERP_WHITE,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
   },
   gif: {
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 280,
   },
   image: {
     width: 100,
@@ -33,15 +34,27 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   button: {
-    backgroundColor: '#2563EB',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 8,
-    elevation: 3,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  backgroundColor: '#2563EB',
+  paddingVertical: 14,
+  paddingHorizontal: 48,
+  borderRadius: 12,
+
+  // iOS shadow
+  shadowColor: '#2563EB',
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.25,
+  shadowRadius: 8,
+
+  elevation: 6,
+
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+buttonText: {
+  color: ERP_COLOR_CODE.ERP_WHITE,
+  fontSize: 16,
+  fontWeight: '700',
+  letterSpacing: 0.5,
+},
 });

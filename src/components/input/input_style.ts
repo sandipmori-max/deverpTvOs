@@ -3,7 +3,7 @@ import { ERP_COLOR_CODE } from '../../utils/constants';
 
 export const styles = StyleSheet.create({
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: 6,
   },
   inputLabel: {
     fontSize: 14,
@@ -15,19 +15,18 @@ export const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: ERP_COLOR_CODE.ERP_BORDER_LINE,
+  input: { 
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
+    width: '94%',
     color: ERP_COLOR_CODE.ERP_BLACK,
   },
   toggleButton: {
     position: 'absolute',
-    right: 8,
-    top: 0,
+    right: 14,
+    top: -4,
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',

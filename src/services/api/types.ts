@@ -89,9 +89,9 @@ export interface PageResponse {
 export interface ListDataRequest {
   token: string;
   page: string;
-  fd: string; 
-  td: string;  
-  param?: string; 
+  fd: string;
+  td: string;
+  param?: string;
 }
 
 export interface ListDataResponse {
@@ -237,7 +237,7 @@ export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 export interface AttendanceRequest {
   token: string;
   page: string;
-  data: string; 
+  data: string;
 }
 
 export interface AttendanceResponse {

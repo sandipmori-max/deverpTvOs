@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import WebView from 'react-native-webview';
 import RenderHTML from 'react-native-render-html';
+import { useAppSelector } from '../../../../store/hooks';
 
 const AutoHeightWebView = ({
   html,
@@ -9,17 +10,29 @@ const AutoHeightWebView = ({
   isHorizontal,
   isFromMenu,
   textColor,
-}: {
+  isFromListPage,
+ }: {
   html: string;
   isFromPage?: boolean;
   isHorizontal: any;
   isFromMenu: any;
   textColor: any;
+  isFromListPage: any;
+   
 }) => {
   const [webViewHeight, setWebViewHeight] = useState(0);
   const { width } = useWindowDimensions();
   const webviewRef = useRef<WebView>(null);
+  const theme = useAppSelector(state => state?.theme.mode);
+ 
+  const isDark = theme === "dark";
 
+  const BG = isDark ? "#000000" : "#FFFFFF";
+  const TEXT = isDark ? "#FFFFFF" : "#222222";
+  const BORDER = isDark ? "#444" : "#ccc";
+  const TH_BG = isDark ? "#1A1A1A" : "#f1f1f1";
+  const EVEN_ROW = isDark ? "#111" : "#fafafa";
+ 
   const defaultCSS = `
     <style>
       html, body {
@@ -28,33 +41,32 @@ const AutoHeightWebView = ({
         width: 100%;
         overflow-y: scroll;
         overflow-x: scroll;
-        background-color: #fff !important;
+        background-color: ${BG} !important;
       }
       * {
-        color: #222 !important;
+        color: ${TEXT} !important;
         font-family: -apple-system, Roboto, 'Segoe UI', sans-serif !important;
         font-size: 15px !important;
-        box-sizing: border-box !important;
         word-wrap: break-word !important;
       }
       body > *:last-child { margin-bottom: 0 !important; }
       table {
         height: 100% !important;
-        width: 92% !important;
+        width: ${isFromListPage ? '92%' :  isFromPage ? '92%' : '82%'} !important;
         border-collapse: collapse !important;
         table-layout: fixed !important;
         word-break: break-word !important;
       }
       th, td {
-        border: 1px solid #ccc !important;
+        border: 1px solid ${BORDER} !important;
         padding: 6px !important;
         text-align: left !important;
       }
       th {
-        background: #f1f1f1 !important;
+        background: ${TH_BG} !important;
         font-weight: bold !important;
       }
-      tr:nth-child(even) { background: #fafafa !important; }
+      tr:nth-child(even) { background: ${EVEN_ROW} !important; }
       img { max-width: 100% !important; height: auto !important; display: block !important; }
       div, p, span, h1,h2,h3,h4,h5,h6 {
         max-width: 100% !important;
@@ -72,8 +84,8 @@ const AutoHeightWebView = ({
       </head>
       <body>${html}</body>
     </html>
-  `;
-
+  `; 
+  
   const injectedJS = `
     (function() {
       function sendHeight() {
@@ -89,7 +101,7 @@ const AutoHeightWebView = ({
       const resizeObserver = new ResizeObserver(sendHeight);
       resizeObserver.observe(document.body);
 
-      sendHeight(); // initial
+      sendHeight();
     })();
     true;
   `;
@@ -99,14 +111,14 @@ const AutoHeightWebView = ({
       style={{
         overflow: 'scroll',
         width,
-        backgroundColor: '#fff',
+        backgroundColor: BG,
       }}
     >
       {html.includes('<table ') ? (
         <WebView
           ref={webviewRef}
           source={{ html: formattedHTML }}
-          style={{ width, height: webViewHeight || 100, backgroundColor: '#fff' }}
+          style={{ width, height: webViewHeight || 100, backgroundColor: BG }}
           injectedJavaScript={injectedJS}
           onMessage={event => {
             const height = Number(event.nativeEvent.data);
@@ -118,43 +130,41 @@ const AutoHeightWebView = ({
           originWhitelist={['*']}
         />
       ) : (
-        <>
-          <RenderHTML
-            contentWidth={width}
-            source={{ html: html }}
-            tagsStyles={{
-              b: {
-                fontWeight: 'bold',
-                flexDirection: 'row',
-                overflow: 'hidden',
-                color: isFromMenu ? textColor : '#000',
-                maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : '80%',
-              },
-              strong: {
-                fontSize: 16,
-                fontWeight: 'bold',
-                flexDirection: 'row',
-                overflow: 'hidden',
-                color: isFromMenu ? textColor : '#000',
-                maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : '80%',
-              },
-              p: {
-                fontWeight: 'bold',
-                flexDirection: 'row',
-                overflow: 'hidden',
-                color: isFromMenu ? textColor : '#000',
-                maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : '80%',
-              },
-              i: { fontStyle: 'italic' },
-
-              div: {
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                maxWidth: width,
-              },
-            }}
-          />
-        </>
+        <RenderHTML
+          contentWidth={width}
+          source={{ html }}
+          tagsStyles={{
+            p: {
+              fontWeight: 'bold',
+              flexDirection: 'row',
+              overflow: 'hidden',
+              color: isFromMenu ? textColor : TEXT,
+              maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : 100,
+            },
+            b: {
+              fontWeight: 'bold',
+              flexDirection: 'row',
+              overflow: 'hidden',
+              color: isFromMenu ? textColor : TEXT,
+              maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : 100,
+            },
+            strong: {
+              fontSize: 16,
+              fontWeight: 'bold',
+              flexDirection: 'row',
+              overflow: 'hidden',
+              color: isFromMenu ? textColor : TEXT,
+              maxWidth: isFromMenu ? '80%' : isHorizontal ? '100%' : 100,
+            },
+            i: { fontStyle: 'italic' },
+            div: {
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              maxWidth: width,
+              color: isFromMenu ? textColor : TEXT,
+            },
+          }}
+        />
       )}
     </View>
   );

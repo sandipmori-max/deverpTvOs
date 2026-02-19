@@ -1,7 +1,9 @@
 import * as Yup from 'yup';
 
-export const erp_add_account_validation_schema = Yup.object().shape({
-  company_code: Yup.string().required('Company code is required'),
-  user: Yup.string().required('User name is required'),
-  password: Yup.string().required('Password is required'),
-});
+// Create a function that receives the translation function `t`
+export const erpAddAccountValidationSchema = (t) =>
+  Yup.object().shape({
+    company_code: Yup.string().required(t('company_code_required')),
+    user: Yup.string().required(t('user_name_required')),
+    password: Yup.string().required(t('password_required')),
+  });

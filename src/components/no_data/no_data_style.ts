@@ -11,10 +11,9 @@ export const styles = StyleSheet.create({
     backgroundColor:ERP_COLOR_CODE.ERP_WHITE
   },
   image: {
-    width: width * 0.2,
-    height: width * 0.2,
+    width: width * 0.1,
+    height: width * 0.1,
     marginBottom: 20,
-    opacity: 0.9,
   },
   title: {
     fontSize: 20,

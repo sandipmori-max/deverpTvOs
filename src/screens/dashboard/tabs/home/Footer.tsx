@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { Animated, Text, View, useWindowDimensions, Dimensions } from 'react-native';
+import { Animated, Text, View, Dimensions } from 'react-native';
 import AutoHeightWebView from '../../page/components/AutoHeightWebView';
+import TranslatedText from './TranslatedText';
 
 const { width } = Dimensions.get('screen');
 
@@ -26,25 +27,42 @@ const MarqueeFooter = ({ html }) => {
   );
 };
 
-const Footer = ({ footer, index, accentColors , isHorizontal, isFromMenu, textColor}) => {
+const Footer = ({
+  footer,
+  index,
+  accentColors,
+  isHorizontal,
+  isFromMenu,
+  textColor,
+  isFromListPage,
+}) => {
   const isHTML = typeof footer === 'string' && footer.trim().startsWith('<');
-  const isMarquee = isHTML && footer.includes('<marquee>');
-
+  const isMarquee = footer.includes('<marquee');
+ 
   if (isMarquee) {
     return <MarqueeFooter html={footer} />;
   } else if (isHTML) {
-    return <AutoHeightWebView textColor={textColor} isHorizontal={isHorizontal} isFromMenu={isFromMenu} isFromPage={false} html={footer} />;
+    return (
+      <AutoHeightWebView
+        isFromListPage={isFromListPage}
+        textColor={textColor}
+        isHorizontal={isHorizontal}
+        isFromMenu={isFromMenu}
+        isFromPage={false}
+        html={footer}
+      />
+    );
   } else {
     return (
-      <Text
+      <TranslatedText
         style={{
           color: accentColors[index % accentColors.length],
           fontSize: 16,
           fontWeight: '600',
         }}
-      >
-        {footer}
-      </Text>
+        text={footer}
+         numberOfLines={1}      > 
+      </TranslatedText>
     );
   }
 };

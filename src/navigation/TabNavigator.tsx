@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { DARK_COLOR, ERP_COLOR_CODE } from "../utils/constants";
+import { ERP_COLOR_CODE } from "../utils/constants";
 import MenuTab from "../screens/dashboard/tabs/MenuTab/MenuTab";
 import HomeScreen from "../screens/dashboard/tabs/home/HomeTab";
 import ProfileTab from "../screens/dashboard/tabs/profile/ProfileTab";

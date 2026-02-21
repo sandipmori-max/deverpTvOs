@@ -23,7 +23,6 @@ import {
 import { clearAllTempFiles } from './src/utils/helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FullViewLoader from './src/components/loader/FullViewLoader';
-import TermsAndConsent from './src/screens/TermsConditions/TermsCondition';
 import { useAppSelector } from './src/store/hooks';
 
 const App = () => {
@@ -114,9 +113,9 @@ const AppContent = () => {
     );
   }
 
-  if (!accepted) {
-    return <TermsAndConsent onAccept={handleAccept} />;
-  }
+  // if (!accepted) {
+  //   return <TermsAndConsent onAccept={handleAccept} />;
+  // }
 
   if (!isConnected) {
     return (

@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { formatDateList, formatDateToDDMMMYYYY } from '../../../../utils/helpers';
+import { formatDateList } from '../../../../utils/helpers';
 import { styles } from '../list_page_style';
 import NoData from '../../../../components/no_data/NoData';
 import { ERP_COLOR_CODE } from '../../../../utils/constants';
@@ -26,7 +26,6 @@ import MemoizedFooterView from './MemoizedFooterView';
 import RemarksView from './RemarksView';
 import { useAppSelector } from '../../../../store/hooks';
 import useTranslations from '../../../../hooks/useTranslations';
-import { Easing } from 'react-native';
 import ImageBottomSheetModal from '../../../../components/bottomsheet/ImageBottomSheetModal';
 
 // enable LayoutAnimation on Android

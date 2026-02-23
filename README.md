@@ -8,7 +8,7 @@
 // gradlew generateCodegenArtifactsFromSchema 
 // gradlew app:assembleRelease 
 // cmd - gradlew assemble[BRAND_NAME]Release
-
+x
 // How to used - .env.clientA and .env.cientB ??
 
 // How to run - clientA and clientB app ??
@@ -460,3 +460,9 @@ Play Console — Add preview assets / screenshots requirements.
 Google Support
 
 =
+keytool -genkeypair -v \
+-keystore my-release-key.jks \
+-keyalg RSA \
+-keysize 2048 \
+-validity 10000 \
+-alias my-key-alias
